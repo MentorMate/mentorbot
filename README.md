@@ -17,6 +17,16 @@ MentorBot will have a "Learning Center" portal that mentors can log in and see a
 Mentors can see, how confident the bot feels in what he have been asked to do. Mentors can read through each conversation, mark user questions as utterances of given intent, which will help the bot improve.
 Mentors can activate and deactivate different commands and integrations with outside systems.
 
+## Usage
+
+In Google Chat you can ask questions, like:
+
+@MentorBot What is the time
+> Your current time is 16:00.
+
+@MentorBot what is the time in Dallas
+> The time in Dallas is 10:00 AM.
+
 ## Build
 
 TODO
