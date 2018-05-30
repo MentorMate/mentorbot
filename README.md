@@ -46,6 +46,7 @@ TODO
 
 - Integrate the bot with Google Calendar and OpenAir. Add commands like "Get my meetings", "Get next meeting", etc
 - Integrate a basic machine learning algorithm.
+- Create a command that send a reminder for missing timesheet in OpenAir.
 - Show confident chart in Learning Center.
 
 ### v1.2
