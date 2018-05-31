@@ -31,4 +31,12 @@ test_script:
   - cmd: dotnet test ./tests/MentorBot.Tests/MentorBot.Tests.csproj
 on_finish :
   # any cleanup in here
-deploy: off
+deploy:
+- provider: Environment
+  name: DevMentorBotApi
+  on:
+    branch: master
+- provider: Environment
+  name: DevMentorBotLearningCenter
+  on:
+    branch: master
