@@ -26,7 +26,7 @@ artifacts:
    name: MentorBotWebLearningCenter
    type: WebDeployPackage
 clone_depth: 1
-test_script
+test_script:
   # run the unit tests (requires changing into the test directory)
   - cmd: dotnet test ./tests/MentorBot.Tests/MentorBot.Tests.csproj
 on_finish :
