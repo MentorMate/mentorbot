@@ -1,8 +1,8 @@
 ## MentorBot
 
-What is the idea behind MentorBot? MentorBot is a Google/Hangout Chat bot, that can be teached to perform different tasks.
-MentorBot uses machine learning to constantly improve responses and undestand more accuratly what is needed or what is asked.
-MentorBot will constantly improve over time not only by teaching itself, but also as new tasks are programed into it.
+What is the idea behind MentorBot? MentorBot is a Google/Hangout Chat bot, that can be taught to perform different tasks.
+MentorBot uses machine learning to constantly improve responses and understand more accurately what is needed or what is asked.
+MentorBot will constantly improve over time not only by learning itself, but also as new tasks are programmed into it.
 
 #### Tasks & Commands
 
