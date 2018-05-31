@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/0sjergot9u18yu4o/branch/master?svg=true)](https://ci.appveyor.com/project/rosenkolev/mentorbot/branch/master)
+
 ## MentorBot
 
 What is the idea behind MentorBot? MentorBot is a Google/Hangout Chat bot, that can be taught to perform different tasks.
