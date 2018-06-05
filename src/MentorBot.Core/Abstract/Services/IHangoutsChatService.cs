@@ -1,5 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System.Threading.Tasks;
+
 using MentorBot.Core.Models.HangoutsChat;
 
 namespace MentorBot.Core.Abstract.Services
@@ -8,6 +10,6 @@ namespace MentorBot.Core.Abstract.Services
     public interface IHangoutsChatService
     {
         /// <summary>An POC for the chat bot.</summary>
-        object Basic(ChatEvent chatEvent);
+        ValueTask<ChatEventResult> BasicAsync(ChatEvent chatEvent);
     }
 }

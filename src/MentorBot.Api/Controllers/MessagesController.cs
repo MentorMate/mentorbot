@@ -1,5 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System.Threading.Tasks;
+
 using MentorBot.Core.Abstract.Services;
 using MentorBot.Core.Models.HangoutsChat;
 
@@ -22,11 +24,7 @@ namespace MentorBot.Api.Controllers
 
         /// <summary>The service that handels chat events.</summary>
         [HttpPost("hangouts")]
-        public IActionResult HangoutsChat([FromBody] ChatEvent chatEvent)
-        {
-            var result = _hangoutsChatService.Basic(chatEvent);
-
-            return Ok(result);
-        }
+        public ValueTask<ChatEventResult> HangoutsChatAsync([FromBody] ChatEvent chatEvent) =>
+            _hangoutsChatService.BasicAsync(chatEvent);
     }
 }

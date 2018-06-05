@@ -23,15 +23,17 @@ Mentors can activate and deactivate different commands and integrations with out
 
 In Google Chat you can ask questions, like:
 
-@MentorBot What is the time
+@MentorBot What is the time?
 > Your current time is 16:00.
 
-@MentorBot what is the time in Dallas
+@MentorBot What is the time in Dallas?
 > The time in Dallas is 10:00 AM.
 
 ## Build
 
-TODO
+Just use Visual Studio 2017 or newer.
+
+AppVeyor uses appveyor.yml
 
 ## Contribution
 
@@ -67,7 +69,7 @@ TODO
 2. Create milestones.
 3. Create issues
 	1. Add busness requirements.
-	2. Set label feature or bug.
+	2. Set label enhancement or bug.
     3. Set label new.
     4. Add task list. For example (design,writing unit tests, develop, verified)
 4. Revisit verified stories and add labels closed if accepted. 
@@ -83,7 +85,7 @@ TODO
 1. Download the project from this repository
 2. Assign to yourself feature or bug with label "open"
 3. Write tests and code
-4. Commit to feature branch and create pull request to the branch that is for the current milestone. Example if you have feature: 'Create page footer with text "MentorBot"' and  milestone: 1.0. Create pull request to branch "1.0".
+4. Commit to feature branch and create pull request to the master branch.
 5. Replace label "open" with "resolved"
 6. Assosieate the pull request
 0. Make reviews to other developers "pull request"

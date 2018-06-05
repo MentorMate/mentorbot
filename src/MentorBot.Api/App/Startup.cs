@@ -32,6 +32,7 @@ namespace MentorBot.Api
         /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization();
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(RestGlobalExceptionFilter));
@@ -48,7 +49,7 @@ namespace MentorBot.Api
             var containerOptions = new ContainerOptions { EnablePropertyInjection = false };
             using (var container = new ServiceContainer(containerOptions))
             {
-                // Register all services.
+                // Register all services and processors.
                 container.RegisterAssembly(
                     Assembly.Load(new AssemblyName("MentorBot.Business")),
                     () => new PerScopeLifetime(),
