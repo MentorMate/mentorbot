@@ -10,6 +10,6 @@ namespace MentorBot.Core.Abstract.Services
     public interface IHangoutsChatService
     {
         /// <summary>An POC for the chat bot.</summary>
-        ValueTask<ChatEventResult> BasicAsync(ChatEvent chatEvent);
+        Task<ChatEventResult> BasicAsync(ChatEvent chatEvent);
     }
 }

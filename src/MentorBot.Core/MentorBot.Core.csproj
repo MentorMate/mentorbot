@@ -12,7 +12,7 @@
     <AdditionalFiles Include="..\..\tools\sonarlint.xml" />
   </ItemGroup>
   <ItemGroup Label="NuGet Packages">
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Label="Code Analyze">
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />

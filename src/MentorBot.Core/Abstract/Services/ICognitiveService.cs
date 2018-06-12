@@ -11,6 +11,6 @@ namespace MentorBot.Core.Abstract.Services
     public interface ICognitiveService
     {
         /// <summary>Processes the chat event asynchronous.</summary>
-        ValueTask<CognitiveTextAnalysisResult> ProcessAsync(ChatEvent chatEvent);
+        Task<CognitiveTextAnalysisResult> ProcessAsync(ChatEvent chatEvent);
     }
 }
