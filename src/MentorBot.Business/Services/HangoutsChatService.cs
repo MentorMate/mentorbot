@@ -6,8 +6,6 @@ using MentorBot.Core;
 using MentorBot.Core.Abstract.Services;
 using MentorBot.Core.Models.HangoutsChat;
 
-using Microsoft.Extensions.Localization;
-
 namespace MentorBot.Business.Services
 {
     /// <summary>The default service handaling 'Hangout Chat' events.</summary>
@@ -15,27 +13,26 @@ namespace MentorBot.Business.Services
     public class HangoutsChatService : IHangoutsChatService
     {
         private const double ConfidentRatingUnknowThreshold = 0.6;
-        private const string UnknownCommandText = "Unknown command";
 
         private readonly ICognitiveService _cognitiveService;
-        private readonly IStringLocalizer<SharedResource> _sharedLocalizer;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatService"/> class.</summary>
-        public HangoutsChatService(ICognitiveService cognitiveService, IStringLocalizer<SharedResource> sharedLocalizer)
+        public HangoutsChatService(ICognitiveService cognitiveService)
         {
             _cognitiveService = cognitiveService;
-            _sharedLocalizer = sharedLocalizer;
         }
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> BasicAsync(ChatEvent chatEvent)
+        public async Task<ChatEventResult> BasicAsync(ChatEvent chatEvent)
         {
-            var command = await _cognitiveService.ProcessAsync(chatEvent);
+            var command = await _cognitiveService
+                .ProcessAsync(chatEvent)
+                .ConfigureAwait(false);
 
             if (command?.CommandProcessor == null ||
                 command.ConfidenceRating < ConfidentRatingUnknowThreshold)
             {
-                return new ChatEventResult(_sharedLocalizer[UnknownCommandText]);
+                return new ChatEventResult(Messages.UnknownCommandText);
             }
 
             var result = await command.CommandProcessor.ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, null);

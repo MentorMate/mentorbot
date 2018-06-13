@@ -30,7 +30,6 @@ namespace MentorBot.Business.Processors
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
             var message = originalChatEvent?.Message ?? throw new ArgumentNullException(nameof(originalChatEvent));
-            var time = message.CreateTime.ToLongTimeString();
             var locationMatch = Regex.Match(info?.TextSentanceChunk, "in ([\\w\\s]+)$");
             if (locationMatch.Success)
             {
@@ -53,6 +52,8 @@ namespace MentorBot.Business.Processors
                 return new ValueTask<ChatEventResult>(
                         new ChatEventResult($"The current time {locationMatch.Value} is {timeInLocation.ToLongTimeString()}."));
             }
+
+            var time = originalChatEvent?.EventTime.ToLongTimeString() ?? string.Empty;
 
             return new ValueTask<ChatEventResult>(
                 new ChatEventResult($"The current time is {time}."));

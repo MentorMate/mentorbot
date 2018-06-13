@@ -1,17 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
 	  <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="2.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.1" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.1" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
+    <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MentorBot.Api\MentorBot.Api.csproj" />
     <ProjectReference Include="..\..\src\MentorBot.Business\MentorBot.Business.csproj" />
     <ProjectReference Include="..\..\src\MentorBot.Core\MentorBot.Core.csproj" />
   </ItemGroup>

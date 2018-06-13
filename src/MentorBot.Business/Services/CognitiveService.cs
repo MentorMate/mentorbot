@@ -32,7 +32,7 @@ namespace MentorBot.Business.Services
         }
 
         /// <inheritdoc/>
-        public ValueTask<CognitiveTextAnalysisResult> ProcessAsync(ChatEvent chatEvent)
+        public Task<CognitiveTextAnalysisResult> ProcessAsync(ChatEvent chatEvent)
         {
             var text = chatEvent?.Message.Text.Trim() ??
                 throw new ArgumentNullException(nameof(chatEvent), "The text message is null.");
@@ -49,7 +49,7 @@ namespace MentorBot.Business.Services
 
             var result = new CognitiveTextAnalysisResult(definition, command.Value, 1.0);
 
-            return new ValueTask<CognitiveTextAnalysisResult>(result);
+            return Task.FromResult(result);
         }
 
         private void SearchForCommands() =>
