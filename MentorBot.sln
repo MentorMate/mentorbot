@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{60B2AFEE-A1FB-4725-848A-B76E955347AD}"
 EndProject
@@ -16,6 +16,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentorBot.WebLearningCenter", "src\MentorBot.WebLearningCenter\MentorBot.WebLearningCenter.csproj", "{796EF35B-C202-4DF3-BCD2-F9CE24B7EB1C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentorBot.Functions", "src\MentorBot.Functions\MentorBot.Functions.csproj", "{EA259AF4-5BEE-4744-B5D6-D84AC9E71F95}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentorBot.Data", "src\MentorBot.Data\MentorBot.Data.csproj", "{B237CAF5-380D-4555-9ECB-875067EE3481}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentorBot.Data.Common", "src\MentorBot.Data.Common\MentorBot.Data.Common.csproj", "{45F279ED-C586-463E-A5ED-071199890208}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentorBot.Data.Models", "src\MentorBot.Data.Models\MentorBot.Data.Models.csproj", "{7C9A5D3D-8090-4A02-9D9D-BC389192962B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +49,18 @@ Global
 		{EA259AF4-5BEE-4744-B5D6-D84AC9E71F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA259AF4-5BEE-4744-B5D6-D84AC9E71F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA259AF4-5BEE-4744-B5D6-D84AC9E71F95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B237CAF5-380D-4555-9ECB-875067EE3481}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B237CAF5-380D-4555-9ECB-875067EE3481}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B237CAF5-380D-4555-9ECB-875067EE3481}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B237CAF5-380D-4555-9ECB-875067EE3481}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45F279ED-C586-463E-A5ED-071199890208}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45F279ED-C586-463E-A5ED-071199890208}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45F279ED-C586-463E-A5ED-071199890208}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45F279ED-C586-463E-A5ED-071199890208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9A5D3D-8090-4A02-9D9D-BC389192962B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9A5D3D-8090-4A02-9D9D-BC389192962B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9A5D3D-8090-4A02-9D9D-BC389192962B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9A5D3D-8090-4A02-9D9D-BC389192962B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +71,9 @@ Global
 		{59105FD6-1D81-4B2E-ACB1-499CAEC7AA04} = {8A086F59-E2EB-4171-B903-2F7D0FBC7E72}
 		{796EF35B-C202-4DF3-BCD2-F9CE24B7EB1C} = {60B2AFEE-A1FB-4725-848A-B76E955347AD}
 		{EA259AF4-5BEE-4744-B5D6-D84AC9E71F95} = {60B2AFEE-A1FB-4725-848A-B76E955347AD}
+		{B237CAF5-380D-4555-9ECB-875067EE3481} = {60B2AFEE-A1FB-4725-848A-B76E955347AD}
+		{45F279ED-C586-463E-A5ED-071199890208} = {60B2AFEE-A1FB-4725-848A-B76E955347AD}
+		{7C9A5D3D-8090-4A02-9D9D-BC389192962B} = {60B2AFEE-A1FB-4725-848A-B76E955347AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E801F52B-3611-4C3B-94E7-6BCD3767FD1B}

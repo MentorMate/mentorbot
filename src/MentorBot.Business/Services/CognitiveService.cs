@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using MentorBot.Business.Factories;
 using MentorBot.Core.Abstract.Processor;
+using MentorBot.Core.Abstract.Repositories;
 using MentorBot.Core.Abstract.Services;
 using MentorBot.Core.Models.HangoutsChat;
 using MentorBot.Core.Models.TextAnalytics;
@@ -22,13 +24,17 @@ namespace MentorBot.Business.Services
             new ConcurrentDictionary<TextDeconstructionInformation, ICommandProcessor>();
 
         private readonly IEnumerable<ICommandProcessor> _commandProcessors;
+        private readonly IQuestionRepository _questionRepository;
 
         /// <summary>Initializes a new instance of the <see cref="CognitiveService"/> class.</summary>
-        public CognitiveService(IEnumerable<ICommandProcessor> commandProcessors)
+        public CognitiveService(
+            IEnumerable<ICommandProcessor> commandProcessors,
+            IQuestionRepository questionRepository)
         {
             _commandProcessors = commandProcessors;
+            _questionRepository = questionRepository;
 
-            SearchForCommands();
+            // SearchForCommands()
         }
 
         /// <inheritdoc/>
@@ -40,6 +46,9 @@ namespace MentorBot.Business.Services
             var question =
                 text.EndsWith("?", StringComparison.InvariantCulture) ||
                 Regex.IsMatch(text, "^(([Ww]hat)|([Ww]here)|([Hh]ow)|([Ww]hy)|([Ww]ho))\\s");
+
+            var dataQuestion = QuestionFactory.GetQuestion(text);
+            _questionRepository.AddAsync(dataQuestion);
 
             var definition = new TextDeconstructionInformation(text.TrimEnd('?', '.', '!'), null, question ? SentenceTypes.Question : SentenceTypes.Command, null);
 

@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet Condition="'$(Configuration)'=='Debug'">..\..\tools\analizers.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSet Condition="'$(Configuration)'=='Release'">..\..\tools\analizers.disable.ruleset</CodeAnalysisRuleSet>
@@ -10,18 +10,23 @@
   <ItemGroup Label="Projects and Files Reference">
     <AdditionalFiles Include="..\..\tools\stylecop.json" />
     <AdditionalFiles Include="..\..\tools\sonarlint.xml" />
-    <ProjectReference Include="..\MentorBot.Core\MentorBot.Core.csproj" />
-    <ProjectReference Include="..\MentorBot.Data\MentorBot.Data.csproj" />
   </ItemGroup>
-  <ItemGroup Label="NuGet Packages">
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup Label="Code Analyze">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
     <PackageReference Include="System.Runtime.Analyzers" Version="1.1.0" PrivateAssets="All" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="7.0.0.4787" PrivateAssets="All" />
     <PackageReference Include="CodeCracker.CSharp" Version="1.1.0" PrivateAssets="All" />
     <PackageReference Include="RefactoringEssentials" Version="5.6.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.1.2-alpha" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MentorBot.Core\MentorBot.Core.csproj" />
+    <ProjectReference Include="..\MentorBot.Data.Common\MentorBot.Data.Common.csproj" />
+    <ProjectReference Include="..\MentorBot.Data.Models\MentorBot.Data.Models.csproj" />
   </ItemGroup>
 </Project>
