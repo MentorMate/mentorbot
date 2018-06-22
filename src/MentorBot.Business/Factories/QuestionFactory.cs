@@ -18,7 +18,8 @@ namespace MentorBot.Business.Factories
             => question
                 => new Question
                 {
-                    QuestionText = question
+                    QuestionText = question,
+                    Answer = new Answer()
                 };
     }
 }

@@ -23,7 +23,7 @@ namespace MentorBot.Functions.App.DependencyInjection
 
             services.AddSingleton(configuration);
 
-            Startup.RegisterServices(services);
+            Startup.RegisterServices(services, configuration);
             Startup.Configure(services, configuration);
 
             var serviceProvider = services.BuildServiceProvider(true);

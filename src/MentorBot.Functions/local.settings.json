@@ -4,5 +4,8 @@
     "AzureWebJobsStorage": "",
     "AzureWebJobsDashboard": ""
   },
-  "HangoutChatRequestToken": "ABC"
+  "HangoutChatRequestToken": "ABC",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MentorBot;Trusted_Connection=True;MultipleActiveResultSets=True;"
+  }
 }

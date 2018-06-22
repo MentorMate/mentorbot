@@ -45,17 +45,6 @@ namespace MentorBot.Data
         }
 
         /// <summary>
-        /// <para>
-        /// Override this method to configure the database (and other options) to be used for this context.
-        /// This method is called for each instance of the context that is created.
-        /// </para>
-        /// </summary>
-        /// <param name="optionsBuilder">A builder used to create or modify options for this context. Databases (and other extensions)
-        /// typically define extension methods on this object that allow you to configure the context.</param>
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer("Data Source=Stanislav\\SQLEXPRESS01;Initial Catalog=MentorBot;MultipleActiveResultSets=True;Integrated Security=True;");
-
-        /// <summary>
         /// Applies the audit information rules.
         /// </summary>
         private void ApplyAuditInfoRules()

@@ -34,7 +34,7 @@ namespace MentorBot.Business.Services
             _commandProcessors = commandProcessors;
             _questionRepository = questionRepository;
 
-            // SearchForCommands()
+            SearchForCommands();
         }
 
         /// <inheritdoc/>

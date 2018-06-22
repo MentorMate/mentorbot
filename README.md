@@ -36,6 +36,21 @@ Just use Visual Studio 2017 or newer.
 
 AppVeyor uses appveyor.yml
 
+## Database
+
+### Adding a database migration:
+
+#### Console
+dotnet ef migrations add [Migration Name]
+
+#### PowerShell
+Add-Migration [Migration Name]
+
+### Updating database schema:
+
+#### Console
+~\mentorbot\src\MentorBot.Data>dotnet ef database update --project ../MentorBot.Data/
+
 ## Contribution
 
 ### Milestones
