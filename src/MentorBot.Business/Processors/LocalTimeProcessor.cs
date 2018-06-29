@@ -23,7 +23,8 @@ namespace MentorBot.Business.Processors
                 new TextDeconstructionInformation("What is the current time", "time", SentenceTypes.Question, "current"),
                 new TextDeconstructionInformation("What is the time", "time", SentenceTypes.Question),
                 new TextDeconstructionInformation("What is the local time", "time", SentenceTypes.Question, "local"),
-                new TextDeconstructionInformation("What time it is", "time", SentenceTypes.Question, "local")
+                new TextDeconstructionInformation("What time it is", "time", SentenceTypes.Question, "be"),
+                new TextDeconstructionInformation("What time is it", "time", SentenceTypes.Question, "be")
             };
 
         /// <inheritdoc/>
@@ -56,7 +57,7 @@ namespace MentorBot.Business.Processors
             var time = originalChatEvent?.EventTime.ToLongTimeString() ?? string.Empty;
 
             return new ValueTask<ChatEventResult>(
-                new ChatEventResult($"The current time is {time}."));
+                new ChatEventResult($"The current time is {time} UTC."));
         }
     }
 }
