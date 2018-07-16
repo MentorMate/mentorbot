@@ -14,8 +14,7 @@ namespace MentorBot.Business.Factories
         /// <summary>
         /// Gets the question from text.
         /// </summary>
-        public static Func<string, Question> GetQuestion
-            => question
+        public static Question GetQuestion(string question)
                 => new Question
                 {
                     QuestionText = question,

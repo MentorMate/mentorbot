@@ -161,7 +161,6 @@
     <Rule Id="S3169" Action="None" />
     <Rule Id="S3172" Action="None" />
     <Rule Id="S3215" Action="None" />
-    <Rule Id="S3216" Action="None" />
     <Rule Id="S3217" Action="None" />
     <Rule Id="S3218" Action="None" />
     <Rule Id="S3220" Action="None" />

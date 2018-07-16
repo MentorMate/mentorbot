@@ -41,6 +41,12 @@ namespace MentorBot.Data.Common
         Task AddEntityAsync(T entity);
 
         /// <summary>
+        /// Updates the given entity asynchronously.
+        /// </summary>
+        /// <param name="entity">The entity to update.</param>
+        Task UpdateAsync(T entity);
+
+        /// <summary>
         /// Sets as deleted the given entity asynchronously.
         /// </summary>
         /// <param name="entity">The entity to delete from.</param>

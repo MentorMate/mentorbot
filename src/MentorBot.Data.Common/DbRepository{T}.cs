@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using MentorBot.Data.Common.Models;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32.SafeHandles;
 
 namespace MentorBot.Data.Common
 {
@@ -17,65 +19,87 @@ namespace MentorBot.Data.Common
     /// <typeparam name="T">The exact model type.</typeparam>
     /// <seealso cref="MentorBot.Data.Common.IDbRepository{T}" />
     /// <seealso cref="System.IDisposable" />
-    public class DbRepository<T> : IDbRepository<T>, IDisposable
+    public abstract class DbRepository<T> : IDisposable
         where T : class, IAuditInfo, IDeletableEntity
     {
+        private readonly DbContext _context;
+        private readonly DbSet<T> _dbSet;
+        private readonly SafeHandle _handle;
+        private bool disposed;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DbRepository{T}"/> class.
         /// </summary>
-        public DbRepository(DbContext dbContext)
+        protected DbRepository(DbContext dbContext)
         {
-            var context = dbContext ?? throw new ArgumentException("An instance of DbContext is required to use this repository.", nameof(dbContext));
+            var context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-            this.Context = context;
-            this.DbSet = this.Context.Set<T>();
+            _handle = new SafeFileHandle(IntPtr.Zero, true);
+            _context = context;
+            _dbSet = _context.Set<T>();
         }
 
-        private DbContext Context { get; }
-
-        private DbSet<T> DbSet { get; }
-
-        /// <inheritdoc/>
+        /// <summary>
+        /// Adds the changes to the given entity asynchronously.
+        /// </summary>
+        /// <param name="entity">The entity to insert.</param>
+        /// <exception cref="ArgumentNullException">The given entity should have value. - entity</exception>
         public Task AddEntityAsync(T entity)
         {
             var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
 
-            DbSet.AddAsync(validatedEntity);
+            _dbSet.AddAsync(validatedEntity);
 
             return SaveAsync();
         }
 
-        /// <inheritdoc/>
-        public Task<List<T>> AllAsync() => this.DbSet.Where(x => !x.IsDeleted).ToListAsync();
+        /// <summary>
+        /// Gets all the records without deleted ones asynchronously.
+        /// </summary>
+        public Task<List<T>> AllAsync() => _dbSet.Where(x => !x.IsDeleted).ToListAsync();
 
-        /// <inheritdoc/>
-        public IQueryable<T> AllWithDeleted()
+        /// <summary>
+        /// Gets all the records with the deleted.
+        /// </summary>
+        public IQueryable<T> AllWithDeleted() => _dbSet;
+
+        /// <summary>
+        /// Sets as deleted the given entity asynchronously.
+        /// </summary>
+        /// <param name="entity">The entity to delete from.</param>
+        public Task DeleteEntityAsync(T entity)
         {
-            return this.DbSet;
+            var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
+
+            validatedEntity.IsDeleted = true;
+            validatedEntity.DeletedOn = DateTime.UtcNow;
+
+            return Task.CompletedTask;
         }
 
-        /// <inheritdoc/>
-        public Task DeleteEntityAsync(T entity) =>
-            Task.Run(() =>
-            {
-                var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
-
-                validatedEntity.IsDeleted = true;
-                validatedEntity.DeletedOn = DateTime.UtcNow;
-            });
-
-        /// <inheritdoc/>
-        public void Dispose()
+        /// <summary>
+        /// Updates the given entity asynchronously.
+        /// </summary>
+        /// <param name="entity">The entity to update.</param>
+        public Task UpdateAsync(T entity)
         {
-            this.Context.Dispose();
+            var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
+
+            _dbSet.Update(validatedEntity);
+
+            return Task.CompletedTask;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the certain record by identifier asynchronously.
+        /// </summary>
+        /// <param name="id">The identifier to search by.</param>
+        /// <exception cref="ArgumentException">The given id should have value. - id</exception>
         public async Task<T> GetByIdAsync(object id)
         {
             var validId = id ?? throw new ArgumentNullException(nameof(id));
 
-            var item = await this.DbSet.FindAsync(validId).ConfigureAwait(false);
+            var item = await _dbSet.FindAsync(validId);
 
             if (item.IsDeleted)
             {
@@ -85,16 +109,52 @@ namespace MentorBot.Data.Common
             return item;
         }
 
-        /// <inheritdoc/>
-        public Task HardDeleteAsync(T entity) =>
-            Task.Run(() =>
+        /// <summary>
+        /// Hards deletes the given entity asynchronously.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public Task HardDeleteAsync(T entity)
+        {
+            var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
+
+            _dbSet.Remove(validatedEntity);
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Saves asynchronously applied changes.
+        /// </summary>
+        public Task SaveAsync() => _context.SaveChangesAsync();
+
+        /// <summary>
+        /// Public implementation of Dispose pattern callable by consumers.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">Whether to dispose the object.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
             {
-                var validatedEntity = entity ?? throw new ArgumentNullException(nameof(entity));
+                return;
+            }
 
-                this.DbSet.Remove(validatedEntity);
-            });
+            if (disposing)
+            {
+                _handle.Dispose();
 
-        /// <inheritdoc/>
-        public Task SaveAsync() => this.Context.SaveChangesAsync();
+                _context.Dispose();
+            }
+
+            disposed = true;
+        }
     }
 }

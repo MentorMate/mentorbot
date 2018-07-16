@@ -48,7 +48,7 @@ namespace MentorBot.Business.Services
                 Regex.IsMatch(text, "^(([Ww]hat)|([Ww]here)|([Hh]ow)|([Ww]hy)|([Ww]ho))\\s");
 
             var dataQuestion = QuestionFactory.GetQuestion(text);
-            _questionRepository.AddAsync(dataQuestion);
+            _questionRepository.AddEntityAsync(dataQuestion);
 
             var definition = new TextDeconstructionInformation(text.TrimEnd('?', '.', '!'), null, question ? SentenceTypes.Question : SentenceTypes.Command, null);
 

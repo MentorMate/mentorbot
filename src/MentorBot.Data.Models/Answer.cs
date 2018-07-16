@@ -15,7 +15,6 @@ namespace MentorBot.Data.Models
         /// <summary>
         /// Gets or sets the <see cref="Question"/> text.
         /// </summary>
-        [MaxLength(255)]
         public string AnswerText { get; set; }
     }
 }
