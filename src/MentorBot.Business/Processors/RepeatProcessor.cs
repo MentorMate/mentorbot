@@ -14,20 +14,46 @@ namespace MentorBot.Business.Processors
     /// <seealso cref="ICommandProcessor" />
     public class RepeatProcessor : ICommandProcessor
     {
+        private static readonly Regex RegExp = new Regex("^repeat\\s+(after me\\s+)?(delay (\\d+)\\s+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
         /// <inheritdoc/>
         public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
             new[]
             {
-                new TextDeconstructionInformation("Repeat", "time", SentenceTypes.Question),
-                new TextDeconstructionInformation("Repeat after me", "time", SentenceTypes.Question)
+                new TextDeconstructionInformation("Repeat", null, SentenceTypes.Command),
+                new TextDeconstructionInformation("Repeat after me", null, SentenceTypes.Command)
             };
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
-            var text = Regex.Replace(info?.TextSentanceChunk, "^repeat (after me)?\\s*", string.Empty, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            return new ValueTask<ChatEventResult>(
-                new ChatEventResult(text));
+            if (info == null)
+            {
+                return new ChatEventResult("I can not understand the sentance.");
+            }
+
+            var match = RegExp.Match(info.TextSentanceChunk);
+            if (match.Success)
+            {
+                var text = info.TextSentanceChunk.Substring(match.Length);
+                var delayStr = match.Groups[3]?.Value;
+                if (delayStr != null &&
+                    int.TryParse(delayStr, out int delayMs))
+                {
+                    await Task
+                        .Delay(delayMs)
+                        .ConfigureAwait(false);
+                    await responder
+                        .SendMessageAsync(text, originalChatEvent.Space, originalChatEvent.Message.Thread, originalChatEvent.Message.Sender)
+                        .ConfigureAwait(false);
+
+                    return null;
+                }
+
+                return new ChatEventResult(text);
+            }
+
+            return new ChatEventResult("Repeat command can not recongnise some segments.");
         }
     }
 }

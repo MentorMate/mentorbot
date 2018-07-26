@@ -1,8 +1,13 @@
 ﻿using System.Threading.Tasks;
+
 using MentorBot.Business.Processors;
+using MentorBot.Core.Abstract.Processor;
 using MentorBot.Core.Models.HangoutsChat;
 using MentorBot.Core.Models.TextAnalytics;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using NSubstitute;
 
 namespace MentorBot.Tests.Business.Processors
 {
@@ -27,6 +32,20 @@ namespace MentorBot.Tests.Business.Processors
             var info = new TextDeconstructionInformation(phrase, null, SentenceTypes.Command);
             var result = await _processor.ProcessCommandAsync(info, new ChatEvent(), null);
             Assert.AreEqual(expectedResult, result.Text);
+        }
+
+        [TestMethod]
+        public async Task WhenAskedItShouldRepeatAsync()
+        {
+            var sender = new ChatEventMessageSender();
+            var space = new ChatEventSpace();
+            var message = new ChatEventMessage { Sender = sender };
+            var chat = new ChatEvent { Space = space, Message = message };
+            var responder = Substitute.For<IAsyncResponder>();
+            var info = new TextDeconstructionInformation("Repeat delay 1000 Test", null, SentenceTypes.Command);
+            var result = await _processor.ProcessCommandAsync(info, chat, responder);
+
+            responder.Received().SendMessageAsync("Test", space, null, sender);
         }
     }
 }

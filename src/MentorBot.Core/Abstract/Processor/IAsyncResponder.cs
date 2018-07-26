@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System.Threading.Tasks;
+using MentorBot.Core.Models.HangoutsChat;
 
 namespace MentorBot.Core.Abstract.Processor
 {
@@ -8,8 +9,6 @@ namespace MentorBot.Core.Abstract.Processor
     public interface IAsyncResponder
     {
         /// <summary>Sends async message back to the caht room or person.</summary>
-        /// <param name="message">The message.</param>
-        /// <param name="path">The path to room or thread.</param>
-        Task SendMessageAsync(string message, string path);
+        Task SendMessageAsync(string text, ChatEventSpace space, ChatEventMessageThread thread, ChatEventMessageSender sender);
     }
 }
