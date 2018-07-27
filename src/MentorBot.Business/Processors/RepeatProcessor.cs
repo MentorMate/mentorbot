@@ -38,7 +38,7 @@ namespace MentorBot.Business.Processors
             if (match.Success)
             {
                 var text = info.TextSentanceChunk.Substring(match.Length);
-                var delayStr = match.Groups[3]?.Value;
+                var delayStr = match.Groups[4]?.Value;
                 if (delayStr != null &&
                     int.TryParse(delayStr, out int delayMs))
                 {
