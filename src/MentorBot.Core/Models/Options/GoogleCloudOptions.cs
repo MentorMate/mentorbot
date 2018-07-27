@@ -7,5 +7,11 @@ namespace MentorBot.Core.Models.Options
     {
         /// <summary>Gets or sets the security token for Hangout Chat events.</summary>
         public string HangoutChatRequestToken { get; set; }
+
+        /// <summary>Gets or sets the name of the application.</summary>
+        public string GoogleCloudApplicationName { get; set; }
+
+        /// <summary>Gets or sets the API key.</summary>
+        public string GoogleCloudApiKey { get; set; }
     }
 }

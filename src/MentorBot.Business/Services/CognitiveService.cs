@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace MentorBot.Business.Services
 {
     /// <summary>The most basic implementation of a Cognitive service.</summary>
     /// <seealso cref="MentorBot.Core.Abstract.Services.ICognitiveService" />
+    [ExcludeFromCodeCoverage]
     public class CognitiveService : ICognitiveService
     {
         private static readonly ConcurrentDictionary<TextDeconstructionInformation, ICommandProcessor> StupidMachineLearningPool =
@@ -28,7 +30,10 @@ namespace MentorBot.Business.Services
         {
             _commandProcessors = commandProcessors;
 
-            SearchForCommands();
+            var commands = SearchForCommands();
+            commands
+                .AsParallel()
+                .ForAll(kv => StupidMachineLearningPool.TryAdd(kv.Key, kv.Value));
         }
 
         /// <inheritdoc/>
@@ -52,13 +57,12 @@ namespace MentorBot.Business.Services
             return Task.FromResult(result);
         }
 
-        private void SearchForCommands() =>
+        private IReadOnlyList<KeyValuePair<TextDeconstructionInformation, ICommandProcessor>> SearchForCommands() =>
             _commandProcessors
                 .Where(it => !StupidMachineLearningPool.Values.Contains(it))
                 .SelectMany(it => it
                     .InitalializationCommandDefinitians
                     .Select(cd => new KeyValuePair<TextDeconstructionInformation, ICommandProcessor>(cd, it)))
-                .AsParallel()
-                .ForAll(kv => StupidMachineLearningPool.TryAdd(kv.Key, kv.Value));
+                .ToArray();
     }
 }

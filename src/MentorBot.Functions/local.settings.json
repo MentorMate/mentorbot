@@ -4,5 +4,7 @@
     "AzureWebJobsStorage": "",
     "AzureWebJobsDashboard": ""
   },
-  "HangoutChatRequestToken": "ABC"
+  "HangoutChatRequestToken": null,
+  "GoogleCloudApplicationName": null,
+  "GoogleCloudApiKey": null
 }

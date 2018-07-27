@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 
 using MentorBot.Core;
+using MentorBot.Core.Abstract.Processor;
 using MentorBot.Core.Abstract.Services;
 using MentorBot.Core.Models.HangoutsChat;
 
@@ -15,11 +16,13 @@ namespace MentorBot.Business.Services
         private const double ConfidentRatingUnknowThreshold = 0.6;
 
         private readonly ICognitiveService _cognitiveService;
+        private readonly IAsyncResponder _responder;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatService"/> class.</summary>
-        public HangoutsChatService(ICognitiveService cognitiveService)
+        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder)
         {
             _cognitiveService = cognitiveService;
+            _responder = responder;
         }
 
         /// <inheritdoc/>
@@ -35,7 +38,9 @@ namespace MentorBot.Business.Services
                 return new ChatEventResult(Messages.UnknownCommandText);
             }
 
-            var result = await command.CommandProcessor.ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, null);
+            var result = await command
+                .CommandProcessor
+                .ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, _responder);
 
             return result;
         }
