@@ -14,7 +14,9 @@ namespace MentorBot.Business.Processors
     /// <seealso cref="ICommandProcessor" />
     public class RepeatProcessor : ICommandProcessor
     {
-        private static readonly Regex RegExp = new Regex("^repeat\\s+(after me\\s+)?(delay (\\d+)\\s+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex RegExp = new Regex(
+            "^(@mentorbot\\s+)?repeat\\s+(after me\\s+)?(delay (\\d+)\\s+)?",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <inheritdoc/>
         public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
@@ -53,7 +55,7 @@ namespace MentorBot.Business.Processors
                 return new ChatEventResult(text);
             }
 
-            return new ChatEventResult("Repeat command can not recongnise some segments.");
+            return new ChatEventResult("Repeat command can not recognise some segments.");
         }
     }
 }
