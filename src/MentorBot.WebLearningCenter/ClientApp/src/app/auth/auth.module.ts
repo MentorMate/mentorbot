@@ -8,7 +8,11 @@ import { Adal5Service, Adal5HTTPService } from 'adal-angular5';
 
 import { AuthCallbackComponent } from './auth-callback.component';
 import { AuthService } from './auth.service';
+import { AdalAuthService } from './services/auth.adal.service';
+import { DebugAuthService } from './services/auth.debug.service';
 import { AuthGuard } from './auth-guard.service';
+
+const allowSkipLogin = false;
 
 export const COMPONENTS = [
   AuthCallbackComponent
@@ -27,7 +31,7 @@ export class AuthModule {
     return {
       ngModule: RootAuthModule,
       providers: [
-        AuthService,
+        { provide: AuthService, useClass: (allowSkipLogin ? DebugAuthService : AdalAuthService) },
         AuthGuard,
         Adal5Service,
         { provide: Adal5HTTPService, useFactory: Adal5HTTPService.factory, deps: [HttpClient, Adal5Service] }],
