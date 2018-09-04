@@ -2,9 +2,6 @@
   <PropertyGroup Label="Globals">
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <CodeAnalysisRuleSet Condition="'$(Configuration)'=='Debug'">..\..\tools\analizers.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSet Condition="'$(Configuration)'=='Release'">..\..\tools\analizers.disable.ruleset</CodeAnalysisRuleSet>
     <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Label="SPA">
@@ -15,22 +12,9 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
   </PropertyGroup>
-  <ItemGroup Label="Projects and Files Reference">
-    <AdditionalFiles Include="..\..\tools\stylecop.json" />
-    <AdditionalFiles Include="..\..\tools\sonarlint.xml" />
-    <ProjectReference Include="..\MentorBot.Business\MentorBot.Business.csproj" />
-  </ItemGroup>
   <ItemGroup Label="NuGet Packages">
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.0.0" />
-  </ItemGroup>
-  <ItemGroup Label="Code Analyze">
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
-    <PackageReference Include="System.Runtime.Analyzers" Version="1.1.0" PrivateAssets="All" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.0.0.4787" PrivateAssets="All" />
-    <PackageReference Include="CodeCracker.CSharp" Version="1.1.0" PrivateAssets="All" />
-    <PackageReference Include="RefactoringEssentials" Version="5.6.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.1.2-alpha" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
@@ -51,7 +35,7 @@
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:prod -- --deploy-url=$(APP_DEPLOY_URL)" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
 
     <!-- Include the newly-built files in the publish output -->
