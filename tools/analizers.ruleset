@@ -13,6 +13,7 @@
     <Rule Id="CS8032" Action="None" />
     <Rule Id="S3990" Action="None" />
     <Rule Id="S3992" Action="None" />
+    <Rule Id="S1135" Action="Info" />
     <Rule Id="S4056" Action="Info" />
   </Rules>
   <Rules AnalyzerId="CodeCracker.CSharp" RuleNamespace="CodeCracker.CSharp">

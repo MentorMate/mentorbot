@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>false</IsPackable>
 	  <DebugType>full</DebugType>
   </PropertyGroup>
@@ -13,7 +13,6 @@
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MentorBot.Business\MentorBot.Business.csproj" />
-    <ProjectReference Include="..\..\src\MentorBot.Core\MentorBot.Core.csproj" />
+    <ProjectReference Include="..\..\src\MentorBot.Functions\MentorBot.Functions.csproj" />
   </ItemGroup>
 </Project>

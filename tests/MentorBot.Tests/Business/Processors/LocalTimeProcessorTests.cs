@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using MentorBot.Business.Processors;
-using MentorBot.Core.Models.HangoutsChat;
-using MentorBot.Core.Models.TextAnalytics;
+using MentorBot.Functions.Processors;
+using MentorBot.Functions.Models.HangoutsChat;
+using MentorBot.Functions.Models.TextAnalytics;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

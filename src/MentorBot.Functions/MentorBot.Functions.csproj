@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,13 +9,14 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup Label="NuGet Packages">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.13" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.23" />
+    <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.36.1.1385" />
+    <PackageReference Include="Willezone.Azure.WebJobs.Extensions.DependencyInjection" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup Label="Projects and Files Reference">
     <AdditionalFiles Include="..\..\tools\stylecop.json" />
     <AdditionalFiles Include="..\..\tools\sonarlint.xml" />
-    <ProjectReference Include="..\MentorBot.Business\MentorBot.Business.csproj" />
   </ItemGroup>
   <ItemGroup Label="Code Analyze">
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
@@ -24,7 +25,6 @@
     <PackageReference Include="CodeCracker.CSharp" Version="1.1.0" PrivateAssets="All" />
     <PackageReference Include="RefactoringEssentials" Version="5.6.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.1.2-alpha" PrivateAssets="All" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
