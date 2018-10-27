@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  apiPath: '${AZURE_API_PATH}',
   azure: {
     tenant: '${AZURE_AD_TENANT}',
     clientId: '${AZURE_AD_CLIENT_ID}',

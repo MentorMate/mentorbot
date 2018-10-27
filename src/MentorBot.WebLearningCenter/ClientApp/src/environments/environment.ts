@@ -5,6 +5,7 @@
 
 export const environment = {
   production: false,
+  apiPath: "http://localhost:7071/api/",
   azure: {
     tenant: null,
     clientId: null,

@@ -1,24 +1,29 @@
 // Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-using MentorBot.Core.Abstract.Services;
-using MentorBot.Core.Localize;
-using MentorBot.Core.Models.HangoutsChat;
-using MentorBot.Core.Models.Options;
-using MentorBot.Functions.App.DependencyInjection;
+using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.DataResultModels;
+using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.HangoutsChat;
+using MentorBot.Functions.Models.Options;
+using MentorBot.Localize;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
+using Willezone.Azure.WebJobs.Extensions.DependencyInjection;
 
 namespace MentorBot.Functions
 {
@@ -35,12 +40,21 @@ namespace MentorBot.Functions
         /// <summary>The main Azure function.</summary>
         [FunctionName("chatEvent")]
         public static async Task<IActionResult> RunAsync(
-                [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Post), Route = null)]HttpRequest req,
-                [Inject] IHangoutsChatService hangoutsChatService,
-                [Inject] GoogleCloudOptions options,
-                [Inject] IStringLocalizer localizer,
-                TraceWriter log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Post), Route = null)] HttpRequestMessage req,
+            [CosmosDB("mentorbot", "messages", CreateIfNotExists = true, ConnectionStringSetting = "CosmosDBConnection")] IAsyncCollector<Message> messages,
+            [Inject] IHangoutsChatService hangoutsChatService,
+            [Inject] GoogleCloudOptions options,
+            [Inject] IStringLocalizer localizer,
+            ILogger log)
         {
+            if (req == null)
+            {
+                return new ObjectResult("Request not initialized")
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+
             if (hangoutsChatService == null ||
                 localizer == null ||
                 log == null ||
@@ -52,38 +66,60 @@ namespace MentorBot.Functions
                 };
             }
 
-            log.Info(localizer["C# HTTP trigger function processed a request."]);
+            log.LogInformation(localizer["C# HTTP trigger function processed a request."]);
 
-            var hangoutChatEvent = GetRequestBody(req, log);
+            var hangoutChatEvent = await req
+                .Content
+                .ReadAsAsync<ChatEvent>()
+                .ConfigureAwait(true);
 
-            if (hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
+            if (!hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
             {
-                log.Error(localizer["The tokens do not match. Unauthorized access."]);
+                log.LogError(localizer["The tokens do not match. Unauthorized access."]);
                 return new UnauthorizedResult();
             }
 
-            var result = await hangoutsChatService.BasicAsync(hangoutChatEvent).ConfigureAwait(false);
+            var result = await hangoutsChatService
+                .BasicAsync(hangoutChatEvent)
+                .ConfigureAwait(false);
 
-            log.Info(result?.Text);
+            if (messages != null)
+            {
+                await messages.AddAsync(result).ConfigureAwait(false);
+            }
 
-            return new JsonResult(result, JsonSettings);
+            log.LogInformation(result.Output?.Text);
+
+            return new JsonResult(result.Output, JsonSettings);
         }
 
-        private static ChatEvent GetRequestBody(HttpRequest req, TraceWriter log)
+        /// <summary>The main Azure function.</summary>
+        [FunctionName("get-messages-stats")]
+        public static IActionResult GetMessagesStatistics(
+            [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Get), Route = null)] HttpRequest req,
+            [CosmosDB("mentorbot", "messages", ConnectionStringSetting = "CosmosDBConnection", SqlQuery = "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m")] IEnumerable<Message> messages,
+            [Inject] IStringLocalizer localizer,
+            ILogger log)
         {
-            if (req == null)
+            if (localizer == null || req == null)
             {
-                throw new ArgumentNullException(nameof(req));
+                return new ObjectResult("Request not initialized")
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
             }
 
-            using (var requestBodyStream = new StreamReader(req.Body))
-            {
-                var requestBodyString = requestBodyStream.ReadToEnd();
+            log.LogInformation(localizer["C# HTTP trigger function get-messages-stats."]);
 
-                log?.Info($"Validate request {requestBodyString}.");
+            var result = messages
+                .GroupBy(it => it.ProbabilityPercentage / 10)
+                .Select(group => new MessagesStatistic
+                {
+                    ProbabilityPercentage = (byte)(group.Key * 10),
+                    Count = group.Count()
+                });
 
-                return JsonConvert.DeserializeObject<ChatEvent>(requestBodyString);
-            }
+            return new JsonResult(result, JsonSettings);
         }
     }
 }

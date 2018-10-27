@@ -5,8 +5,8 @@ using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;
 using Google.Apis.Services;
 
-using MentorBot.Business.Connectors;
-using MentorBot.Core.Models.HangoutsChat;
+using MentorBot.Functions.Connectors;
+using MentorBot.Functions.Models.HangoutsChat;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

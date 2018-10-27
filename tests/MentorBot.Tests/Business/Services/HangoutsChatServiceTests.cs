@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-using MentorBot.Business.Services;
-using MentorBot.Core;
-using MentorBot.Core.Abstract.Processor;
-using MentorBot.Core.Abstract.Services;
-using MentorBot.Core.Models.HangoutsChat;
-using MentorBot.Core.Models.TextAnalytics;
+using MentorBot.Functions;
+using MentorBot.Functions.Abstract.Processor;
+using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.HangoutsChat;
+using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Services;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -36,7 +36,7 @@ namespace MentorBot.Tests.Business.Services
 
             var result = await _service.BasicAsync(dummyChatEvent);
 
-            Assert.AreEqual(Messages.UnknownCommandText, result.Text);
+            Assert.AreEqual(Messages.UnknownCommandText, result.Output.Text);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace MentorBot.Tests.Business.Services
 
             var result = await _service.BasicAsync(dummyChatEvent);
 
-            Assert.AreEqual(Messages.UnknownCommandText, result.Text);
+            Assert.AreEqual(Messages.UnknownCommandText, result.Output.Text);
         }
 
         private static ChatEvent GetChatEvent() =>

@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Chart } from 'chart.js';
+import { DashboardService } from './dashboard.service';
 
 const template = `
   Dashboard
@@ -24,19 +25,37 @@ export class DashboardPageComponent implements AfterViewInit {
   chartRef: ElementRef;
   chart: Chart;
 
+  constructor(
+    private service: DashboardService) { }
+
   ngAfterViewInit(): void {
-    this.chart = new Chart(this.chartRef.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: ['Answered', 'Unanswered'],
-        datasets: [{
-          data: [40, 60],
-          backgroundColor: [
-            'blue',
-            'red'
-          ]
-        }]
-      }
+    this.service.getData().subscribe(next => {
+      let answeredCount = 0;
+      let unansweredCount = 0;
+      next.forEach(it => {
+        if (it.probabilityPercentage > 60) {
+          answeredCount += it.count;
+        }
+        else {
+          unansweredCount += it.count;
+        }
+      });
+
+      this.chart = new Chart(this.chartRef.nativeElement, {
+        type: 'pie',
+        data: {
+          labels: ['Answered', 'Unanswered'],
+          datasets: [{
+            data: [answeredCount, unansweredCount],
+            backgroundColor: [
+              'blue',
+              'red',
+              'yellow'
+            ]
+          }]
+        }
+      });
     });
+    
   }
 }

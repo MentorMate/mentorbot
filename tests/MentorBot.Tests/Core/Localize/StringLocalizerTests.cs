@@ -1,4 +1,4 @@
-﻿using MentorBot.Core.Localize;
+﻿using MentorBot.Localize;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
