@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -14,26 +13,29 @@ using MentorBot.Localize;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-using Willezone.Azure.WebJobs.Extensions.DependencyInjection;
 
 namespace MentorBot.Functions.App
 {
-    /// <summary>Configure application services.</summary>
-    [ExcludeFromCodeCoverage]
-    public class ServiceProviderBuilder : IServiceProviderBuilder
+#pragma warning disable S1200 // Classes should not be coupled to too many other classes (Single Responsibility Principle)
+    /// <summary>Service locator is normally bad practice, but other methods are not realiable in Azure Functions.</summary>
+    public static class ServiceLocator
     {
-        private readonly IServiceProvider _serviceProvider;
+        private static IServiceProvider _serviceProvider;
 
-        /// <summary>Initializes a new instance of the <see cref="ServiceProviderBuilder"/> class.</summary>
-        public ServiceProviderBuilder(IServiceProvider serviceProvider)
+        /// <summary>Configure the service provider if not configured</summary>
+        public static void EnsureServiceProvider()
         {
-            _serviceProvider = serviceProvider;
+            if (_serviceProvider == null)
+            {
+                _serviceProvider = BuildServiceProvider();
+            }
         }
 
-        /// <inheritdoc/>
-        public IServiceProvider Build()
+        /// <summary>Get a service.</summary>
+        /// <typeparam name="T">The type of the service.</typeparam>
+        public static T Get<T>() => _serviceProvider.GetService<T>();
+
+        private static IServiceProvider BuildServiceProvider()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -41,11 +43,8 @@ namespace MentorBot.Functions.App
                 .AddEnvironmentVariables()
                 .Build();
 
-            var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
             var services = new ServiceCollection();
 
-            services.AddSingleton(loggerFactory);
-            services.AddTransient(p => loggerFactory.CreateLogger(string.Empty));
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IHangoutsChatService, HangoutsChatService>();
             services.AddTransient<ICognitiveService, CognitiveService>();
@@ -53,8 +52,11 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddSingleton(new GoogleCloudOptions(config));
+            services.AddSingleton<IDocumentClientService>(
+                new DocumentClientService(config["AzureCosmosDBAccountEndpoint"], config["AzureCosmosDBKey"]));
 
-            return services.BuildServiceProvider(true);
+            return services.BuildServiceProvider(false);
         }
     }
+#pragma warning restore S120
 }

@@ -2,10 +2,11 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "",
-    "AzureWebJobsDashboard": "",
-    "CosmosDBConnection": ""
+    "AzureWebJobsDashboard": ""
   },
   "HangoutChatRequestToken": null,
   "GoogleCloudApplicationName": null,
-  "GoogleCloudApiKey": null
+  "GoogleCloudApiKey": null,
+  "AzureCosmosDBAccountEndpoint": null,
+  "AzureCosmosDBKey": null
 }

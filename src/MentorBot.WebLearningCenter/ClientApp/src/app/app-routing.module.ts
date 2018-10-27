@@ -7,7 +7,6 @@ import { AppMainComponent } from './app-main.component';
 import { AppRootComponent } from './app-root.component';
 import { MenuComponent } from './shared/menu.component';
 import { NotFoundPageComponent } from './shared/not-found-page.component';
-import { AuthService } from './auth/auth.service';
 
 export const appRoutes: Routes = [
   {

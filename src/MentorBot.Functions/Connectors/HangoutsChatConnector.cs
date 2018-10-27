@@ -11,27 +11,23 @@ using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.Options;
 
-using Microsoft.Extensions.Logging;
-
 namespace MentorBot.Functions.Connectors
 {
     /// <summary>A hangout chat API connector.</summary>
     /// <seealso cref="IAsyncResponder" />
     public sealed class HangoutsChatConnector : IAsyncResponder
     {
-        private readonly ILogger _logger;
         private readonly Lazy<HangoutsChatService> _serviceProvider;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatConnector"/> class.</summary>
-        public HangoutsChatConnector(GoogleCloudOptions options, ILogger log)
-            : this(new Lazy<HangoutsChatService>(() => CreateService(options)), log)
+        public HangoutsChatConnector(GoogleCloudOptions options)
+            : this(new Lazy<HangoutsChatService>(() => CreateService(options)))
         {
         }
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatConnector"/> class.</summary>
-        public HangoutsChatConnector(Lazy<HangoutsChatService> serviceProvider, ILogger logger)
+        public HangoutsChatConnector(Lazy<HangoutsChatService> serviceProvider)
         {
-            _logger = logger;
             _serviceProvider = serviceProvider;
         }
 
@@ -44,7 +40,7 @@ namespace MentorBot.Functions.Connectors
                 throw new InvalidOperationException("When async responder is called, space and sender are requireired.");
             }
 
-            _logger.LogDebug($"Send a message asynchronius {text} to '{space.DisplayName}' by {sender.DisplayName} '{thread?.Name}'.");
+            ////_logger.LogDebug($"Send a message asynchronius {text} to '{space.DisplayName}' by {sender.DisplayName} '{thread?.Name}'.");
             var messages = _serviceProvider.Value.Spaces.Messages;
             var message = new Message
             {

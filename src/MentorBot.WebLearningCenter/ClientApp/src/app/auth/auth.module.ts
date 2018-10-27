@@ -44,7 +44,7 @@ export class AuthModule {
     AuthModule,
     RouterModule.forChild([
       {
-        path: 'auth-callback',
+        path: 'app/auth-callback',
         component: AuthCallbackComponent
       }
     ])
