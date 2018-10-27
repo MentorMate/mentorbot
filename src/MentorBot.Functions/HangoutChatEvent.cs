@@ -73,7 +73,7 @@ namespace MentorBot.Functions
                 .ReadAsAsync<ChatEvent>()
                 .ConfigureAwait(true);
 
-            if (hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
+            if (!hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
             {
                 log.LogError(localizer["The tokens do not match. Unauthorized access."]);
                 return new UnauthorizedResult();

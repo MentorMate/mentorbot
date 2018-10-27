@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
@@ -23,19 +24,23 @@ namespace MentorBot.Functions.App
     [ExcludeFromCodeCoverage]
     public class ServiceProviderBuilder : IServiceProviderBuilder
     {
-        private readonly IConfiguration _configuration;
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>Initializes a new instance of the <see cref="ServiceProviderBuilder"/> class.</summary>
-        public ServiceProviderBuilder(IConfiguration configuration, IServiceProvider serviceProvider)
+        public ServiceProviderBuilder(IServiceProvider serviceProvider)
         {
-            _configuration = configuration;
             _serviceProvider = serviceProvider;
         }
 
         /// <inheritdoc/>
         public IServiceProvider Build()
         {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("local.settings.json", true, false)
+                .AddEnvironmentVariables()
+                .Build();
+
             var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
             var services = new ServiceCollection();
 
@@ -47,13 +52,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, LocalTimeProcessor>();
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
-            services.AddSingleton(
-                new GoogleCloudOptions
-                {
-                    HangoutChatRequestToken = _configuration[nameof(GoogleCloudOptions.HangoutChatRequestToken)],
-                    GoogleCloudApplicationName = _configuration[nameof(GoogleCloudOptions.GoogleCloudApplicationName)],
-                    GoogleCloudApiKey = _configuration[nameof(GoogleCloudOptions.GoogleCloudApiKey)]
-                });
+            services.AddSingleton(new GoogleCloudOptions(config));
 
             return services.BuildServiceProvider(true);
         }
