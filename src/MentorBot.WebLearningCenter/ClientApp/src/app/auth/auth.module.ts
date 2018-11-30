@@ -1,27 +1,29 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 
-import { Adal5Service, Adal5HTTPService } from 'adal-angular5';
+import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { AuthCallbackComponent } from './auth-callback.component';
+import { AuthCallbackLogoutComponent } from './auth-callback-logout.component';
+
 import { AuthService } from './auth.service';
-import { AdalAuthService } from './services/auth.adal.service';
+import { GoogleAuthService } from './services/auth.google.service';
 import { DebugAuthService } from './services/auth.debug.service';
 import { AuthGuard } from './auth-guard.service';
 
 const allowSkipLogin = false;
 
 export const COMPONENTS = [
-  AuthCallbackComponent
+  AuthCallbackComponent,
+  AuthCallbackLogoutComponent
 ];
 
 @NgModule({
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    OAuthModule.forRoot()
   ],
   declarations: COMPONENTS,
   exports: COMPONENTS
@@ -29,25 +31,11 @@ export const COMPONENTS = [
 export class AuthModule {
   public static forRoot(): ModuleWithProviders {
     return {
-      ngModule: RootAuthModule,
+      ngModule: AuthModule,
       providers: [
-        { provide: AuthService, useClass: (allowSkipLogin ? DebugAuthService : AdalAuthService) },
-        AuthGuard,
-        Adal5Service,
-        { provide: Adal5HTTPService, useFactory: Adal5HTTPService.factory, deps: [HttpClient, Adal5Service] }],
+        { provide: AuthService, useClass: (allowSkipLogin ? DebugAuthService : GoogleAuthService) },
+        AuthGuard
+      ]
     };
   }
 }
-
-@NgModule({
-  imports: [
-    AuthModule,
-    RouterModule.forChild([
-      {
-        path: 'auth-callback',
-        component: AuthCallbackComponent
-      }
-    ])
-  ]
-})
-export class RootAuthModule { }

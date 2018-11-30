@@ -10,4 +10,4 @@ const style = `
   template: template,
   styles: [style]
 })
-export class AppRootComponent { }
+export class AppRootComponent {}

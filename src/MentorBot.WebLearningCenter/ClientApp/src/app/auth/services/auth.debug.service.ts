@@ -6,6 +6,6 @@ export class DebugAuthService implements AuthService {
   get isLoggedIn() { return true; }
   get name() { return ''; }
   startAuthentication() { }
-  completeAuthentication() { }
+  public completeAuthentication() { return Promise.resolve(true); }
   signout() { }
 }

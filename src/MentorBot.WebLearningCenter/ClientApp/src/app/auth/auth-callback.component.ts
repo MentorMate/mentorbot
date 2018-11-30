@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Component, OnInit, NgZone } from '@angular/core';
 
 @Component({
@@ -12,12 +12,10 @@ export class AuthCallbackComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService, private zone: NgZone) { }
 
   ngOnInit() {
-    this.authService.completeAuthentication();
-
-    setTimeout(() => {
-      this.zone.run(
-        () => this.router.navigate(['/'])
-      );
-    }, 200);
+    this.authService.completeAuthentication().then(success => {
+      if (success) {
+        this.zone.run(() => this.router.navigate(['/']));
+      }
+    });
   }
 }
