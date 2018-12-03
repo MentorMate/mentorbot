@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using MentorBot.Functions.Processors;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Processors;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MentorBot.Tests.Business.Processors
 {
+    /// <summary>Tests for <see cref="LocalTimeProcessor" />.</summary>
     [TestClass]
     [TestCategory("Business.Processors")]
     public class LocalTimeProcessorTests

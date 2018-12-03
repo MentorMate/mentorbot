@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
-using MentorBot.Functions.Processors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Processors;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,6 +12,7 @@ using NSubstitute;
 
 namespace MentorBot.Tests.Business.Processors
 {
+    /// <summary>Tests for <see cref="RepeatProcessor" />.</summary>
     [TestClass]
     [TestCategory("Business.Processors")]
     public class RepeatProcessorTests
@@ -35,6 +37,8 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual(expectedResult, result.Text);
         }
 
+#pragma warning disable CS4014
+
         [TestMethod]
         public async Task WhenAskedItShouldRepeatAsync()
         {
@@ -43,10 +47,16 @@ namespace MentorBot.Tests.Business.Processors
             var message = new ChatEventMessage { Sender = sender };
             var chat = new ChatEvent { Space = space, Message = message };
             var responder = Substitute.For<IAsyncResponder>();
-            var info = new TextDeconstructionInformation("Repeat delay 1000 Test", null, SentenceTypes.Command);
+            var info = new TextDeconstructionInformation("Repeat delay 100 Test", null, SentenceTypes.Command);
             var result = await _processor.ProcessCommandAsync(info, chat, responder);
+            
+            responder.DidNotReceive().SendMessageAsync("Test", space, null, sender);
+
+            Thread.Sleep(150);
 
             responder.Received().SendMessageAsync("Test", space, null, sender);
         }
+
+#pragma warning restore CS4014
     }
 }

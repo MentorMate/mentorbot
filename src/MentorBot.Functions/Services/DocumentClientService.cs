@@ -39,6 +39,9 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
+        public bool IsConnected => !string.IsNullOrEmpty(_accountEndpoint) && !string.IsNullOrEmpty(_authKeyOrResourceToken);
+
+        /// <inheritdoc/>
         public async Task<IDocument<T>> GetAsync<T>(string databaseName, string collectionName)
         {
             var client = _client.Value;

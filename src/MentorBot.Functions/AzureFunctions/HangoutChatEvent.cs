@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -56,17 +57,28 @@ namespace MentorBot.Functions
                 return new UnauthorizedResult();
             }
 
+            if (log.IsEnabled(LogLevel.Debug))
+            {
+                var contentAsString = await content.ReadAsStringAsync();
+                log.LogDebug(contentAsString);
+            }
+
             var result = await hangoutsChatService
                 .BasicAsync(hangoutChatEvent)
                 .ConfigureAwait(false);
 
-            var document = await client
-                .GetAsync<Message>("mentorbot", "messages")
-                .ConfigureAwait(false);
+            if (client.IsConnected)
+            {
+                log.LogDebug("Add message to document database mentorbot.");
 
-            await document
-                .AddAsync(result)
-                .ConfigureAwait(false);
+                var document = await client
+                    .GetAsync<Message>("mentorbot", "messages")
+                    .ConfigureAwait(false);
+
+                await document
+                    .AddAsync(result)
+                    .ConfigureAwait(false);
+            }
 
             log.LogInformation(result.Output?.Text);
 
