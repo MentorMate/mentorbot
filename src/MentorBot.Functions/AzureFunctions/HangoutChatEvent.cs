@@ -29,7 +29,8 @@ namespace MentorBot.Functions
             new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
         /// <summary>The main Azure function.</summary>
@@ -46,9 +47,13 @@ namespace MentorBot.Functions
             var hangoutsChatService = ServiceLocator.Get<IHangoutsChatService>();
             var options = ServiceLocator.Get<GoogleCloudOptions>();
 
-            var hangoutChatEvent = await content
-                .ReadAsAsync<ChatEvent>()
-                .ConfigureAwait(true);
+            var hangoutChatEventString = await content.ReadAsStringAsync();
+            if (log.IsEnabled(LogLevel.Debug))
+            {
+                log.LogDebug(hangoutChatEventString);
+            }
+
+            var hangoutChatEvent = JsonConvert.DeserializeObject<ChatEvent>(hangoutChatEventString, JsonSettings);
 
             if (!hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
             {
@@ -60,13 +65,18 @@ namespace MentorBot.Functions
                 .BasicAsync(hangoutChatEvent)
                 .ConfigureAwait(false);
 
-            var document = await client
-                .GetAsync<Message>("mentorbot", "messages")
-                .ConfigureAwait(false);
+            if (client.IsConnected)
+            {
+                log.LogDebug("Add message to document database mentorbot.");
 
-            await document
-                .AddAsync(result)
-                .ConfigureAwait(false);
+                var document = await client
+                    .GetAsync<Message>("mentorbot", "messages")
+                    .ConfigureAwait(false);
+
+                await document
+                    .AddAsync(result)
+                    .ConfigureAwait(false);
+            }
 
             log.LogInformation(result.Output?.Text);
 

@@ -14,13 +14,15 @@ using MentorBot.Functions.Models.Domains;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 
 namespace MentorBot.Functions
 {
     /// <summary>Application query functions.</summary>
     public static class Queries
     {
+        /// <summary>The messages statistics query.</summary>
+        public const string MessagesStatisticsQuery = "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m";
+
         /// <summary>The main Azure function.</summary>
         [FunctionName("get-messages-stats")]
         public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatisticsAsync(
@@ -35,7 +37,7 @@ namespace MentorBot.Functions
             var document = await client.GetAsync<Message>("mentorbot", "messages").ConfigureAwait(false);
 
             var messages = document
-                .Query("SELECT TOP 1000 m.ProbabilityPercentage FROM messages m")
+                .Query(MessagesStatisticsQuery)
                 .GroupBy(it => it.ProbabilityPercentage / 10)
                 .Select(group => new MessagesStatistic
                 {

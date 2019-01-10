@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;
-using Google.Apis.Services;
 
 using MentorBot.Functions.Abstract.Processor;
+using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.Options;
 
@@ -15,20 +15,20 @@ namespace MentorBot.Functions.Connectors
 {
     /// <summary>A hangout chat API connector.</summary>
     /// <seealso cref="IAsyncResponder" />
-    public sealed class HangoutsChatConnector : IAsyncResponder
+    /// <seealso cref="GoogleBaseService{HangoutsChatService}" />
+    public sealed class HangoutsChatConnector : GoogleBaseService<HangoutsChatService>, IAsyncResponder
     {
-        private readonly Lazy<HangoutsChatService> _serviceProvider;
-
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatConnector"/> class.</summary>
         public HangoutsChatConnector(GoogleCloudOptions options)
-            : this(new Lazy<HangoutsChatService>(() => CreateService(options)))
+            : this(new Lazy<HangoutsChatService>(
+                () => new HangoutsChatService(InitByKey(options))))
         {
         }
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatConnector"/> class.</summary>
         public HangoutsChatConnector(Lazy<HangoutsChatService> serviceProvider)
+            : base(serviceProvider)
         {
-            _serviceProvider = serviceProvider;
         }
 
         /// <inheritdoc/>
@@ -41,7 +41,7 @@ namespace MentorBot.Functions.Connectors
             }
 
             ////_logger.LogDebug($"Send a message asynchronius {text} to '{space.DisplayName}' by {sender.DisplayName} '{thread?.Name}'.");
-            var messages = _serviceProvider.Value.Spaces.Messages;
+            var messages = ServiceProvider.Spaces.Messages;
             var message = new Message
             {
                 Sender = new User
@@ -68,21 +68,6 @@ namespace MentorBot.Functions.Connectors
 
             var createRequest = messages.Create(message, space.Name);
             return createRequest?.ExecuteAsync() ?? Task.CompletedTask;
-        }
-
-        private static HangoutsChatService CreateService(GoogleCloudOptions options)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            return new HangoutsChatService(
-                new BaseClientService.Initializer
-                {
-                    ApplicationName = options.GoogleCloudApplicationName,
-                    ApiKey = options.GoogleCloudApiKey
-                });
         }
     }
 }

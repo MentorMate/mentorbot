@@ -27,11 +27,11 @@ namespace MentorBot.Functions.Processors
             };
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
             if (info == null)
             {
-                return new ChatEventResult("I can not understand the sentance.");
+                return Value("I can not understand the sentance.");
             }
 
             var match = RegExp.Match(info.TextSentanceChunk);
@@ -42,20 +42,21 @@ namespace MentorBot.Functions.Processors
                 if (delayStr != null &&
                     int.TryParse(delayStr, out int delayMs))
                 {
-                    await Task
-                        .Delay(delayMs)
-                        .ConfigureAwait(false);
-                    await responder
-                        .SendMessageAsync(text, originalChatEvent.Space, originalChatEvent.Message.Thread, originalChatEvent.Message.Sender)
-                        .ConfigureAwait(false);
+                    Task.Delay(delayMs)
+                        .ContinueWith(task => responder
+                        .SendMessageAsync(text, originalChatEvent.Space, originalChatEvent.Message.Thread, originalChatEvent.Message.Sender));
 
-                    return null;
+                    return Value(null);
                 }
 
-                return new ChatEventResult(text);
+                return Value(text);
             }
 
-            return new ChatEventResult("Repeat command can not recognise some segments.");
+            return Value("Repeat command can not recognise some segments.");
         }
+
+        private static ValueTask<ChatEventResult> Value(string text) =>
+            new ValueTask<ChatEventResult>(
+                result: string.IsNullOrEmpty(text) ? null : new ChatEventResult(text));
     }
 }

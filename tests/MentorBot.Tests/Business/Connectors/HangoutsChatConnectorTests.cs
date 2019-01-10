@@ -8,7 +8,6 @@ using Google.Apis.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Models.HangoutsChat;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;
@@ -17,7 +16,7 @@ namespace MentorBot.Tests.Business.Connectors
 {
     /// <summary>Tests for <see cref="HangoutsChatConnector" />.</summary>
     [TestClass]
-    [TestCategory("Business.Processors")]
+    [TestCategory("Business.Connectors")]
     public sealed class HangoutsChatConnectorTests
     {
         [TestMethod]
