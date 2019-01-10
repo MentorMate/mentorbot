@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -30,7 +29,8 @@ namespace MentorBot.Functions
             new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
         /// <summary>The main Azure function.</summary>
@@ -47,20 +47,18 @@ namespace MentorBot.Functions
             var hangoutsChatService = ServiceLocator.Get<IHangoutsChatService>();
             var options = ServiceLocator.Get<GoogleCloudOptions>();
 
-            var hangoutChatEvent = await content
-                .ReadAsAsync<ChatEvent>()
-                .ConfigureAwait(true);
+            var hangoutChatEventString = await content.ReadAsStringAsync();
+            if (log.IsEnabled(LogLevel.Debug))
+            {
+                log.LogDebug(hangoutChatEventString);
+            }
+
+            var hangoutChatEvent = JsonConvert.DeserializeObject<ChatEvent>(hangoutChatEventString, JsonSettings);
 
             if (!hangoutChatEvent.Token.Equals(options.HangoutChatRequestToken, StringComparison.InvariantCulture))
             {
                 log.LogError("The tokens do not match. Unauthorized access. " + hangoutChatEvent.Token);
                 return new UnauthorizedResult();
-            }
-
-            if (log.IsEnabled(LogLevel.Debug))
-            {
-                var contentAsString = await content.ReadAsStringAsync();
-                log.LogDebug(contentAsString);
             }
 
             var result = await hangoutsChatService

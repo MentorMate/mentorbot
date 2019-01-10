@@ -32,10 +32,16 @@ namespace MentorBot.Functions.Services
 
         /// <summary>Initializes a new instance of the <see cref="DocumentClientService"/> class.</summary>
         public DocumentClientService(string accountEndpoint, string authKeyOrResourceToken)
+            : this(new Lazy<IDocumentClient>(() => new DocumentClient(new Uri(accountEndpoint), authKeyOrResourceToken, Policy)))
         {
             _accountEndpoint = accountEndpoint;
             _authKeyOrResourceToken = authKeyOrResourceToken;
-            _client = new Lazy<IDocumentClient>(() => new DocumentClient(new Uri(_accountEndpoint), _authKeyOrResourceToken, Policy));
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="DocumentClientService"/> class.</summary>
+        public DocumentClientService(Lazy<IDocumentClient> documentClient)
+        {
+            _client = documentClient;
         }
 
         /// <inheritdoc/>

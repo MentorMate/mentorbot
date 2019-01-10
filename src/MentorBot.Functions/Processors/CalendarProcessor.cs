@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -64,7 +65,7 @@ namespace MentorBot.Functions.Processors
             {
                 Content = item.Summary,
                 ContentMultiline = false,
-                BottomLabel = item.Start.DateTime?.ToLongTimeString(),
+                BottomLabel = item.Start.DateTime?.TimeOfDay.ToString(),
                 Icon = "INVITE",
                 Button = link == null ? null : ChatEventFactory.CreateTextButton("JOIN", link.Uri)
             };

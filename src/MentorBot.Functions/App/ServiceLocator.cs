@@ -20,24 +20,41 @@ namespace MentorBot.Functions.App
 {
 #pragma warning disable S1200 // Classes should not be coupled to too many other classes (Single Responsibility Principle)
     /// <summary>Service locator is normally bad practice, but other methods are not realiable in Azure Functions.</summary>
-    public static class ServiceLocator
+    public class ServiceLocator
     {
-        private static IServiceProvider _serviceProvider;
+        /// <summary>Gets the default service locator instance.</summary>
+        public static ServiceLocator DefaultInstance { get; } = new ServiceLocator();
+
+        /// <summary>Gets the service provider.</summary>
+        public IServiceProvider ServiceProvider { get; private set; }
 
         /// <summary>Configure the service provider if not configured</summary>
         public static void EnsureServiceProvider()
         {
-            if (_serviceProvider == null)
+            if (DefaultInstance.ServiceProvider == null)
             {
-                _serviceProvider = BuildServiceProvider();
+                DefaultInstance.BuildServiceProviderWithDescriptors();
             }
         }
 
         /// <summary>Get a service.</summary>
         /// <typeparam name="T">The type of the service.</typeparam>
-        public static T Get<T>() => _serviceProvider.GetService<T>();
+        public static T Get<T>() =>
+            DefaultInstance.ServiceProvider.GetService<T>();
 
-        private static IServiceProvider BuildServiceProvider()
+        /// <summary>Build the service provider with additional descriptors.</summary>
+        public void BuildServiceProviderWithDescriptors(params ServiceDescriptor[] descriptors)
+        {
+            var services = ConfigureServices();
+            foreach (var descriptor in descriptors)
+            {
+                services.Insert(services.Count, descriptor);
+            }
+
+            ServiceProvider = services.BuildServiceProvider(false);
+        }
+
+        private static IServiceCollection ConfigureServices()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -65,7 +82,7 @@ namespace MentorBot.Functions.App
 
             services.AddTransient<GoogleServiceAccountCredential>();
 
-            return services.BuildServiceProvider(false);
+            return services;
         }
     }
 #pragma warning restore S120
