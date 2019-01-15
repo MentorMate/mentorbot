@@ -1,8 +1,5 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
-using System;
-using System.IO;
-
 using Microsoft.Extensions.Configuration;
 
 namespace MentorBot.Functions.Models.Options
@@ -12,13 +9,25 @@ namespace MentorBot.Functions.Models.Options
     {
         /// <summary>Initializes a new instance of the <see cref="GoogleCloudOptions"/> class.</summary>
         public GoogleCloudOptions(IConfiguration configuration)
+            : this(
+                  configuration[nameof(HangoutChatRequestToken)],
+                  configuration[nameof(GoogleCloudApplicationName)],
+                  configuration[nameof(GoogleCloudApiKey)],
+                  configuration[nameof(GoogleCreadentialsFilePath)])
         {
-            var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
-            HangoutChatRequestToken = config[nameof(HangoutChatRequestToken)];
-            GoogleCloudApplicationName = config[nameof(GoogleCloudApplicationName)];
-            GoogleCloudApiKey = config[nameof(GoogleCloudApiKey)];
-            GoogleCreadentialsFilePath = config[nameof(GoogleCreadentialsFilePath)];
+        /// <summary>Initializes a new instance of the <see cref="GoogleCloudOptions"/> class.</summary>
+        public GoogleCloudOptions(
+            string hangoutChatRequestToken,
+            string googleCloudApplicationName,
+            string googleCloudApiKey,
+            string googleCreadentialsFilePath)
+        {
+            HangoutChatRequestToken = hangoutChatRequestToken;
+            GoogleCloudApplicationName = googleCloudApplicationName;
+            GoogleCloudApiKey = googleCloudApiKey;
+            GoogleCreadentialsFilePath = googleCreadentialsFilePath;
         }
 
         /// <summary>Gets the security token for Hangout Chat events.</summary>
