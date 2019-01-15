@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
@@ -50,11 +51,15 @@ namespace MentorBot.Tests.Business.Processors
             var info = new TextDeconstructionInformation("Repeat delay 100 Test", null, SentenceTypes.Command);
             var result = await _processor.ProcessCommandAsync(info, chat, responder);
             
-            responder.DidNotReceive().SendMessageAsync("Test", space, null, sender);
+            responder
+                .DidNotReceive()
+                .SendMessageAsync("Test", Arg.Any<GoogleChatAddress>());
 
             Thread.Sleep(150);
 
-            responder.Received().SendMessageAsync("Test", space, null, sender);
+            responder
+                .Received()
+                .SendMessageAsync("Test", Arg.Is<GoogleChatAddress>(it => it.Space == space && it.Sender == sender));
         }
 
 #pragma warning restore CS4014

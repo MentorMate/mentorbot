@@ -8,6 +8,7 @@ using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
+using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
 using MentorBot.Functions.Services;
@@ -67,6 +68,7 @@ namespace MentorBot.Functions.App
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton(new AzureCloudOptions(config));
             services.AddSingleton(new GoogleCloudOptions(config));
+            services.AddSingleton(new OpenAirOptions(config));
             services.AddSingleton<IDocumentClientService>(
                 new DocumentClientService(config["AzureCosmosDBAccountEndpoint"], config["AzureCosmosDBKey"]));
 
@@ -78,13 +80,17 @@ namespace MentorBot.Functions.App
             services.AddTransient<IBlobStorageConnector, AzureBlobStorageConnector>();
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();
+            services.AddTransient<IOpenAirConnector, OpenAirConnector>();
             services.AddTransient<IHangoutsChatService, HangoutsChatService>();
             services.AddTransient<ICognitiveService, CognitiveService>();
             services.AddTransient<ICommandProcessor, LocalTimeProcessor>();
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
+            services.AddTransient<ICommandProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
+            services.AddTransient<IStorageService, StorageService>();
 
+            services.AddTransient<OpenAirClient>();
             services.AddTransient<GoogleServiceAccountCredential>();
 
             return services;

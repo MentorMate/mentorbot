@@ -2,7 +2,9 @@
 
 using System.Threading.Tasks;
 
-using MentorBot.Functions.Models.HangoutsChat;
+using Google.Apis.HangoutsChat.v1.Data;
+
+using MentorBot.Functions.Models.Business;
 
 namespace MentorBot.Functions.Abstract.Processor
 {
@@ -10,6 +12,6 @@ namespace MentorBot.Functions.Abstract.Processor
     public interface IAsyncResponder
     {
         /// <summary>Sends async message back to the caht room or person.</summary>
-        Task SendMessageAsync(string text, ChatEventSpace space, ChatEventMessageThread thread, ChatEventMessageSender sender);
+        Task SendMessageAsync(string text, GoogleChatAddress address, params Card[] cards);
     }
 }
