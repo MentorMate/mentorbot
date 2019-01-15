@@ -52,12 +52,17 @@ namespace MentorBot.Functions.Connectors
             return container.GetBlockBlobReference(blobPath.FilePath);
         }
 
-        private struct BlobPath
+        /// <summary>Holds a connection path to a Blob resource.</summary>
+        public struct BlobPath
         {
-            public string ContainerName;
+            /// <summary>Gets the name of the container.</summary>
+            public string ContainerName { get; private set; }
 
-            public string FilePath;
+            /// <summary>Gets the file path.</summary>
+            public string FilePath { get; private set; }
 
+            /// <summary>Parses and validates the path.</summary>
+            /// <param name="path">The full path.</param>
             public static BlobPath ParseAndValidate(string path)
             {
                 if (string.IsNullOrEmpty(path))

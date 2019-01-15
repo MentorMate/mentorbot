@@ -17,7 +17,7 @@ namespace MentorBot.Tests.Business.Connectors
 #pragma warning disable CS4014
 
         [TestMethod]
-        public async Task GetFileStreamAsync_ShouldReturnMemoryStream()
+        public async Task AzureBlobStorage_GetFileStreamAsync_ShouldReturnMemoryStream()
         {
             var configuration = Substitute.For<IConfiguration>();
 
@@ -32,6 +32,15 @@ namespace MentorBot.Tests.Business.Connectors
         }
 
 #pragma warning restore CS4014
+
+        [TestMethod]
+        public void AzureBlobStorage_BlobPath_ShouldParsePath()
+        {
+            var path = AzureBlobStorageConnector.BlobPath.ParseAndValidate("storename/path/to/file.ext");
+
+            Assert.AreEqual(path.ContainerName, "storename");
+            Assert.AreEqual(path.FilePath, "path/to/file.ext");
+        }
 
         public class AzureBlobStorageConnectorWrapper : AzureBlobStorageConnector
         {
