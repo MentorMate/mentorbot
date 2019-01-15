@@ -39,6 +39,12 @@ namespace MentorBot.Tests.Business.Connectors
         }
 
         [TestMethod]
+        public async Task GoogleServiceAccountCredential_ShouldHaveAppName()
+        {
+            Assert.AreEqual("ABC", _accountCredential.ApplicationName);
+        }
+
+        [TestMethod]
         public async Task GetServiceAccountStreamAsync_ShouldReturnTheStreamFromStorageConnector()
         {
             var stream = new MemoryStream(0);

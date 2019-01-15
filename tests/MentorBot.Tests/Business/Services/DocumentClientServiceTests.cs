@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Services;
@@ -38,6 +39,32 @@ namespace MentorBot.Tests.Business.Services
             _documentClient
                 .Received()
                 .CreateDocumentCollectionIfNotExistsAsync(Arg.Any<Uri>(), Arg.Is<DocumentCollection>(it => it.Id == "B"));
+        }
+
+        [TestMethod]
+        public async Task Document_AddAsyncCallsClient()
+        {
+            var model = new Test();
+            var uri = new Uri("http://localhost/");
+            var doc = new DocumentClientService.Document<Test>(_documentClient, uri);
+
+            await doc.AddAsync(model);
+
+            _documentClient.Received().CreateDocumentAsync(uri, model);
+        }
+
+        [TestMethod]
+        public async Task Document_QueryCallsClient()
+        {
+            var uri = new Uri("http://localhost/");
+            var doc = new DocumentClientService.Document<Test>(_documentClient, uri);
+            var models = new[] { new Test() }.AsQueryable();
+
+            _documentClient.CreateDocumentQuery<Test>(uri, "SEL", null).Returns(models);
+
+            var result = doc.Query("SEL");
+
+            Assert.AreEqual(1, result.Count);
         }
 
 #pragma warning restore CS4014
