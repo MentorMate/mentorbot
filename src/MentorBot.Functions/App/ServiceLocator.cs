@@ -70,6 +70,11 @@ namespace MentorBot.Functions.App
             services.AddSingleton<IDocumentClientService>(
                 new DocumentClientService(config["AzureCosmosDBAccountEndpoint"], config["AzureCosmosDBKey"]));
 
+            services.AddSingleton<Func<TimeZoneInfo>>(
+                () => TimeZoneInfo.FindSystemTimeZoneById(config["DefaultTimeZoneName"]));
+            services.AddSingleton<Func<DateTime>>(
+                () => DateTime.Now);
+
             services.AddTransient<IBlobStorageConnector, AzureBlobStorageConnector>();
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();

@@ -9,5 +9,6 @@
   "GoogleCloudApiKey": null,
   "GoogleCreadentialsFilePath": null,
   "AzureCosmosDBAccountEndpoint": null,
-  "AzureCosmosDBKey": null
+  "AzureCosmosDBKey": null,
+  "DefaultTimeZoneName": null
 }

@@ -20,11 +20,13 @@ namespace MentorBot.Functions.Processors
     public sealed class CalendarProcessor : ICommandProcessor
     {
         private readonly IGoogleCalendarConnector _googleCalendarConnector;
+        private readonly Func<TimeZoneInfo> _currentTimeZoneFactory;
 
         /// <summary>Initializes a new instance of the <see cref="CalendarProcessor"/> class.</summary>
-        public CalendarProcessor(IGoogleCalendarConnector googleCalendarConnector)
+        public CalendarProcessor(IGoogleCalendarConnector googleCalendarConnector, Func<TimeZoneInfo> currentTimeZoneFactory)
         {
             _googleCalendarConnector = googleCalendarConnector;
+            _currentTimeZoneFactory = currentTimeZoneFactory;
         }
 
         /// <inheritdoc/>
@@ -61,11 +63,14 @@ namespace MentorBot.Functions.Processors
             }
 
             var link = item.ConferenceData?.EntryPoints.FirstOrDefault();
+            var startDate = item.Start.DateTime.HasValue ?
+                TimeZoneInfo.ConvertTime(item.Start.DateTime.Value, _currentTimeZoneFactory()).ToString("HH:mm", CultureInfo.InvariantCulture) :
+                null;
             var keyValue = new KeyValue
             {
                 Content = item.Summary,
                 ContentMultiline = false,
-                BottomLabel = item.Start.DateTime?.TimeOfDay.ToString(),
+                BottomLabel = startDate,
                 Icon = "INVITE",
                 Button = link == null ? null : ChatEventFactory.CreateTextButton("JOIN", link.Uri)
             };

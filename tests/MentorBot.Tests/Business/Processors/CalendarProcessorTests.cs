@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Google.Apis.Calendar.v3.Data;
 
@@ -25,7 +26,7 @@ namespace MentorBot.Tests.Business.Processors
         public void TestInitialize()
         {
             _connector = Substitute.For<IGoogleCalendarConnector>();
-            _processor = new CalendarProcessor(_connector);
+            _processor = new CalendarProcessor(_connector, () => TimeZoneInfo.Local);
         }
 
         #pragma warning disable CS4014

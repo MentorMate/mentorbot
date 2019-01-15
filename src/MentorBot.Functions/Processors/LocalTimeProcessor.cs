@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +17,16 @@ namespace MentorBot.Functions.Processors
     /// <seealso cref="ICommandProcessor" />
     public class LocalTimeProcessor : ICommandProcessor
     {
+        private readonly Func<TimeZoneInfo> _currentTimeZoneFactory;
+        private readonly Func<DateTime> _dateTimeFactory;
+
+        /// <summary>Initializes a new instance of the <see cref="LocalTimeProcessor"/> class.</summary>
+        public LocalTimeProcessor(Func<TimeZoneInfo> currentTimeZoneFactory, Func<DateTime> dateTimeFactory)
+        {
+            _currentTimeZoneFactory = currentTimeZoneFactory;
+            _dateTimeFactory = dateTimeFactory;
+        }
+
         /// <inheritdoc/>
         public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
             new[]
@@ -30,7 +41,6 @@ namespace MentorBot.Functions.Processors
         /// <inheritdoc/>
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
-            var message = originalChatEvent?.Message ?? throw new ArgumentNullException(nameof(originalChatEvent));
             var locationMatch = Regex.Match(info?.TextSentanceChunk, "in ([\\w\\s]+)$");
             if (locationMatch.Success)
             {
@@ -49,15 +59,20 @@ namespace MentorBot.Functions.Processors
                         new ChatEventResult($"The current time {locationMatch.Value} was not found."));
                 }
 
-                var timeInLocation = TimeZoneInfo.ConvertTime(message.CreateTime, timeZone);
+                var timeInLocation = ConvertDateTimeToString(_dateTimeFactory(), timeZone);
                 return new ValueTask<ChatEventResult>(
-                        new ChatEventResult($"The current time {locationMatch.Value} is {timeInLocation.ToLongTimeString()}."));
+                        new ChatEventResult($"The current time {locationMatch.Value} is {timeInLocation}."));
             }
 
-            var time = originalChatEvent?.EventTime.ToLongTimeString() ?? string.Empty;
+            var time = ConvertDateTimeToString(_dateTimeFactory(), _currentTimeZoneFactory());
 
             return new ValueTask<ChatEventResult>(
-                new ChatEventResult($"The current time is {time} UTC."));
+                new ChatEventResult($"The current time is {time}."));
         }
+
+        private static string ConvertDateTimeToString(DateTime dateTime, TimeZoneInfo timeZone) =>
+            TimeZoneInfo
+                .ConvertTime(dateTime, timeZone)
+                .ToString("HH:mm", CultureInfo.InvariantCulture);
     }
 }
