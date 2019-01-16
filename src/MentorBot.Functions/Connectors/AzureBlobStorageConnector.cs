@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace MentorBot.Functions.Connectors
 {
     /// <summary>A blob storage connector that connect to azure cloud storage.</summary>
     /// <seealso cref="IBlobStorageConnector" />
-    public sealed class AzureBlobStorageConnector : IBlobStorageConnector
+    public class AzureBlobStorageConnector : IBlobStorageConnector
     {
         private readonly CloudStorageAccount _storageAccount;
 
@@ -36,7 +37,8 @@ namespace MentorBot.Functions.Connectors
 
         /// <summary>Gets a block Blob by a path asynchronous.</summary>
         /// <param name="path">The Blob path.</param>
-        public async Task<CloudBlockBlob> GetBlockBlobAsync(string path)
+        [ExcludeFromCodeCoverage]
+        protected virtual async Task<ICloudBlob> GetBlockBlobAsync(string path)
         {
             var myClient = _storageAccount.CreateCloudBlobClient();
             var blobPath = BlobPath.ParseAndValidate(path);
@@ -50,12 +52,17 @@ namespace MentorBot.Functions.Connectors
             return container.GetBlockBlobReference(blobPath.FilePath);
         }
 
-        private struct BlobPath
+        /// <summary>Holds a connection path to a Blob resource.</summary>
+        public struct BlobPath
         {
-            public string ContainerName;
+            /// <summary>Gets the name of the container.</summary>
+            public string ContainerName { get; private set; }
 
-            public string FilePath;
+            /// <summary>Gets the file path.</summary>
+            public string FilePath { get; private set; }
 
+            /// <summary>Parses and validates the path.</summary>
+            /// <param name="path">The full path.</param>
             public static BlobPath ParseAndValidate(string path)
             {
                 if (string.IsNullOrEmpty(path))
