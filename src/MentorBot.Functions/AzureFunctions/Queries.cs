@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.DataResultModels;
-using MentorBot.Functions.Models.Domains;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -20,24 +18,19 @@ namespace MentorBot.Functions
     /// <summary>Application query functions.</summary>
     public static class Queries
     {
-        /// <summary>The messages statistics query.</summary>
-        public const string MessagesStatisticsQuery = "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m";
-
         /// <summary>The main Azure function.</summary>
         [FunctionName("get-messages-stats")]
-        public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatisticsAsync(
+        public static IEnumerable<MessagesStatistic> GetMessagesStatisticsAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
         {
             Debug.Write(req);
 
             ServiceLocator.EnsureServiceProvider();
 
-            var client = ServiceLocator.Get<IDocumentClientService>() ?? throw new NullReferenceException();
+            var storage = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
 
-            var document = await client.GetAsync<Message>("mentorbot", "messages").ConfigureAwait(false);
-
-            var messages = document
-                .Query(MessagesStatisticsQuery)
+            var messages = storage
+                .GetMessages()
                 .GroupBy(it => it.ProbabilityPercentage / 10)
                 .Select(group => new MessagesStatistic
                 {

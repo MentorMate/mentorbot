@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
-using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.Options;
 
@@ -43,7 +42,6 @@ namespace MentorBot.Functions
             ServiceLocator.EnsureServiceProvider();
 
             var content = req.Content ?? throw new ArgumentNullException(nameof(req));
-            var client = ServiceLocator.Get<IDocumentClientService>();
             var hangoutsChatService = ServiceLocator.Get<IHangoutsChatService>();
             var options = ServiceLocator.Get<GoogleCloudOptions>();
 
@@ -65,18 +63,17 @@ namespace MentorBot.Functions
                 .BasicAsync(hangoutChatEvent)
                 .ConfigureAwait(false);
 
-            if (client.IsConnected)
-            {
-                log.LogDebug("Add message to document database mentorbot.");
+            // TODO: Temp remove the adding of message to save DB RU resource.
+            ////if (client.IsConnected)
+            ////{
+            ////    var document = await client
+            ////        .GetAsync<Message>("mentorbot", "messages")
+            ////        .ConfigureAwait(false);
 
-                var document = await client
-                    .GetAsync<Message>("mentorbot", "messages")
-                    .ConfigureAwait(false);
-
-                await document
-                    .AddAsync(result)
-                    .ConfigureAwait(false);
-            }
+            ////    await document
+            ////        .AddAsync(result)
+            ////        .ConfigureAwait(false);
+            ////}
 
             log.LogInformation(result.Output?.Text);
 

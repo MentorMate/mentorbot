@@ -26,27 +26,12 @@ namespace MentorBot.Tests.Business.Services
         }
 
 #pragma warning disable CS4014
-
-        [TestMethod]
-        public async Task GetAsyncEnsureDatabaseAndCollectionCreation()
-        {
-           await _service.GetAsync<Test>("A", "B");
-
-            _documentClient
-                .Received()
-                .CreateDatabaseIfNotExistsAsync(Arg.Is<Database>(it => it.Id == "A"));
-
-            _documentClient
-                .Received()
-                .CreateDocumentCollectionIfNotExistsAsync(Arg.Any<Uri>(), Arg.Is<DocumentCollection>(it => it.Id == "B"));
-        }
-
         [TestMethod]
         public async Task Document_AddAsyncCallsClient()
         {
             var model = new Test();
             var uri = new Uri("http://localhost/");
-            var doc = new DocumentClientService.Document<Test>(_documentClient, uri);
+            var doc = new DocumentClientService.Document<Test>(_documentClient, uri, null);
 
             await doc.AddAsync(model);
 
@@ -57,7 +42,7 @@ namespace MentorBot.Tests.Business.Services
         public void Document_QueryCallsClient()
         {
             var uri = new Uri("http://localhost/");
-            var doc = new DocumentClientService.Document<Test>(_documentClient, uri);
+            var doc = new DocumentClientService.Document<Test>(_documentClient, uri, null);
             var models = new[] { new Test() }.AsQueryable();
 
             _documentClient.CreateDocumentQuery<Test>(uri, "SEL", null).Returns(models);

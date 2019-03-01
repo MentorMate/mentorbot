@@ -97,7 +97,7 @@ namespace MentorBot.Tests.Business.Processors
             var user = new User { Name = "Test", Department = new Department { Name = "Q" }, OpenAirUserId = 2 };
             var date = new DateTime(2019, 2, 1);
 
-            storageService.GetUsersByIdListAsync(null).ReturnsForAnyArgs(new[] { user });
+            storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
 
             // Act
             var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date);

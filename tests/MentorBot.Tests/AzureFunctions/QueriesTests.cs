@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
@@ -18,20 +17,19 @@ namespace MentorBot.Tests.AzureFunctions
     public class QueriesTests
     {
         [TestMethod]
-        public async Task GetMessagesStatisticsAsyncShouldQueryDocument()
+        public void GetMessagesStatisticsAsyncShouldQueryDocument()
         {
-            var documentClientService = Substitute.For<IDocumentClientService>();
+            var storageService = Substitute.For<IStorageService>();
             var document = Substitute.For<IDocument<Message>>();
             var message1 = new Message { ProbabilityPercentage = 96 };
             var message2 = new Message { ProbabilityPercentage = 82 };
 
-            documentClientService.GetAsync<Message>("mentorbot", "messages").Returns(document);
-            document.Query(Queries.MessagesStatisticsQuery).Returns(new[] { message1, message2 });
+            storageService.GetMessages().Returns(new[] { message1, message2 });
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IDocumentClientService), documentClientService));
+                new ServiceDescriptor(typeof(IStorageService), storageService));
 
-            var result = await Queries.GetMessagesStatisticsAsync(null);
+            var result = Queries.GetMessagesStatisticsAsync(null);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);
