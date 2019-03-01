@@ -54,7 +54,7 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task Document_QueryCallsClient()
+        public void Document_QueryCallsClient()
         {
             var uri = new Uri("http://localhost/");
             var doc = new DocumentClientService.Document<Test>(_documentClient, uri);

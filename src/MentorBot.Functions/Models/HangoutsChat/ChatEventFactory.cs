@@ -27,6 +27,25 @@ namespace MentorBot.Functions.Models.HangoutsChat
                 }
             };
 
+        /// <summary>Creates a result card from text paragraph widget.</summary>
+        public static Card CreateCard(TextParagraph textParagraph) =>
+            new Card
+            {
+                Sections = new[]
+                {
+                    new Section
+                    {
+                        Widgets = new[]
+                        {
+                            new WidgetMarkup
+                            {
+                                TextParagraph = textParagraph
+                            }
+                        }
+                    }
+                }
+            };
+
         /// <summary>Creates a result card text button.</summary>
         /// <param name="label">The button label.</param>
         /// <param name="url">The button URL.</param>

@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 
@@ -43,8 +44,7 @@ namespace MentorBot.Functions.Processors
                     int.TryParse(delayStr, out int delayMs))
                 {
                     Task.Delay(delayMs)
-                        .ContinueWith(task => responder
-                        .SendMessageAsync(text, originalChatEvent.Space, originalChatEvent.Message.Thread, originalChatEvent.Message.Sender));
+                        .ContinueWith(task => responder.SendMessageAsync(text, new GoogleChatAddress(originalChatEvent)));
 
                     return Value(null);
                 }

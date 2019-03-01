@@ -1,7 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "",
+    "AzureWebJobsStorage": null,
     "AzureWebJobsDashboard": ""
   },
   "HangoutChatRequestToken": null,
@@ -10,5 +10,10 @@
   "GoogleCreadentialsFilePath": null,
   "AzureCosmosDBAccountEndpoint": null,
   "AzureCosmosDBKey": null,
-  "DefaultTimeZoneName": null
+  "DefaultTimeZoneName": null,
+  "OpenAirUrl": null,
+  "OpenAirCompany": null,
+  "OpenAirApiKey": null,
+  "OpenAirUserName": null,
+  "OpenAirPassword": null
 }

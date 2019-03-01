@@ -39,7 +39,7 @@ namespace MentorBot.Tests.Business.Connectors
         }
 
         [TestMethod]
-        public async Task GoogleServiceAccountCredential_ShouldHaveAppName()
+        public void GoogleServiceAccountCredential_ShouldHaveAppName()
         {
             Assert.AreEqual("ABC", _accountCredential.ApplicationName);
         }
