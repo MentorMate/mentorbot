@@ -111,8 +111,9 @@ namespace MentorBot.Functions.Services
             else if (notify && filteredTimesheet.Count > 0)
             {
                 var emails = filteredTimesheet.Select(it => it.UserEmail).ToArray();
-                var storeAddresses = await _storageService.GetAddressesAsync();
+                var storeAddresses = _storageService.GetAddresses();
                 var filteredAddresses = storeAddresses.Where(it => emails.Contains(it.UserEmail)).ToArray();
+                var addressesForUpdate = new List<GoogleAddress>();
 
                 IReadOnlyList<GoogleAddress> privateAddresses = new GoogleAddress[0];
                 if (filteredAddresses.Length < timesheets.Count)
@@ -129,10 +130,7 @@ namespace MentorBot.Functions.Services
                         .ToArray();
 
                     // Store inactive spaces, so not to be requested the next time
-                    foreach (var addr in privateAddresses.Where(it => it.UserName == null))
-                    {
-                        await _storageService.AddAddressAsync(addr);
-                    }
+                    addressesForUpdate.AddRange(privateAddresses.Where(it => it.UserName == null));
                 }
 
                 foreach (var timesheet in filteredTimesheet)
@@ -148,13 +146,19 @@ namespace MentorBot.Functions.Services
                         }
 
                         addr.UserEmail = timesheet.UserEmail;
-                        await _storageService.AddAddressAsync(addr);
+
+                        addressesForUpdate.Add(addr);
                     }
 
                     notifiedUserList.Add(timesheet.UserName);
                     await connector.SendMessageAsync(
                         message,
                         new GoogleChatAddress(addr.SpaceName, string.Empty, "DM", addr.UserName, addr.UserDisplayName));
+                }
+
+                if (addressesForUpdate.Count > 0)
+                {
+                    await _storageService.AddAddressesAsync(addressesForUpdate);
                 }
 
                 text = notifiedUserList.Count == filteredTimesheet.Count ?

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 
+using Microsoft.Azure.CosmosDB.BulkExecutor;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
@@ -48,22 +49,14 @@ namespace MentorBot.Functions.Services
         public bool IsConnected => !string.IsNullOrEmpty(_accountEndpoint) && !string.IsNullOrEmpty(_authKeyOrResourceToken);
 
         /// <inheritdoc/>
-        public async Task<IDocument<T>> GetAsync<T>(string databaseName, string collectionName)
+        public IDocument<T> Get<T>(string databaseName, string collectionName)
         {
             var client = _client.Value;
-            var db = new Database { Id = databaseName };
             var documentCollection = new DocumentCollection { Id = collectionName };
 
-            var databaseLink = UriFactory.CreateDatabaseUri(databaseName);
             var documentCollectionLink = UriFactory.CreateDocumentCollectionUri(databaseName, collectionName);
 
-            await client.CreateDatabaseIfNotExistsAsync(db)
-                        .ConfigureAwait(false);
-
-            await client.CreateDocumentCollectionIfNotExistsAsync(databaseLink, documentCollection)
-                        .ConfigureAwait(false);
-
-            return new Document<T>(client, documentCollectionLink);
+            return new Document<T>(client, documentCollectionLink, documentCollection);
         }
 
         /// <summary>A document collection resource.</summary>
@@ -72,12 +65,31 @@ namespace MentorBot.Functions.Services
         {
             private readonly IDocumentClient _client;
             private readonly Uri _documentCollectionUri;
+            private readonly DocumentCollection _documentCollection;
 
             /// <summary>Initializes a new instance of the <see cref="Document{T}"/> class.</summary>
-            public Document(IDocumentClient client, Uri documentCollectionUri)
+            public Document(IDocumentClient client, Uri documentCollectionUri, DocumentCollection documentCollection)
             {
                 _client = client;
                 _documentCollectionUri = documentCollectionUri;
+                _documentCollection = documentCollection;
+            }
+
+            /// <inheritdoc/>
+            public async Task<bool> AddManyAsync(IReadOnlyList<T> items)
+            {
+                if (_client is DocumentClient documentClient)
+                {
+                    var executor = new BulkExecutor(documentClient, _documentCollection);
+
+                    await executor.InitializeAsync();
+
+                    var response = await executor.BulkImportAsync(items.Cast<object>());
+
+                    return response.NumberOfDocumentsImported == items.Count;
+                }
+
+                return false;
             }
 
             /// <inheritdoc/>

@@ -15,6 +15,7 @@ namespace MentorBot.Functions.Services
         private const string DatabaseName = "mentorbot";
         private const string UserDocumentName = "users";
         private const string AddressDocumentName = "addresses";
+        private const string MessagesDocumentName = "messages";
 
         private readonly IDocumentClientService _documentClientService;
 
@@ -25,49 +26,55 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync() =>
+        public IReadOnlyList<GoogleAddress> GetAddresses() =>
              QueryWhenConnectedAsync<GoogleAddress>(
                  "SELECT TOP 1000 * FROM addresses",
                  AddressDocumentName);
 
         /// <inheritdoc/>
-        public Task AddAddressAsync(GoogleAddress address) =>
-            AddAsync(address, AddressDocumentName);
+        public IReadOnlyList<Message> GetMessages() =>
+             QueryWhenConnectedAsync<Message>(
+                 "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m",
+                 MessagesDocumentName);
 
         /// <inheritdoc/>
-        public Task<User> GetUserByEmailAsync(string email) =>
+        public Task<bool> AddAddressesAsync(IReadOnlyList<GoogleAddress> addresses) =>
+            AddAsync(addresses, AddressDocumentName);
+
+        /// <inheritdoc/>
+        public User GetUserByEmail(string email) =>
             QueryWhenConnectedAsync<User>($"SELECT TOP 1 * FROM users u WHERE u.Email = \"{email}\"", UserDocumentName)
-                .ContinueWith(task => task.Result.FirstOrDefault());
+                .FirstOrDefault();
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<User>> GetUsersByIdListAsync(IEnumerable<long> userIdList) =>
+        public IReadOnlyList<User> GetUsersByIdList(IEnumerable<long> userIdList) =>
             userIdList != null && userIdList.Any() ?
                 QueryWhenConnectedAsync<User>($"SELECT TOP 1000 * FROM users u WHERE u.OpenAirUserId in ({string.Join(',', userIdList)})", UserDocumentName) :
-                Task.FromResult<IReadOnlyList<User>>(new User[0]);
+                new User[0];
 
         /// <inheritdoc/>
-        public Task AddUserAsync(User user) =>
-            AddAsync(user, UserDocumentName);
+        public Task<bool> AddUsersAsync(IReadOnlyList<User> users) =>
+            AddAsync(users, UserDocumentName);
 
-        private async Task<IReadOnlyList<T>> QueryWhenConnectedAsync<T>(string sqlException, string documentName)
+        private IReadOnlyList<T> QueryWhenConnectedAsync<T>(string sqlException, string documentName)
             where T : class
         {
             if (_documentClientService.IsConnected)
             {
-                var document = await _documentClientService.GetAsync<T>(DatabaseName, documentName);
-                return document.Query(sqlException);
+                return _documentClientService.Get<T>(DatabaseName, documentName).Query(sqlException);
             }
 
             return new T[0];
         }
 
-        private async Task AddAsync<T>(T domainModel, string documentName)
+        private async Task<bool> AddAsync<T>(IReadOnlyList<T> domainModels, string documentName)
         {
             if (_documentClientService.IsConnected)
             {
-                var document = await _documentClientService.GetAsync<T>(DatabaseName, documentName);
-                await document.AddAsync(domainModel);
+                return await _documentClientService.Get<T>(DatabaseName, documentName).AddManyAsync(domainModels);
             }
+
+            return false;
         }
     }
 }

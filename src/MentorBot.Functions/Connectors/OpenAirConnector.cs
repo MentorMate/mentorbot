@@ -68,7 +68,7 @@ namespace MentorBot.Functions.Connectors
         public async Task<IReadOnlyList<User>> GetUsersWithDepartmentAsync(IEnumerable<long> userIdList)
         {
             var usersList = new List<User>(
-                await _storageService.GetUsersByIdListAsync(userIdList));
+                _storageService.GetUsersByIdList(userIdList));
 
             var usersListIdList = usersList.Select(it => it.OpenAirUserId).ToArray();
             var usersIdListNotStored = userIdList.Where(id => !usersListIdList.Contains(id)).ToArray();
@@ -94,9 +94,9 @@ namespace MentorBot.Functions.Connectors
                 user.Department.Name = departmentNames[user.Department.OpenAirDepartmentId.Value];
             }
 
-            foreach (var user in usersFromOpenAir)
+            if (usersFromOpenAir.Count > 0)
             {
-                await _storageService.AddUserAsync(user);
+                await _storageService.AddUsersAsync(usersFromOpenAir);
             }
 
             return usersList;

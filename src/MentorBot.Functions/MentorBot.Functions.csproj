@@ -10,8 +10,8 @@
   </PropertyGroup>
   <ItemGroup Label="NuGet Packages">
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.36.1.1424" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Azure.CosmosDB.BulkExecutor" Version="2.2.0-preview2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
     <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.36.1.1425" />
   </ItemGroup>

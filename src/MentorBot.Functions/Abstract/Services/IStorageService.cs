@@ -10,21 +10,24 @@ namespace MentorBot.Functions.Abstract.Services
     /// <summary>The service that store domain models.</summary>
     public interface IStorageService
     {
-        /// <summary>Gets the addresses asynchronous.</summary>
-        Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync();
+        /// <summary>Gets the addresses.</summary>
+        IReadOnlyList<GoogleAddress> GetAddresses();
 
-        /// <summary>Adds the address asynchronous.</summary>
-        Task AddAddressAsync(GoogleAddress address);
+        /// <summary>Adds the addresses asynchronous.</summary>
+        Task<bool> AddAddressesAsync(IReadOnlyList<GoogleAddress> addresses);
 
         /// <summary>Gets the user by email.</summary>
         /// <param name="email">The email.</param>
-        Task<User> GetUserByEmailAsync(string email);
+        User GetUserByEmail(string email);
 
         /// <summary>Gets the user by list of identifiers.</summary>
         /// <param name="userIdList">The list of user identifiers.</param>
-        Task<IReadOnlyList<User>> GetUsersByIdListAsync(IEnumerable<long> userIdList);
+        IReadOnlyList<User> GetUsersByIdList(IEnumerable<long> userIdList);
 
-        /// <summary>Adds the user asynchronous.</summary>
-        Task AddUserAsync(User user);
+        /// <summary>Adds the users asynchronous.</summary>
+        Task<bool> AddUsersAsync(IReadOnlyList<User> users);
+
+        /// <summary>Gets the messages.</summary>
+        IReadOnlyList<Message> GetMessages();
     }
 }
