@@ -57,7 +57,7 @@ namespace MentorBot.Functions.Connectors
 
             var result = unsubmittedTimesheets
                 .Select(it => new { timesheet = it, user = users.FirstOrDefault(user => user.OpenAirUserId == it.UserId) })
-                .Where(it => it.user != null)
+                .Where(it => it.user != null && it.user.Active)
                 .Select(it => new Timesheet
                 {
                     Name = it.timesheet.Name,
