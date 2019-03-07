@@ -8,11 +8,10 @@ namespace MentorBot.Functions.Models.TextAnalytics
     public class CognitiveTextAnalysisResult
     {
         /// <summary>Initializes a new instance of the <see cref="CognitiveTextAnalysisResult"/> class.</summary>
-        public CognitiveTextAnalysisResult(TextDeconstructionInformation information, ICommandProcessor command, double confidenceRating)
+        public CognitiveTextAnalysisResult(TextDeconstructionInformation information, ICommandProcessor command)
         {
             TextDeconstructionInformation = information;
             CommandProcessor = command;
-            ConfidenceRating = confidenceRating;
         }
 
         /// <summary>Gets the text deconstruction information.</summary>
@@ -20,8 +19,5 @@ namespace MentorBot.Functions.Models.TextAnalytics
 
         /// <summary>Gets most likely command processor.</summary>
         public ICommandProcessor CommandProcessor { get; }
-
-        /// <summary>Gets the confidence rating for selecting the command processor.</summary>
-        public double ConfidenceRating { get; }
     }
 }

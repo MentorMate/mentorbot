@@ -13,6 +13,9 @@ namespace MentorBot.Functions.Models.Options
             var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             AzureStorageAccountConnectionString = config["AzureWebJobsStorage"] ?? config["Value.AzureWebJobsStorage"];
+            LuisApiHostName = config[nameof(LuisApiHostName)];
+            LuisApiAppId = config[nameof(LuisApiAppId)];
+            LuisApiAppKey = config[nameof(LuisApiAppKey)];
         }
 
         /// <summary>Gets or sets the azure storage account connection string.</summary>
@@ -20,5 +23,14 @@ namespace MentorBot.Functions.Models.Options
 
         /// <summary>Gets the azure storage local cache folder.</summary>
         public string AzureStorageLocalCacheFolder => "store_cache";
+
+        /// <summary>Gets or sets the name of the LUIS API host.</summary>
+        public string LuisApiHostName { get; set; }
+
+        /// <summary>Gets or sets the LUIS API application identifier.</summary>
+        public string LuisApiAppId { get; set; }
+
+        /// <summary>Gets or sets the LUIS API application key.</summary>
+        public string LuisApiAppKey { get; set; }
     }
 }

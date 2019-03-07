@@ -10,10 +10,13 @@
   "GoogleCreadentialsFilePath": null,
   "AzureCosmosDBAccountEndpoint": null,
   "AzureCosmosDBKey": null,
-  "DefaultTimeZoneName": null,
+  "DefaultTimeZoneName": "FLE Standard Time",
   "OpenAirUrl": null,
   "OpenAirCompany": null,
   "OpenAirApiKey": null,
   "OpenAirUserName": null,
-  "OpenAirPassword": null
+  "OpenAirPassword": null,
+  "LuisApiHostName": null,
+  "LuisApiAppId": null,
+  "LuisApiAppKey": null
 }

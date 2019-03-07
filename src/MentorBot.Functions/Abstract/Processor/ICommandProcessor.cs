@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Models.HangoutsChat;
@@ -11,8 +10,8 @@ namespace MentorBot.Functions.Abstract.Processor
     /// <summary>An abstraction used for command processing.</summary>
     public interface ICommandProcessor
     {
-        /// <summary>Gets the initalialization command definitians. This is used when cognitive service can not recognize the command.</summary>
-        IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians { get; }
+        /// <summary>Gets the subject the proccessor is processing.</summary>
+        string Subject { get; }
 
         /// <summary>Processes the when the cognitive service has chosen this command as most likely.</summary>
         /// <param name="info">The test sentance chink information.</param>

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,17 +29,7 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
-            new[]
-            {
-                new TextDeconstructionInformation("What is my next meeting", "meeting", SentenceTypes.Question),
-                new TextDeconstructionInformation("What is my next event", "event", SentenceTypes.Question),
-                new TextDeconstructionInformation("Show me my next meeting", "meeting", SentenceTypes.Question),
-                new TextDeconstructionInformation("Show me my next event", "event", SentenceTypes.Question),
-                new TextDeconstructionInformation("Get my next meeting", "meeting", SentenceTypes.Question),
-                new TextDeconstructionInformation("Get my next event", "event", SentenceTypes.Question),
-                new TextDeconstructionInformation("What is next on my calendar", "calendar", SentenceTypes.Question)
-            };
+        public string Subject => "Meetings";
 
         /// <inheritdoc/>
         public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)

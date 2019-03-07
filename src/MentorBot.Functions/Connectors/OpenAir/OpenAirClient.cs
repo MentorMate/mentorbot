@@ -126,33 +126,46 @@ namespace MentorBot.Functions.Connectors.OpenAir
             return result.Read.User.FirstOrDefault();
         }
 
-        /// <summary>Gets the department by identifier asynchronous.</summary>
-        /// <param name="departmentId">The department identifier.</param>
-        public async Task<Department> GetDepartmentByIdAsync(long departmentId)
+        /// <summary>Gets the user by identifier asynchronous.</summary>
+        public async Task<User[]> GetAllUserAsync()
+        {
+            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
+
+            req.Read = new Read
+            {
+                Type = DateType.User,
+                Method = "all",
+                Limit = 1000,
+                Return = new RaedReturn
+                {
+                    Content = "<id /><name /><timezone/><addr /><departmentid /><active />"
+                }
+            };
+
+            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
+
+            return result.Read.User;
+        }
+
+        /// <summary>Gets all departments asynchronous.</summary>
+        public async Task<Department[]> GetAllDepartmentsAsync()
         {
             var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
 
             req.Read = new Read
             {
                 Type = DateType.Department,
-                Method = "equal to",
-                Limit = 1,
-                Department = new[]
-                {
-                    new Department
-                    {
-                        Id = departmentId
-                    }
-                },
+                Method = "all",
+                Limit = 1000,
                 Return = new RaedReturn
                 {
-                    Content = "<id /><userid/><name />"
+                    Content = "<id /><name /><userid />"
                 }
             };
 
             var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
 
-            return result.Read.Department.FirstOrDefault();
+            return result.Read.Department;
         }
 
         private static string Serialize<T>(T model)

@@ -27,7 +27,7 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date)
+        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, string[] filterByProjects)
         {
             var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
@@ -47,7 +47,13 @@ namespace MentorBot.Functions.Connectors
                 .Where(it => it.Total < requiredHours)
                 .ToArray();
 
-            var users = await GetUsersWithDepartmentAsync(unsubmittedTimesheets.Select(it => it.UserId));
+            var users = _storageService.GetUsersByIdList(
+                unsubmittedTimesheets.Select(it => it.UserId).Distinct().ToArray());
+
+            if (filterByProjects != null && filterByProjects.Any())
+            {
+                users = users.Where(it => it.Projects == null || FiterProjectsByNames(it.Projects, filterByProjects)).ToArray();
+            }
 
             var result = unsubmittedTimesheets
                 .Select(it => new { timesheet = it, user = users.FirstOrDefault(user => user.OpenAirUserId == it.UserId) })
@@ -65,74 +71,63 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<User>> GetUsersWithDepartmentAsync(IEnumerable<long> userIdList)
+        public async Task SyncUsersAsync()
         {
-            var usersList = new List<User>(
-                _storageService.GetUsersByIdList(userIdList));
-
-            var usersListIdList = usersList.Select(it => it.OpenAirUserId).ToArray();
-            var usersIdListNotStored = userIdList.Where(id => !usersListIdList.Contains(id)).ToArray();
-            var usersFromOpenAir = ExecuteAsyncTasks(
-                usersIdListNotStored.Select(_client.GetUserByIdAsync),
-                CreateUser);
-
-            usersList.AddRange(usersFromOpenAir);
-
-            var usersFromOpenAirWithDepartmentId =
-                usersFromOpenAir.Where(it => it.Department.OpenAirDepartmentId.HasValue);
-
-            var departments = ExecuteAsyncTasks(
-                usersFromOpenAirWithDepartmentId
-                    .Select(it => it.Department.OpenAirDepartmentId.Value)
-                    .Distinct()
-                    .Select(_client.GetDepartmentByIdAsync),
-                CreateDepartment);
-
-            var departmentNames = departments.ToDictionary(it => it.OpenAirDepartmentId, it => it.Name);
-            foreach (var user in usersFromOpenAirWithDepartmentId)
+            var storedUsers = _storageService.GetAllUsers();
+            var openAirModelUsers = await _client.GetAllUserAsync();
+            var openAirDepartments = await _client.GetAllDepartmentsAsync();
+            var usersListToUpdate = new List<User>();
+            var usersListToAdd = new List<User>();
+            foreach (var user in openAirModelUsers)
             {
-                user.Department.Name = departmentNames[user.Department.OpenAirDepartmentId.Value];
+                var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
+                var department = openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId);
+                if (storedUser == null && user.Active == true)
+                {
+                    var createUser = CreateUser(null, user, department, null);
+                    usersListToAdd.Add(createUser);
+                }
+                else if (storedUser != null &&
+                    (storedUser.Active != user.Active
+                    || storedUser.Department.OpenAirDepartmentId != user.DepartmentId))
+                {
+                    var updateUser = CreateUser(storedUser.Id, user, department, null);
+                    usersListToUpdate.Add(updateUser);
+                }
             }
 
-            if (usersFromOpenAir.Count > 0)
+            if (usersListToAdd.Count > 0)
             {
-                await _storageService.AddUsersAsync(usersFromOpenAir);
+                await _storageService.AddUsersAsync(usersListToAdd);
             }
 
-            return usersList;
-        }
-
-        private static IReadOnlyList<TDestination> ExecuteAsyncTasks<TSource, TDestination>(
-            IEnumerable<Task<TSource>> tasks,
-            Func<TSource, TDestination> creator)
-        {
-            var tasksArray = tasks.ToArray();
-            Task.WaitAll(tasksArray);
-            return tasksArray.Select(task => creator(task.Result)).ToArray();
-        }
-
-        private static User CreateUser(OpenAirClient.User user)
-        {
-            return new User
+            if (usersListToUpdate.Count > 0)
             {
+                await _storageService.UpdateUsersAsync(usersListToUpdate);
+            }
+        }
+
+        private static bool FiterProjectsByNames(Project[] projects, string[] projectNames) =>
+            !projects.Any(it => projectNames.Any(name => name.Equals(it.Name, StringComparison.InvariantCultureIgnoreCase)));
+
+        private static User CreateUser(Guid? id, OpenAirClient.User user, OpenAirClient.Department department, Project[] projects) =>
+            new User
+            {
+                Id = id,
                 OpenAirUserId = user.Id,
                 Name = user.Name,
                 Email = user.Address.FirstOrDefault()?.Email,
-                Department = new Department
-                {
-                    OpenAirDepartmentId = user.DepartmentId
-                }
+                Active = user.Active ?? false,
+                Department = CreateDepartment(department),
+                Projects = projects
             };
-        }
 
-        private static Department CreateDepartment(OpenAirClient.Department department)
-        {
-            return new Department
+        private static Department CreateDepartment(OpenAirClient.Department department) =>
+            new Department
             {
                 OpenAirDepartmentId = department.Id,
                 Name = department.Name
             };
-        }
 
         private static string FormatDisplayName(string name)
         {

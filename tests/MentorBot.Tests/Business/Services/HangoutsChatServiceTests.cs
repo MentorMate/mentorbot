@@ -56,6 +56,6 @@ namespace MentorBot.Tests.Business.Services
             new ChatEvent();
 
         private static CognitiveTextAnalysisResult GetCognitiveTextAnalysisResult() =>
-            new CognitiveTextAnalysisResult(null, null, 0.99);
+            new CognitiveTextAnalysisResult(null, null);
     }
 }

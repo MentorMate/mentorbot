@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
@@ -35,44 +34,17 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
-            new[]
-            {
-                new TextDeconstructionInformation("Get unsubmited timesheets", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Get unsubmitted timesheets", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Get unsubmited timesheets in department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Get unsubmitted timesheets in department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Get unsubmited timesheets from department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Get unsubmitted timesheets from department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmited timesheets", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmitted timesheets", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmited timesheets in department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmitted timesheets in department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmited timesheets from department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Show unsubmitted timesheets from department", "timesheet", SentenceTypes.Command),
-                new TextDeconstructionInformation("Notify unsubmited timesheets", "timesheet", SentenceTypes.Command, "Notify"),
-                new TextDeconstructionInformation("Notify unsubmitted timesheets", "timesheet", SentenceTypes.Command, "Notify"),
-                new TextDeconstructionInformation("Notify unsubmited timesheets from department", "timesheet", SentenceTypes.Command, "Notify"),
-                new TextDeconstructionInformation("Notify unsubmitted timesheets from department", "timesheet", SentenceTypes.Command, "Notify"),
-                new TextDeconstructionInformation("Notify unsubmited timesheets in department", "timesheet", SentenceTypes.Command, "Notify"),
-                new TextDeconstructionInformation("Notify unsubmitted timesheets in department", "timesheet", SentenceTypes.Command, "Notify")
-            };
+        public string Subject => "Timesheets";
 
         /// <inheritdoc/>
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
-            if (info == null)
-            {
-                return new ValueTask<ChatEventResult>(
-                    new ChatEventResult("I do not understand the sentance."));
-            }
-
             var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
-            var department = Regex.Match(info.TextSentanceChunk, "department ['\"]?([\\w\\.\\-_]+)['\"]?$");
-            var departmentValue = department.Success && department.Groups.Count == 2 ? department.Groups[1].Value : null;
+            var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.Replace(". ", ".", StringComparison.InvariantCulture);
+            var projectsValue = info.Entities.GetValueOrDefault("Projects")?.Split(',');
 
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(DateTime.Today)
-                .ContinueWith(task => ProcessNotify(
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(DateTime.Today, projectsValue)
+                .ContinueWith(task => ProcessNotifyAsync(
                     task.Result,
                     departmentValue,
                     notify,
@@ -88,7 +60,7 @@ namespace MentorBot.Functions.Services
                 .Select(it => $"<b>{it.UserName}:</b> {it.Total} <i>({it.DepartmentName})</i><br>"));
 
         /// <summary>Processes the specified timesheets.</summary>
-        private async Task ProcessNotify(
+        private async Task ProcessNotifyAsync(
             IReadOnlyList<Timesheet> timesheets,
             string department,
             bool notify,

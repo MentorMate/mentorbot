@@ -20,7 +20,7 @@ namespace MentorBot.Functions
     {
         /// <summary>The main Azure function.</summary>
         [FunctionName("get-messages-stats")]
-        public static IEnumerable<MessagesStatistic> GetMessagesStatisticsAsync(
+        public static IEnumerable<MessagesStatistic> GetMessagesStatistics(
             [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
         {
             Debug.Write(req);

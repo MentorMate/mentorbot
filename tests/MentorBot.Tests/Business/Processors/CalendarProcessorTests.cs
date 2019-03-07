@@ -36,7 +36,7 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task WhenAskedForMeeting_ShouldUseConnector(string phrase, string mail)
         {
-            var info = new TextDeconstructionInformation("What is my next meeting", null, SentenceTypes.Question);
+            var info = new TextDeconstructionInformation("What is my next meeting", null);
             var chatEvent = GetChatEvent(phrase, mail);
 
             _connector.GetNextMeetingAsync(mail).Returns((Event)null);

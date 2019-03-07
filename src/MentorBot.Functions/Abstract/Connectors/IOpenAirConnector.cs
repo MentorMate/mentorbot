@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Models.Business;
-using MentorBot.Functions.Models.Domains;
 
 namespace MentorBot.Functions.Abstract.Connectors
 {
@@ -13,10 +12,9 @@ namespace MentorBot.Functions.Abstract.Connectors
     public interface IOpenAirConnector
     {
         /// <summary>Get unsubmitted timesheet to the peaople I have access to.</summary>
-        Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date);
+        Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, string[] filterByProjects);
 
-        /// <summary>Gets the users with department asynchronous.</summary>
-        /// <param name="userIdList">The user identifier list.</param>
-        Task<IReadOnlyList<User>> GetUsersWithDepartmentAsync(IEnumerable<long> userIdList);
+        /// <summary>Synchronizes the users from open air to store.</summary>
+        Task SyncUsersAsync();
     }
 }

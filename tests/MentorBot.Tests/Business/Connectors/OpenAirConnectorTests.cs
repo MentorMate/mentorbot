@@ -25,7 +25,7 @@ namespace MentorBot.Tests.Business.Processors
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler
             {
-                ResponseContent = "<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Timesheet><status>A</status><userid>722</userid><name>02/25/19 to 03/03/19 PTO from Chronomate</name><total>8.00</total><starts><Date><hour/><minute/><timezone/><second/><month>02</month><day>25</day><year>2019</year></Date></starts><notes>PTO from Chronomate</notes></Timesheet></Read ></response>"
+                ResponseContent = "<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Timesheet><status>A</status><userid>722</userid><name>02/25/19 to 03/03/19 PTO</name><total>8.00</total><starts><Date><hour/><minute/><timezone/><second/><month>02</month><day>25</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>"
             };
 
             var client = new OpenAirClient(() => handler, options);
@@ -64,7 +64,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task OpenAirClientGetDepartmentByIdAsync_ShouldParseResult()
+        public async Task OpenAirClientGetAllDepartments_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "U", "P");
             var handler = new MockHttpMessageHandler
@@ -73,13 +73,14 @@ namespace MentorBot.Tests.Business.Processors
             };
 
             var client = new OpenAirClient(() => handler, options);
-            var user = await client.GetDepartmentByIdAsync(101);
+            var departments = await client.GetAllDepartmentsAsync();
             var content = Encoding.UTF8.GetString(handler.Content);
+            var department = departments.First();
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"equal to\" limit=\"1\"><Department><id>101</id></Department><_Return><id /><userid/><name /></_Return></Read></request>", content);
-            Assert.AreEqual(101, user.Id);
-            Assert.AreEqual(".NET", user.Name);
-            Assert.AreEqual(1, user.UserId);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"all\" limit=\"1000\"><_Return><id /><name /><userid /></_Return></Read></request>", content);
+            Assert.AreEqual(101, department.Id);
+            Assert.AreEqual(".NET", department.Name);
+            Assert.AreEqual(1, department.UserId);
         }
 
         [TestMethod]
@@ -100,7 +101,7 @@ namespace MentorBot.Tests.Business.Processors
             storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, null);
 
             var content = Encoding.UTF8.GetString(handler.Content);
 
@@ -111,5 +112,40 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual("Q", timesheets[0].DepartmentName);
             Assert.AreEqual(30, timesheets[0].Total);
         }
+
+        [TestMethod]
+        public async Task OpenAirConnector_GetUnsubmittedTimesheetsWithOldDataAsync()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler
+            {
+                ResponseContent = "<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Timesheet><status>A</status><userid>397</userid><name>PTO</name><total>8.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>283</userid><name>PTO</name><total>8.00</total><starts><Date><month>03</month><day>04</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>520</userid><name>PTO</name><total>16.00</total><starts><Date><month>03</month><day>04</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>283</userid><name/><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>722</userid><name/><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>397</userid><name/><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>133</userid><name/><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>921</userid><name/><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>283</userid><name/><total>8.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>921</userid><name/><total>8.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet><Timesheet><status>A</status><userid>520</userid><name>02/25/19 to 03/03/19</name><total>32.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes></notes></Timesheet><Timesheet><status>A</status><userid>722</userid><name/><total>8.00</total><starts><Date><month>02</month><day>25</day><year>2019</year></Date></starts><notes/></Timesheet></Read ></response>"
+            };
+
+            var client = new OpenAirClient(() => handler, options);
+            var storageService = Substitute.For<IStorageService>();
+            var connector = new OpenAirConnector(client, storageService);
+            var date = new DateTime(2019, 3, 6);
+
+            storageService
+                .GetUsersByIdList(null)
+                .ReturnsForAnyArgs(new[]
+                {
+                    CreateUser(397, "A", ".NET"),
+                    CreateUser(283, "B", ".NET"),
+                    CreateUser(520, "C", ".NET"),
+                    CreateUser(722, "D", ".NET"),
+                    CreateUser(133, "E", ".NET"),
+                    CreateUser(921, "F", ".NET"),
+                });
+
+            // Act
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, null);
+
+            Assert.AreEqual(6, timesheets.Count);
+        }
+
+        private static User CreateUser(long id, string name, string departmentName) =>
+            new User { Name = name, Department = new Department { Name = departmentName }, OpenAirUserId = id };
     }
 }
