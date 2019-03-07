@@ -64,6 +64,22 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
+        public async Task OpenAirClientGetAllUsersAsync_ShouldParseResult()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler
+            {
+                ResponseContent = "<response><Auth status=\"0\"></Auth ><Read status=\"0\"><User></User></Read ></response>"
+            };
+
+            var client = new OpenAirClient(() => handler, options);
+            var user = await client.GetAllUserAsync();
+            var content = Encoding.UTF8.GetString(handler.Content);
+
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"1000\"><_Return><id /><name /><timezone/><addr /><departmentid /><active /></_Return></Read></request>", content);
+        }
+
+        [TestMethod]
         public async Task OpenAirClientGetAllDepartments_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "U", "P");
@@ -95,7 +111,7 @@ namespace MentorBot.Tests.Business.Processors
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
             var connector = new OpenAirConnector(client, storageService);
-            var user = new User { Name = "Test", Department = new Department { Name = "Q" }, OpenAirUserId = 2 };
+            var user = CreateUser(2, "Test", "Q");
             var date = new DateTime(2019, 2, 1);
 
             storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
@@ -146,6 +162,6 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         private static User CreateUser(long id, string name, string departmentName) =>
-            new User { Name = name, Department = new Department { Name = departmentName }, OpenAirUserId = id };
+            new User { Name = name, Department = new Department { Name = departmentName }, OpenAirUserId = id, Active = true };
     }
 }

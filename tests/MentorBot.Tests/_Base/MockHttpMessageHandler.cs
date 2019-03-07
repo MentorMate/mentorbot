@@ -20,7 +20,11 @@ namespace MentorBot.Tests.Base
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Content = await request.Content.ReadAsByteArrayAsync();
+            if (request.Content != null)
+            {
+                Content = await request.Content.ReadAsByteArrayAsync();
+            }
+
             var response = new HttpResponseMessage(ResponseStatusCode)
             {
                 Content = new StringContent(ResponseContent, Encoding.UTF8)

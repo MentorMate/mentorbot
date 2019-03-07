@@ -18,6 +18,15 @@ namespace MentorBot.Functions.Models.Options
             LuisApiAppKey = config[nameof(LuisApiAppKey)];
         }
 
+        /// <summary>Initializes a new instance of the <see cref="AzureCloudOptions"/> class.</summary>
+        public AzureCloudOptions(string azureStorageAccountConnectionString, string luisApiHostName, string luisApiAppId, string luisApiAppKey)
+        {
+            AzureStorageAccountConnectionString = azureStorageAccountConnectionString;
+            LuisApiHostName = luisApiHostName;
+            LuisApiAppId = luisApiAppId;
+            LuisApiAppKey = luisApiAppKey;
+        }
+
         /// <summary>Gets or sets the azure storage account connection string.</summary>
         public string AzureStorageAccountConnectionString { get; set; }
 
