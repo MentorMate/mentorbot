@@ -31,12 +31,13 @@ namespace MentorBot.Functions.Connectors
         {
             var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
-            var timesheets = await _client.GetTimesheetsAsync(
-                toweek.AddDays(-7),
-                date.AddDays(1));
+            var lastWeek = toweek.AddDays(-7);
+            var timesheets = new List<OpenAirClient.Timesheet>();
+
+            timesheets.AddRange(await _client.GetTimesheetsAsync(lastWeek, lastWeek.AddDays(2)));
+            timesheets.AddRange(await _client.GetTimesheetsAsync(toweek, date.AddDays(1)));
 
             var unsubmittedTimesheets = timesheets
-                .Where(it => it.Status == "A" || it.Status == "S")
                 .GroupBy(it => it.UserId)
                 .Select(it => new
                 {
@@ -48,7 +49,7 @@ namespace MentorBot.Functions.Connectors
                 .ToArray();
 
             var users = _storageService.GetUsersByIdList(
-                unsubmittedTimesheets.Select(it => it.UserId).Distinct().ToArray());
+                unsubmittedTimesheets.Select(it => it.UserId.Value).Distinct().ToArray());
 
             if (filterByProjects != null && filterByProjects.Any())
             {
@@ -64,7 +65,7 @@ namespace MentorBot.Functions.Connectors
                     UserName = FormatDisplayName(it.user.Name),
                     UserEmail = it.user.Email,
                     DepartmentName = it.user.Department.Name,
-                    Total = it.timesheet.Total
+                    Total = it.timesheet.Total.Value
                 });
 
             return result.ToArray();

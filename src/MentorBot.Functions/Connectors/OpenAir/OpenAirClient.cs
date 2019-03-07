@@ -95,7 +95,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
 
-            return result.Read.Timesheet;
+            return result.Read.Timesheet ?? new Timesheet[0];
         }
 
         /// <summary>Gets the user by identifier asynchronous.</summary>

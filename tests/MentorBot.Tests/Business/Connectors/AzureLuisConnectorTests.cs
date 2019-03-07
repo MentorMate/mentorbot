@@ -18,11 +18,8 @@ namespace MentorBot.Tests.Business.Connectors
         public async Task AzureLuisConnector_Deconstruct()
         {
             var options = new AzureCloudOptions(null, "A", "B", "C");
-            var handler = new MockHttpMessageHandler
-            {
-                ResponseContent = "{ \"query\": \"Test\", \"topScoringIntent\": { \"intent\": \"A\", \"score\": 0.75,  }, \"intents\": [ { \"intent\": \"A\", \"score\": 0.75 }, { \"intent\": \"None\", \"score\": 0.0168218873 }], \"entities\": [{ \"entity\": \"bob\", \"type\": \"Name\", \"startIndex\": 0, \"endIndex\": 8, \"score\": 0.573899543 }] }",
-                ContentType = "application/json"
-            };
+            var handler = new MockHttpMessageHandler()
+                .Set("{ \"query\": \"Test\", \"topScoringIntent\": { \"intent\": \"A\", \"score\": 0.75,  }, \"intents\": [ { \"intent\": \"A\", \"score\": 0.75 }, { \"intent\": \"None\", \"score\": 0.0168218873 }], \"entities\": [{ \"entity\": \"bob\", \"type\": \"Name\", \"startIndex\": 0, \"endIndex\": 8, \"score\": 0.573899543 }] }", "application/json");
 
             var client = new LuisClient(() => handler, options);
             var connector = new AzureLuisConnector(client);

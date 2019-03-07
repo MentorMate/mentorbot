@@ -422,8 +422,16 @@ namespace MentorBot.Functions.Connectors.OpenAir
         public sealed class Timesheet
         {
             /// <summary>Gets or sets the user identifier.</summary>
+            [XmlIgnore]
+            public long? UserId { get; set; }
+
+            /// <summary>Gets or sets the user identifier as text.</summary>
             [XmlElement("userid")]
-            public long UserId { get; set; }
+            public string UserIdAsText
+            {
+                get => UserId == null ? null : UserId.ToString();
+                set => UserId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+            }
 
             /// <summary>Gets or sets the status.</summary>
             [XmlElement("status")]
@@ -434,8 +442,16 @@ namespace MentorBot.Functions.Connectors.OpenAir
             public string Name { get; set; }
 
             /// <summary>Gets or sets the total hours.</summary>
+            [XmlIgnore]
+            public double? Total { get; set; }
+
+            /// <summary>Gets or sets the total hours as test.</summary>
             [XmlElement("total")]
-            public double Total { get; set; }
+            public string TotalAsText
+            {
+                get => Total == null ? null : UserId.ToString();
+                set => Total = string.IsNullOrEmpty(value) ? (double?)null : double.Parse(value);
+            }
 
             /// <summary>Gets or sets the notes.</summary>
             [XmlElement("notes")]
