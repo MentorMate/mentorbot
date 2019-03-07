@@ -9,9 +9,13 @@ namespace MentorBot.Functions.Abstract.Services
     /// <typeparam name="T">The document resource type.</typeparam>
     public interface IDocument<T>
     {
-        /// <summary>Adds the many document objects asynchronous in  a bulk import.</summary>
+        /// <summary>Adds the many document objects asynchronous in a bulk import.</summary>
         /// <param name="items">The items.</param>
         Task<bool> AddManyAsync(IReadOnlyList<T> items);
+
+        /// <summary>Update the many document objects asynchronous in a bulk import.</summary>
+        /// <param name="items">The items.</param>
+        Task<bool> UpdateManyAsync(IReadOnlyList<T> items);
 
         /// <summary>Execute SQL expression on collection.</summary>
         /// <param name="sqlExpression">The SQL expression.</param>

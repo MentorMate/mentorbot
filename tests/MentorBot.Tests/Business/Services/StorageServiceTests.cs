@@ -61,16 +61,18 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public void StorageService_GetUsersByEmail()
+        public void StorageService_GetAllUsers()
         {
             var model = new User();
+            var models = new[] { model };
             var document = Substitute.For<IDocument<User>>();
             _documentClientService.IsConnected.Returns(true);
             _documentClientService.Get<User>("mentorbot", "users").Returns(document);
-            document.Query("SELECT TOP 1 * FROM users u WHERE u.Email = \"test@mm.com\"").Returns(new[] { model });
+            document.Query("SELECT TOP 2000 * FROM users").Returns(models);
 
-            var result = _service.GetUserByEmail("test@mm.com");
-            Assert.AreEqual(model, result);
+            var result = _service.GetAllUsers();
+
+            Assert.AreEqual(models, result);
         }
 
         [TestMethod]

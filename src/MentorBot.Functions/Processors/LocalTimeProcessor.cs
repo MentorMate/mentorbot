@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -28,15 +27,7 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<TextDeconstructionInformation> InitalializationCommandDefinitians =>
-            new[]
-            {
-                new TextDeconstructionInformation("What is the current time", "time", SentenceTypes.Question, "current"),
-                new TextDeconstructionInformation("What is the time", "time", SentenceTypes.Question),
-                new TextDeconstructionInformation("What is the local time", "time", SentenceTypes.Question, "local"),
-                new TextDeconstructionInformation("What time it is", "time", SentenceTypes.Question, "be"),
-                new TextDeconstructionInformation("What time is it", "time", SentenceTypes.Question, "be")
-            };
+        public string Subject => "Time";
 
         /// <inheritdoc/>
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)

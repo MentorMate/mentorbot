@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 
-using Microsoft.Azure.CosmosDB.BulkExecutor;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
@@ -49,57 +48,53 @@ namespace MentorBot.Functions.Services
         public bool IsConnected => !string.IsNullOrEmpty(_accountEndpoint) && !string.IsNullOrEmpty(_authKeyOrResourceToken);
 
         /// <inheritdoc/>
-        public IDocument<T> Get<T>(string databaseName, string collectionName)
-        {
-            var client = _client.Value;
-            var documentCollection = new DocumentCollection { Id = collectionName };
-
-            var documentCollectionLink = UriFactory.CreateDocumentCollectionUri(databaseName, collectionName);
-
-            return new Document<T>(client, documentCollectionLink, documentCollection);
-        }
+        public IDocument<T> Get<T>(string databaseName, string collectionName) =>
+            new Document<T>(_client.Value, databaseName, collectionName);
 
         /// <summary>A document collection resource.</summary>
         /// <typeparam name="T">The document reource type.</typeparam>
         public class Document<T> : IDocument<T>
         {
             private readonly IDocumentClient _client;
-            private readonly Uri _documentCollectionUri;
-            private readonly DocumentCollection _documentCollection;
+            private readonly string _databaseName;
+            private readonly string _collectionName;
 
             /// <summary>Initializes a new instance of the <see cref="Document{T}"/> class.</summary>
-            public Document(IDocumentClient client, Uri documentCollectionUri, DocumentCollection documentCollection)
+            public Document(IDocumentClient client, string databaseName, string collectionName)
             {
                 _client = client;
-                _documentCollectionUri = documentCollectionUri;
-                _documentCollection = documentCollection;
+                _databaseName = databaseName;
+                _collectionName = collectionName;
             }
+
+            /// <summary>Gets the document collection URI.</summary>
+            public Uri DocumentCollectionUri => UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName);
 
             /// <inheritdoc/>
             public async Task<bool> AddManyAsync(IReadOnlyList<T> items)
             {
-                if (_client is DocumentClient documentClient)
-                {
-                    var executor = new BulkExecutor(documentClient, _documentCollection);
+                var uri = UriFactory.CreateStoredProcedureUri(_databaseName, _collectionName, "bulkImport");
+                var count = await _client.ExecuteStoredProcedureAsync<int>(uri, items);
 
-                    await executor.InitializeAsync();
+                return count == items.Count;
+            }
 
-                    var response = await executor.BulkImportAsync(items.Cast<object>());
+            /// <inheritdoc/>
+            public async Task<bool> UpdateManyAsync(IReadOnlyList<T> items)
+            {
+                var uri = UriFactory.CreateStoredProcedureUri(_databaseName, _collectionName, "bulkUpdate");
+                var count = await _client.ExecuteStoredProcedureAsync<int>(uri, items);
 
-                    return response.NumberOfDocumentsImported == items.Count;
-                }
-
-                return false;
+                return count == items.Count;
             }
 
             /// <inheritdoc/>
             public Task AddAsync(T item) =>
-                _client.CreateDocumentAsync(_documentCollectionUri, item);
+                _client.CreateDocumentAsync(DocumentCollectionUri, item);
 
             /// <inheritdoc/>
             public IReadOnlyList<T> Query(string sqlExpression) =>
-                _client.CreateDocumentQuery<T>(_documentCollectionUri, sqlExpression)
-                       .ToList();
+                _client.CreateDocumentQuery<T>(DocumentCollectionUri, sqlExpression).ToList();
         }
     }
 }

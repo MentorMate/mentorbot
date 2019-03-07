@@ -21,7 +21,16 @@ namespace MentorBot.Functions.Connectors.OpenAir
             User = 2,
 
             /// <summary>The department date type.</summary>
-            Department = 3
+            Department = 3,
+
+            /// <summary>The project data type.</summary>
+            Project,
+
+            /// <summary>The project task data type.</summary>
+            Projecttask,
+
+            /// <summary>The project task assign data type.</summary>
+            Projecttaskassign
         }
 
         /// <summary>The open air request model.</summary>
@@ -124,6 +133,18 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("Timesheet", Order = 4)]
             public Timesheet[] Timesheet { get; set; }
 
+            /// <summary>Gets or sets the projects.</summary>
+            [XmlElement("Project", Order = 5)]
+            public Project[] Project { get; set; }
+
+            /// <summary>Gets or sets the projects.</summary>
+            [XmlElement("Projecttask", Order = 6)]
+            public ProjectTask[] ProjectTasks { get; set; }
+
+            /// <summary>Gets or sets the projects.</summary>
+            [XmlElement("Projecttaskassign", Order = 7)]
+            public ProjectTaskAssign[] ProjectTaskAssigns { get; set; }
+
             /// <summary>Gets or sets the return.</summary>
             [XmlElement("_Return", Order = 100)]
             public RaedReturn Return { get; set; }
@@ -166,27 +187,27 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             /// <summary>Implements the operator >.</summary>
             public static bool operator >(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) == 1;
+                date.ToDateTime() > dateTime;
 
             /// <summary>Implements the operator >.</summary>
             public static bool operator <(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) == -1;
+               date.ToDateTime() < dateTime;
 
             /// <summary>Implements the operator less or equal.</summary>
             public static bool operator <=(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) != 1;
+               date.ToDateTime() <= dateTime;
 
             /// <summary>Implements the operator less or equal.</summary>
             public static bool operator >=(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) != -1;
+               date.ToDateTime() >= dateTime;
 
             /// <summary>Implements the operator equal.</summary>
             public static bool operator ==(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) == 0;
+               date.ToDateTime() == dateTime;
 
             /// <summary>Implements the operator no equal.</summary>
             public static bool operator !=(Date date, DateTime dateTime) =>
-               date.CompareTo(dateTime) != 0;
+               date.ToDateTime() != dateTime;
 
             /// <summary>Creates the specified date time.</summary>
             public static Date Create(DateTime dateTime) =>
@@ -197,21 +218,13 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     Day = dateTime.Day
                 };
 
+            /// <summary>Convert to <see cref="DateTime"/>.</summary>
+            public DateTime ToDateTime() =>
+                new DateTime(Year, Month, Day);
+
             /// <inheritdoc/>
-            public int CompareTo(DateTime other)
-            {
-                if (Year > other.Year || Month > other.Month || Day > other.Day)
-                {
-                    return 1;
-                }
-
-                if (Year < other.Year || Month < other.Month || Day < other.Day)
-                {
-                    return -1;
-                }
-
-                return 0;
-            }
+            public int CompareTo(DateTime other) =>
+                ToDateTime().CompareTo(other);
 
             /// <inheritdoc/>
             public override bool Equals(object obj)
@@ -249,6 +262,18 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlIgnore]
             public long? DepartmentId { get; set; }
 
+            /// <summary>Gets or sets a value indicating whether user is active.</summary>
+            [XmlIgnore]
+            public bool? Active { get; set; }
+
+            /// <summary>Gets or sets the active as text.</summary>
+            [XmlElement("active")]
+            public string ActiveAsText
+            {
+                get => Active.HasValue ? ActiveValueAsText : null;
+                set => Active = value == null ? (bool?)null : value == "1";
+            }
+
             /// <summary>Gets or sets the department identifier as text.</summary>
             [XmlElement("departmentid")]
             public string DepartmentIdAsText
@@ -261,6 +286,9 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlArray("addr")]
             [XmlArrayItem("Address")]
             public Address[] Address { get; set; }
+
+            private string ActiveValueAsText =>
+                Active.Value ? "1" : "0";
         }
 
         /// <summary>The open air department model.</summary>
@@ -286,6 +314,89 @@ namespace MentorBot.Functions.Connectors.OpenAir
             /// <summary>Gets or sets the name.</summary>
             [XmlElement("name")]
             public string Name { get; set; }
+        }
+
+        /// <summary>The open air project model.</summary>
+        [Serializable]
+        public sealed class Project
+        {
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlIgnore]
+            public long? Id { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("id")]
+            public string IdAsText
+            {
+                get => Id == null ? null : Id.ToString();
+                set => Id = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+            }
+
+            /// <summary>Gets or sets the project is active.</summary>
+            [XmlElement("active")]
+            public string Active { get; set; }
+
+            /// <summary>Gets or sets the name.</summary>
+            [XmlElement("name")]
+            public string Name { get; set; }
+        }
+
+        /// <summary>The open air project task model.</summary>
+        [Serializable]
+        public sealed class ProjectTask
+        {
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlIgnore]
+            public long? Id { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("id")]
+            public string IdAsText
+            {
+                get => Id == null ? null : Id.ToString();
+                set => Id = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+            }
+
+            /// <summary>Gets or sets the project identifier.</summary>
+            [XmlIgnore]
+            public long? ProjectId { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("projectid")]
+            public string ProjectIdAsText
+            {
+                get => ProjectId == null ? null : ProjectId.ToString();
+                set => ProjectId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+            }
+
+            /// <summary>Gets or sets if the project task is closed 1.</summary>
+            [XmlElement("closed")]
+            public string Closed { get; set; }
+
+            /// <summary>Gets or sets the name.</summary>
+            [XmlElement("name")]
+            public string Name { get; set; }
+        }
+
+        /// <summary>The open air project task model.</summary>
+        [Serializable]
+        public sealed class ProjectTaskAssign
+        {
+            /// <summary>Gets or sets the user identifier.</summary>
+            [XmlElement("userid")]
+            public long UserId { get; set; }
+
+            /// <summary>Gets or sets the project task identifier.</summary>
+            [XmlIgnore]
+            public long? ProjectTaskId { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("projecttaskid")]
+            public string ProjectTaskIdAsText
+            {
+                get => ProjectTaskId == null ? null : ProjectTaskId.ToString();
+                set => ProjectTaskId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+            }
         }
 
         /// <summary>The open air address class.</summary>

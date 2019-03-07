@@ -30,7 +30,7 @@ namespace MentorBot.Tests.Business.Processors
         [DataTestMethod]
         public async Task WhenAskedForCurrentTime(string phrase, string expectedResult)
         {
-            var info = new TextDeconstructionInformation(phrase, null, SentenceTypes.Command);
+            var info = new TextDeconstructionInformation(phrase, null);
             var result = await _processor.ProcessCommandAsync(info, GetChatEvent(phrase), null);
             Assert.AreEqual(expectedResult, result.Text);
         }

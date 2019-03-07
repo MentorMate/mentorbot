@@ -44,9 +44,9 @@ namespace MentorBot.Tests.Business.Processors
             var chat = new ChatEvent { Space = space, Message = message };
             var responder = Substitute.For<IHangoutsChatConnector>();
             var timesheet = new Timesheet { Name = "A", UserName = "users/B", UserEmail = "c@d.e", DepartmentName = "F", Total = 20 };
-            var info = new TextDeconstructionInformation("Get unsubmited timesheets", null, SentenceTypes.Command);
+            var info = new TextDeconstructionInformation("Get unsubmited timesheets", null);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue).ReturnsForAnyArgs(new[] { timesheet });
+            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, null).ReturnsForAnyArgs(new[] { timesheet });
 
             // Act
             var result = await _processor.ProcessCommandAsync(info, chat, responder);

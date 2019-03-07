@@ -8,6 +8,7 @@ using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
+using MentorBot.Functions.Connectors.Luis;
 using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
@@ -81,6 +82,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();
             services.AddTransient<IOpenAirConnector, OpenAirConnector>();
+            services.AddTransient<ILanguageUnderstandingConnector, AzureLuisConnector>();
             services.AddTransient<IHangoutsChatService, HangoutsChatService>();
             services.AddTransient<ICognitiveService, CognitiveService>();
             services.AddTransient<ICommandProcessor, LocalTimeProcessor>();
@@ -90,6 +92,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, StorageService>();
 
+            services.AddTransient<LuisClient>();
             services.AddTransient<OpenAirClient>();
             services.AddTransient<GoogleServiceAccountCredential>();
 

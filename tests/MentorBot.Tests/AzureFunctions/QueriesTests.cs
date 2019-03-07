@@ -29,7 +29,7 @@ namespace MentorBot.Tests.AzureFunctions
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService));
 
-            var result = Queries.GetMessagesStatisticsAsync(null);
+            var result = Queries.GetMessagesStatistics(null);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);

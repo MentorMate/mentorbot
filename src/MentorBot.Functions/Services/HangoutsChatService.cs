@@ -35,13 +35,13 @@ namespace MentorBot.Functions.Services
             var fail =
                 command == null ||
                 command.CommandProcessor == null ||
-                command.ConfidenceRating < ConfidentRatingUnknowThreshold;
+                command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
 
-            var rating = fail ? 0 : command?.ConfidenceRating ?? 0;
+            var rating = fail ? 0 : command.TextDeconstructionInformation.ConfidenceRating * 100;
             var result = new Message
             {
                 Input = chatEvent?.Message?.Text,
-                ProbabilityPercentage = (byte)(rating * 100),
+                ProbabilityPercentage = (byte)rating,
                 Output = fail
                     ? new ChatEventResult(Messages.UnknownCommandText)
                     : await command

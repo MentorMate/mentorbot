@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -33,7 +34,7 @@ namespace MentorBot.Tests.Business.Processors
         [DataTestMethod]
         public async Task WhenAskedItShouldRepeat(string phrase, string expectedResult)
         {
-            var info = new TextDeconstructionInformation(phrase, null, SentenceTypes.Command);
+            var info = new TextDeconstructionInformation(phrase, null);
             var result = await _processor.ProcessCommandAsync(info, new ChatEvent(), null);
             Assert.AreEqual(expectedResult, result.Text);
         }
@@ -48,9 +49,16 @@ namespace MentorBot.Tests.Business.Processors
             var message = new ChatEventMessage { Sender = sender };
             var chat = new ChatEvent { Space = space, Message = message };
             var responder = Substitute.For<IAsyncResponder>();
-            var info = new TextDeconstructionInformation("Repeat delay 100 Test", null, SentenceTypes.Command);
+            var info = new TextDeconstructionInformation(
+                "Repeat delay 100 Test",
+                "Time",
+                SentenceTypes.Unknown,
+                new Dictionary<string, string> { { "Time", "100" } },
+                null,
+                1.0);
+
             var result = await _processor.ProcessCommandAsync(info, chat, responder);
-            
+
             responder
                 .DidNotReceive()
                 .SendMessageAsync("Test", Arg.Any<GoogleChatAddress>());
