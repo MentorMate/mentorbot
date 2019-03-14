@@ -2,6 +2,8 @@
 
 using System;
 
+using MentorBot.Functions.Models.Domains.Base;
+
 using Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains
@@ -22,13 +24,16 @@ namespace MentorBot.Functions.Models.Domains
         /// <summary>Gets or sets the open air user identifier.</summary>
         public long OpenAirUserId { get; set; }
 
+        /// <summary>Gets or sets the user manager.</summary>
+        public UserReference Manager { get; set; }
+
         /// <summary>Gets or sets a value indicating whether this <see cref="User"/> is active.</summary>
         public bool Active { get; set; }
 
         /// <summary>Gets or sets the department.</summary>
         public Department Department { get; set; }
 
-        /// <summary>Gets or sets the projects.</summary>
-        public Project[] Projects { get; set; }
+        /// <summary>Gets or sets the customers.</summary>
+        public Customer[] Customers { get; set; }
     }
 }

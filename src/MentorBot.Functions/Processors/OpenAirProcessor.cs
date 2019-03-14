@@ -40,10 +40,10 @@ namespace MentorBot.Functions.Services
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
             var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
-            var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.Replace(". ", ".", StringComparison.InvariantCulture);
-            var projectsValue = info.Entities.GetValueOrDefault("Projects")?.Split(',');
+            var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
+            var customersValue = info.Entities.GetValueOrDefault(nameof(Customer));
 
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(DateTime.Today, projectsValue)
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(DateTime.Today, customersValue)
                 .ContinueWith(task => ProcessNotifyAsync(
                     task.Result,
                     departmentValue,
@@ -68,19 +68,22 @@ namespace MentorBot.Functions.Services
             IHangoutsChatConnector connector)
         {
             string text;
-            var filteredTimesheet =
-                department == null ?
-                timesheets :
-                timesheets
-                    .Where(it => it.DepartmentName.Equals(department, StringComparison.InvariantCultureIgnoreCase))
-                    .ToArray();
+            var myemail = address.Sender.Email;
+            var filteredTimesheet = timesheets
+                .Where(it =>
+                    myemail.Equals(it.DepartmentOwnerEmail, StringComparison.InvariantCultureIgnoreCase) ||
+                    myemail.Equals(it.UserManagerEmail, StringComparison.InvariantCultureIgnoreCase))
+                .Where(it =>
+                    department == null ||
+                    department.Equals(it.DepartmentName, StringComparison.InvariantCultureIgnoreCase))
+                .ToArray();
 
             var notifiedUserList = new List<string>();
-            if (filteredTimesheet.Count == 0)
+            if (filteredTimesheet.Length == 0)
             {
                 text = "<b>All user have submitted timesheets.</b>";
             }
-            else if (notify && filteredTimesheet.Count > 0)
+            else if (notify && filteredTimesheet.Length > 0)
             {
                 var emails = filteredTimesheet.Select(it => it.UserEmail).ToArray();
                 var storeAddresses = _storageService.GetAddresses();
@@ -133,7 +136,7 @@ namespace MentorBot.Functions.Services
                     await _storageService.AddAddressesAsync(addressesForUpdate);
                 }
 
-                text = notifiedUserList.Count == filteredTimesheet.Count ?
+                text = notifiedUserList.Count == filteredTimesheet.Length ?
                     "All users width unsubmitted timesheets are notified! Total of " + notifiedUserList.Count :
                     "The following people where not notified: <br>" + GetCardText(filteredTimesheet, notifiedUserList);
             }

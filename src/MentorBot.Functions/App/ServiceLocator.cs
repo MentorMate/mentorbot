@@ -91,9 +91,9 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, StorageService>();
+            services.AddTransient<IOpenAirClient, OpenAirClient>();
 
             services.AddTransient<LuisClient>();
-            services.AddTransient<OpenAirClient>();
             services.AddTransient<GoogleServiceAccountCredential>();
 
             return services;

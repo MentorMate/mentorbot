@@ -14,8 +14,14 @@ namespace MentorBot.Functions.Models.Business
         /// <summary>Gets or sets the email of the user.</summary>
         public string UserEmail { get; set; }
 
+        /// <summary>Gets or sets the user manager email.</summary>
+        public string UserManagerEmail { get; set; }
+
         /// <summary>Gets or sets the name of the department.</summary>
         public string DepartmentName { get; set; }
+
+        /// <summary>Gets or sets the department owner email.</summary>
+        public string DepartmentOwnerEmail { get; set; }
 
         /// <summary>Gets or sets the total.</summary>
         public double Total { get; set; }

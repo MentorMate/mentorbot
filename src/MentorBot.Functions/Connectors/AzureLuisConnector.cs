@@ -1,5 +1,6 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,8 +34,14 @@ namespace MentorBot.Functions.Connectors
                 response.Query,
                 response.TopScoringIntent.Intent,
                 SentenceTypes.Unknown,
-                response.Entities.Where(it => it.Score > 0.5).ToDictionary(it => it.Type, it => it.Entity),
+                EntitiesToDictoinary(response.Entities),
                 null,
                 response.TopScoringIntent.Score);
+
+        private static Dictionary<string, string[]> EntitiesToDictoinary(LuisClient.ScoringEntity[] entities) =>
+            entities
+                .Where(it => it.Score > 0.5)
+                .GroupBy(it => it.Type)
+                .ToDictionary(it => it.Key, it => it.Select(entity => entity.Entity).ToArray());
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.OpenAir;
@@ -11,6 +12,7 @@ using MentorBot.Functions.Models.Options;
 using MentorBot.Tests.Base;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using NSubstitute;
 
 namespace MentorBot.Tests.Business.Processors
@@ -43,6 +45,22 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
+        public async Task OpenAirClientGetCustomers_ShouldParseResult()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler()
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Customer><id>1000</id><name>A</name></Customer><Customer><id>1001</id><name>B</name></Customer></Read ></response>");
+            
+            var client = new OpenAirClient(() => handler, options);
+            var date = new DateTime(2000, 10, 10);
+            var results = await client.GetAllActiveCustomersByCreaetedDateAsync(date, null);
+            var content = Encoding.UTF8.GetString(handler[0].RequestContent);
+
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Customer\" filter=\"newer-than\" field=\"createtime\" method=\"equal to\" limit=\"1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Customer><active>1</active></Customer><_Return><id/><name /></_Return></Read></request>", content);
+            Assert.AreEqual(2, results.Length);
+        }
+
+        /*[TestMethod]
         public async Task OpenAirClientGetUserByIdAsync_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
@@ -58,20 +76,20 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual("Doe, Jhon", user.Name);
             Assert.AreEqual(2, user.DepartmentId);
             Assert.AreEqual("jhon.doe@mentormate.com", user.Address.First().Email);
-        }
+        }*/
 
         [TestMethod]
-        public async Task OpenAirClientGetAllUsersAsync_ShouldParseResult()
+        public async Task OpenAirClientGetUsersByActiveAsync_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
                 .Set("<response><Auth status=\"0\"></Auth ><Read status=\"0\"><User></User></Read ></response>");
 
             var client = new OpenAirClient(() => handler, options);
-            var user = await client.GetAllUserAsync();
+            var user = await client.GetUsersByActiveAsync(true);
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"1000\"><_Return><id /><name /><timezone/><addr /><departmentid /><active /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"equal to\" limit=\"1000\"><User><active>1</active></User><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -154,12 +172,56 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task OpenAirConnector_SyncUsers()
         {
-            var handler = new MockHttpMessageHandler()
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><User><departmentid>2</departmentid><timezone>+0200</timezone><name>Doe, Jhon</name><id>397</id><addr><Address><salutation/><mobile/><state/><email>jhon.doe@mentormate.com</email><addr2/><city>City</city><fax/><contact_id/><addr1/><id>-1</id><middle/><country/><first>Jhon</first><last>Doe</last><phone/><addr4/><zip/><addr3/></Address></addr></User></Read ></response>")
-                .Set("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Department><userid>1</userid><name>QA</name><id>2</id></Department></Read ></response>");
+            var user1 = new OpenAirClient.User
+            {
+                Id = 1000,
+                Name = "A",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "jhon.doe@mentormate.com" }
+                },
+                ManagerId = 1010
+            };
+            var user2 = new OpenAirClient.User
+            {
+                Id = 1010,
+                Name = "B",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "bill.manager@mentormate.com" }
+                }
+            };
+            var dep = new OpenAirClient.Department
+            {
+                Id = 2000,
+                Name = "QA",
+                UserId = 1010
+            };
+            var cust = new OpenAirClient.Customer
+            {
+                Id = 3000,
+                Name = "MM"
+            };
+            var booking = new OpenAirClient.Booking
+            {
+                Id = 4000,
+                UserId = 1000,
+                CustomerId = 3000,
+                ProjectId = 6000,
+                OwnerId = 1010
+            };
+            var client = Substitute.For<IOpenAirClient>();
+
+            client.GetAllUsersAsync().Returns(new[] { user1, user2 });
+            client.GetAllDepartmentsAsync().Returns(new[] { dep });
+            client.GetAllActiveCustomersAsync().Returns(new[] { cust });
+            client.GetAllActiveBookingsAsync(DateTime.MinValue).ReturnsForAnyArgs(new[] { booking });
 
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
-            var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
             var connector = new OpenAirConnector(client, storageService);
 
@@ -167,8 +229,8 @@ namespace MentorBot.Tests.Business.Processors
                 .GetAllUsers()
                 .ReturnsForAnyArgs(new[]
                 {
-                    CreateUser(397, "A", ".NET", 1),
-                    CreateUser(283, "B", ".NET", 2)
+                    CreateUser(1000, "A", ".NET", 1),
+                    CreateUser(1011, "B", ".NET", 2)
                 });
 
             // Act
@@ -176,7 +238,12 @@ namespace MentorBot.Tests.Business.Processors
 
             storageService
                 .Received()
-                .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it => it.Count == 1));
+                .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it =>
+                    it.Count == 1
+                    && it.First().Manager.Email == "bill.manager@mentormate.com" 
+                    && it.First().Customers.First().Name == "MM"
+                    && it.First().Department.Name == "QA"
+                    && it.First().Department.Owner.Email == "bill.manager@mentormate.com"));
         }
 
         #pragma warning restore CS4014

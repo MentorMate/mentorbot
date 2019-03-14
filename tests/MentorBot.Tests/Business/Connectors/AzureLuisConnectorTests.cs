@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Luis;
@@ -27,7 +28,7 @@ namespace MentorBot.Tests.Business.Connectors
 
             Assert.AreEqual("Test", info.TextSentanceChunk);
             Assert.AreEqual(0.75, info.ConfidenceRating);
-            Assert.AreEqual("bob", info.Entities["Name"]);
+            Assert.AreEqual("bob", info.Entities["Name"].FirstOrDefault());
         }
     }
 }

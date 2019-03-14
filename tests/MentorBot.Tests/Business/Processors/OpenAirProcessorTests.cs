@@ -38,12 +38,12 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task WhenAskedItShouldGetTimesheets()
         {
-            var sender = new ChatEventMessageSender();
+            var sender = new ChatEventMessageSender() { Email = "a@b.c" };
             var space = new ChatEventSpace();
             var message = new ChatEventMessage { Sender = sender };
             var chat = new ChatEvent { Space = space, Message = message };
             var responder = Substitute.For<IHangoutsChatConnector>();
-            var timesheet = new Timesheet { Name = "A", UserName = "users/B", UserEmail = "c@d.e", DepartmentName = "F", Total = 20 };
+            var timesheet = new Timesheet { Name = "A", UserName = "users/B", UserEmail = "c@d.e", DepartmentOwnerEmail = "a@b.c", DepartmentName = "F", Total = 20 };
             var info = new TextDeconstructionInformation("Get unsubmited timesheets", null);
 
             _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, null).ReturnsForAnyArgs(new[] { timesheet });

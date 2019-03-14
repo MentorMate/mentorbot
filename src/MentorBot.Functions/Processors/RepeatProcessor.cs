@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -30,7 +32,7 @@ namespace MentorBot.Functions.Processors
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
         {
             var text = RegExp.Replace(info.TextSentanceChunk, string.Empty);
-            var delayStr = info.Entities.GetValueOrDefault("Time");
+            var delayStr = info.Entities.GetValueOrDefault("Time")?.FirstOrDefault();
             if (!string.IsNullOrEmpty(text))
             {
                 if (!string.IsNullOrEmpty(delayStr))
@@ -52,10 +54,10 @@ namespace MentorBot.Functions.Processors
             new ValueTask<ChatEventResult>(
                 result: string.IsNullOrEmpty(text) ? null : new ChatEventResult(text));
 
-        private int GetTime(string value)
+        private static int GetTime(string value)
         {
             var match = RegExpTime.Match(value);
-            var val = int.Parse(match.Groups[1].Value);
+            var val = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             switch (match.Groups[2].Value)
             {
                 case "h":

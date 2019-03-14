@@ -53,7 +53,7 @@ namespace MentorBot.Tests.Business.Processors
                 "Repeat delay 100 Test",
                 "Time",
                 SentenceTypes.Unknown,
-                new Dictionary<string, string> { { "Time", "100" } },
+                new Dictionary<string, string[]> { { "Time", new[] { "100" } } },
                 null,
                 1.0);
 
