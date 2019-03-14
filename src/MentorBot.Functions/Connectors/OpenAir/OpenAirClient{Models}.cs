@@ -30,8 +30,23 @@ namespace MentorBot.Functions.Connectors.OpenAir
             Projecttask,
 
             /// <summary>The project task assign data type.</summary>
-            Projecttaskassign
+            Projecttaskassign,
+
+            /// <summary>The customer data type.</summary>
+            Customer,
+
+            /// <summary>The booking data type.</summary>
+            Booking
         }
+
+        private static long? ParseStringToLong(string value) =>
+            string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value, CultureInfo.InvariantCulture);
+
+        private static string ParseBoolToString(bool value) =>
+            value ? "1" : "0";
+
+        private static bool? ParseStringToBool(string value) =>
+            value == null ? (bool?)null : value == "1";
 
         /// <summary>The open air request model.</summary>
         [Serializable]
@@ -145,6 +160,14 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("Projecttaskassign", Order = 7)]
             public ProjectTaskAssign[] ProjectTaskAssigns { get; set; }
 
+            /// <summary>Gets or sets the customers.</summary>
+            [XmlElement("Customer", Order = 8)]
+            public Customer[] Customer { get; set; }
+
+            /// <summary>Gets or sets the bookings.</summary>
+            [XmlElement("Booking", Order = 9)]
+            public Booking[] Booking { get; set; }
+
             /// <summary>Gets or sets the return.</summary>
             [XmlElement("_Return", Order = 100)]
             public RaedReturn Return { get; set; }
@@ -247,12 +270,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
         public sealed class User
         {
             /// <summary>Gets or sets the identifier.</summary>
-            [XmlElement("id")]
-            public long Id { get; set; }
-
-            /// <summary>Gets or sets the timezone.</summary>
-            [XmlElement("timezone")]
-            public string Timezone { get; set; }
+            [XmlIgnore]
+            public long? Id { get; set; }
 
             /// <summary>Gets or sets the name.</summary>
             [XmlElement("name")]
@@ -262,16 +281,32 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlIgnore]
             public long? DepartmentId { get; set; }
 
+            /// <summary>Gets or sets the manager identifier.</summary>
+            [XmlIgnore]
+            public long? ManagerId { get; set; }
+
+            /// <summary>Gets or sets the location identifier.</summary>
+            [XmlIgnore]
+            public long? LocationId { get; set; }
+
             /// <summary>Gets or sets a value indicating whether user is active.</summary>
             [XmlIgnore]
             public bool? Active { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("id")]
+            public string IdAsText
+            {
+                get => Id?.ToString(CultureInfo.InvariantCulture);
+                set => Id = ParseStringToLong(value);
+            }
 
             /// <summary>Gets or sets the active as text.</summary>
             [XmlElement("active")]
             public string ActiveAsText
             {
-                get => Active.HasValue ? ActiveValueAsText : null;
-                set => Active = value == null ? (bool?)null : value == "1";
+                get => Active.HasValue ? ParseBoolToString(Active.Value) : null;
+                set => Active = ParseStringToBool(value);
             }
 
             /// <summary>Gets or sets the department identifier as text.</summary>
@@ -279,16 +314,29 @@ namespace MentorBot.Functions.Connectors.OpenAir
             public string DepartmentIdAsText
             {
                 get => DepartmentId.HasValue ? DepartmentId.ToString() : null;
-                set => DepartmentId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value, CultureInfo.InvariantCulture);
+                set => DepartmentId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the manager identifier as text.</summary>
+            [XmlElement("line_managerid")]
+            public string ManagerIdAsText
+            {
+                get => ManagerId.HasValue ? ManagerId.ToString() : null;
+                set => ManagerId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the location identifier as text.</summary>
+            [XmlElement("user_locationid")]
+            public string LocationIdAsText
+            {
+                get => LocationId.HasValue ? LocationId.ToString() : null;
+                set => LocationId = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets the addresses.</summary>
             [XmlArray("addr")]
             [XmlArrayItem("Address")]
             public Address[] Address { get; set; }
-
-            private string ActiveValueAsText =>
-                Active.Value ? "1" : "0";
         }
 
         /// <summary>The open air department model.</summary>
@@ -308,7 +356,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
             public string UserIdAsText
             {
                 get => UserId.HasValue ? UserId.ToString() : null;
-                set => UserId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value, CultureInfo.InvariantCulture);
+                set => UserId = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets the name.</summary>
@@ -328,8 +376,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("id")]
             public string IdAsText
             {
-                get => Id == null ? null : Id.ToString();
-                set => Id = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                get => Id?.ToString(CultureInfo.InvariantCulture);
+                set => Id = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets the project is active.</summary>
@@ -353,8 +401,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("id")]
             public string IdAsText
             {
-                get => Id == null ? null : Id.ToString();
-                set => Id = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                get => Id?.ToString(CultureInfo.InvariantCulture);
+                set => Id = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets the project identifier.</summary>
@@ -365,8 +413,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("projectid")]
             public string ProjectIdAsText
             {
-                get => ProjectId == null ? null : ProjectId.ToString();
-                set => ProjectId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                get => ProjectId?.ToString(CultureInfo.InvariantCulture);
+                set => ProjectId = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets if the project task is closed 1.</summary>
@@ -394,8 +442,120 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("projecttaskid")]
             public string ProjectTaskIdAsText
             {
-                get => ProjectTaskId == null ? null : ProjectTaskId.ToString();
-                set => ProjectTaskId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                get => ProjectTaskId?.ToString(CultureInfo.InvariantCulture);
+                set => ProjectTaskId = ParseStringToLong(value);
+            }
+        }
+
+        /// <summary>A open air customer model.</summary>
+        public sealed class Customer
+        {
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlIgnore]
+            public long? Id { get; set; }
+
+            /// <summary>Gets or sets a value indicating whether customer is active.</summary>
+            [XmlIgnore]
+            public bool? Active { get; set; }
+
+            /// <summary>Gets or sets the name.</summary>
+            [XmlElement("name")]
+            public string Name { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("id")]
+            public string IdAsText
+            {
+                get => Id?.ToString(CultureInfo.InvariantCulture);
+                set => Id = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the active as text.</summary>
+            [XmlElement("active")]
+            public string ActiveAsText
+            {
+                get => Active.HasValue ? ParseBoolToString(Active.Value) : null;
+                set => Active = ParseStringToBool(value);
+            }
+        }
+
+        /// <summary>A open air booking model.</summary>
+        public sealed class Booking
+        {
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlIgnore]
+            public long? Id { get; set; }
+
+            /// <summary>Gets or sets the user identifier.</summary>
+            [XmlIgnore]
+            public long? UserId { get; set; }
+
+            /// <summary>Gets or sets the owner user identifier.</summary>
+            [XmlIgnore]
+            public long? OwnerId { get; set; }
+
+            /// <summary>Gets or sets the project identifier.</summary>
+            [XmlIgnore]
+            public long? ProjectId { get; set; }
+
+            /// <summary>Gets or sets the customer identifier.</summary>
+            [XmlIgnore]
+            public long? CustomerId { get; set; }
+
+            /// <summary>Gets or sets the booking type identifier.</summary>
+            [XmlIgnore]
+            public long? BookingTypeId { get; set; }
+
+            /// <summary>Gets or sets the approval status.</summary>
+            [XmlElement("approval_status")]
+            public string ApprovalStatus { get; set; }
+
+            /// <summary>Gets or sets the identifier.</summary>
+            [XmlElement("id")]
+            public string IdAsText
+            {
+                get => Id?.ToString(CultureInfo.InvariantCulture);
+                set => Id = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the user identifier as text.</summary>
+            [XmlElement("userid")]
+            public string UserIdAsText
+            {
+                get => UserId?.ToString(CultureInfo.InvariantCulture);
+                set => UserId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the owner identifier as text.</summary>
+            [XmlElement("ownerid")]
+            public string OwnerIdAsText
+            {
+                get => OwnerId?.ToString(CultureInfo.InvariantCulture);
+                set => OwnerId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the project identifier as text.</summary>
+            [XmlElement("projectid")]
+            public string ProjectIdAsText
+            {
+                get => ProjectId?.ToString(CultureInfo.InvariantCulture);
+                set => ProjectId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the customer identifier as text.</summary>
+            [XmlElement("customerid")]
+            public string CustomerIdAsText
+            {
+                get => CustomerId?.ToString(CultureInfo.InvariantCulture);
+                set => CustomerId = ParseStringToLong(value);
+            }
+
+            /// <summary>Gets or sets the booking type identifier as text.</summary>
+            [XmlElement("booking_typeid")]
+            public string BookingTypeIdAsText
+            {
+                get => BookingTypeId?.ToString(CultureInfo.InvariantCulture);
+                set => BookingTypeId = ParseStringToLong(value);
             }
         }
 
@@ -429,8 +589,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("userid")]
             public string UserIdAsText
             {
-                get => UserId == null ? null : UserId.ToString();
-                set => UserId = string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                get => UserId?.ToString(CultureInfo.InvariantCulture);
+                set => UserId = ParseStringToLong(value);
             }
 
             /// <summary>Gets or sets the status.</summary>
@@ -450,7 +610,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
             public string TotalAsText
             {
                 get => Total == null ? null : UserId.ToString();
-                set => Total = string.IsNullOrEmpty(value) ? (double?)null : double.Parse(value);
+                set => Total = string.IsNullOrEmpty(value) ? (double?)null : double.Parse(value, CultureInfo.InvariantCulture);
             }
 
             /// <summary>Gets or sets the notes.</summary>

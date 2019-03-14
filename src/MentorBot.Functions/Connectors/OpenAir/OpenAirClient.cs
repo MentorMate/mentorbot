@@ -13,7 +13,7 @@ using MentorBot.Functions.Models.Options;
 namespace MentorBot.Functions.Connectors.OpenAir
 {
     /// <summary>An OpenAir client.</summary>
-    public sealed partial class OpenAirClient
+    public sealed partial class OpenAirClient : IOpenAirClient
     {
         private readonly Func<HttpMessageHandler> _messageHandlerFactory;
         private readonly OpenAirOptions _options;
@@ -31,8 +31,134 @@ namespace MentorBot.Functions.Connectors.OpenAir
             _options = options;
         }
 
+        /// <summary>Gets the timesheets asynchronous.</summary>
+        public Task<Timesheet[]> GetTimesheetsAsync(DateTime startDate, DateTime endDate) =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.Timesheet,
+                    Filter = "newer-than,older-than",
+                    Field = "starts,starts",
+                    Date = new[]
+                    {
+                        Date.Create(startDate),
+                        Date.Create(endDate)
+                    },
+                    Return = new RaedReturn
+                    {
+                        Content = "<status/><name /><total/><notes /><userid /><starts />"
+                    }
+                },
+                result => result.Timesheet ?? new Timesheet[0]);
+
+        /// <summary>Gets all users asynchronous.</summary>
+        public Task<User[]> GetAllUsersAsync() =>
+            Task.WhenAll(GetUsersByActiveAsync(true), GetUsersByActiveAsync(false))
+                .ContinueWith(task => task.Result.SelectMany(it => it).ToArray());
+
+        /// <summary>Gets all users by active flag asynchronous.</summary>
+        public Task<User[]> GetUsersByActiveAsync(bool active) =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.User,
+                    Method = "equal to",
+                    Limit = 1000,
+                    User = new[]
+                    {
+                        new User
+                        {
+                            Active = active
+                        }
+                    },
+                    Return = new RaedReturn
+                    {
+                        Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid />"
+                    }
+                },
+                result => result.User);
+
+        /// <summary>Gets all departments asynchronous.</summary>
+        public Task<Department[]> GetAllDepartmentsAsync() =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.Department,
+                    Method = "all",
+                    Limit = 1000,
+                    Return = new RaedReturn
+                    {
+                        Content = "<id /><name /><userid />"
+                    }
+                },
+                result => result.Department);
+
+        /// <summary>Gets all active customers asynchronous.</summary>
+        /// TODO: Try to remove the static dates.
+        public Task<Customer[]> GetAllActiveCustomersAsync() =>
+            Task.WhenAll(
+                    GetAllActiveCustomersByCreaetedDateAsync(null, new DateTime(2016, 10, 1)),
+                    GetAllActiveCustomersByCreaetedDateAsync(new DateTime(2016, 10, 1), null))
+                .ContinueWith(task => task.Result.SelectMany(it => it).ToArray());
+
+        /// <summary>Gets all active customers asynchronous.</summary>
+        public Task<Customer[]> GetAllActiveCustomersByCreaetedDateAsync(DateTime? from, DateTime? to) =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.Customer,
+                    Method = "equal to",
+                    Limit = 1000,
+                    Filter = NotNullOf(from.HasValue ? "newer-than" : null, to.HasValue ? "older-than" : null).First(),
+                    Field = "createtime",
+                    Date = NotNullOf(
+                        from.HasValue ? Date.Create(from.Value) : null,
+                        to.HasValue ? Date.Create(to.Value) : null),
+                    Customer = new[]
+                    {
+                        new Customer
+                        {
+                            Active = true
+                        }
+                    },
+                    Return = new RaedReturn
+                    {
+                        Content = "<id/><name />"
+                    }
+                },
+                result => result.Customer);
+
+        /// <summary>Gets all active bookings asynchronous.</summary>
+        public Task<Booking[]> GetAllActiveBookingsAsync(DateTime today) =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.Booking,
+                    Limit = 1000,
+                    Method = "equal to",
+                    Filter = "newer-than,older-than",
+                    Field = "enddate,startdate",
+                    Date = new[]
+                    {
+                        Date.Create(today),
+                        Date.Create(today)
+                    },
+                    Booking = new[]
+                    {
+                        new Booking
+                        {
+                            ApprovalStatus = "A"
+                        }
+                    },
+                    Return = new RaedReturn
+                    {
+                        Content = "<id/><userid/><ownerid /><projectid /><customerid /><booking_typeid />"
+                    }
+                },
+                result => result.Booking);
+
         /// <summary>Creates the request body.</summary>
-        public static Request CreateRequest(OpenAirOptions options, string username, string password) =>
+        private static Request CreateRequest(OpenAirOptions options, string username, string password) =>
             new Request
             {
                 Client = options.OpenAirCompany,
@@ -47,126 +173,6 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     }
                 }
             };
-
-        /// <summary>Executes the request asynchronous.</summary>
-        /// <typeparam name="T">The type of the request result.</typeparam>
-        public static async Task<T> ExecuteRequestAsync<T>(string uri, Request request, Func<HttpMessageHandler> httpMessageHandlerFactory)
-        {
-            using (var messageHandler = httpMessageHandlerFactory())
-            {
-                using (var client = new HttpClient(messageHandler, false))
-                {
-                    HttpResponseMessage response;
-                    using (var stringContent = new StringContent(Serialize(request)))
-                    {
-                        response = await client.PostAsync(uri, stringContent);
-                    }
-
-                    response.EnsureSuccessStatusCode();
-
-                    var content = await response.Content.ReadAsStreamAsync();
-                    var deserializer = new XmlSerializer(typeof(T));
-
-                    return (T)deserializer.Deserialize(content);
-                }
-            }
-        }
-
-        /// <summary>Gets the timesheets asynchronous.</summary>
-        public async Task<Timesheet[]> GetTimesheetsAsync(DateTime startDate, DateTime endDate)
-        {
-            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
-
-            req.Read = new Read
-            {
-                Type = DateType.Timesheet,
-                Filter = "newer-than,older-than",
-                Field = "starts,starts",
-                Date = new[]
-                    {
-                        Date.Create(startDate),
-                        Date.Create(endDate)
-                    },
-                Return = new RaedReturn
-                {
-                    Content = "<status/><name /><total/><notes /><userid /><starts />"
-                }
-            };
-
-            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
-
-            return result.Read.Timesheet ?? new Timesheet[0];
-        }
-
-        /// <summary>Gets the user by identifier asynchronous.</summary>
-        public async Task<User> GetUserByIdAsync(long userId)
-        {
-            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
-
-            req.Read = new Read
-            {
-                Type = DateType.User,
-                Method = "equal to",
-                Limit = 1,
-                User = new[]
-                {
-                    new User
-                    {
-                        Id = userId
-                    }
-                },
-                Return = new RaedReturn
-                {
-                    Content = "<id /><name /><timezone/><addr /><departmentid />"
-                }
-            };
-
-            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
-
-            return result.Read.User.FirstOrDefault();
-        }
-
-        /// <summary>Gets the user by identifier asynchronous.</summary>
-        public async Task<User[]> GetAllUserAsync()
-        {
-            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
-
-            req.Read = new Read
-            {
-                Type = DateType.User,
-                Method = "all",
-                Limit = 1000,
-                Return = new RaedReturn
-                {
-                    Content = "<id /><name /><timezone/><addr /><departmentid /><active />"
-                }
-            };
-
-            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
-
-            return result.Read.User;
-        }
-
-        /// <summary>Gets all departments asynchronous.</summary>
-        public async Task<Department[]> GetAllDepartmentsAsync()
-        {
-            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
-
-            req.Read = new Read
-            {
-                Type = DateType.Department,
-                Method = "all",
-                Limit = 1000,
-                Return = new RaedReturn
-                {
-                    Content = "<id /><name /><userid />"
-                }
-            };
-
-            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
-
-            return result.Read.Department;
-        }
 
         private static string Serialize<T>(T model)
         {
@@ -189,6 +195,43 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
                 return sb.ToString();
             }
+        }
+
+        private static T[] NotNullOf<T>(params T[] values)
+            where T : class =>
+            values.Where(it => it != null).ToArray();
+
+        /// <summary>Executes the request asynchronous.</summary>
+        /// <typeparam name="T">The type of the request result.</typeparam>
+        private static async Task<T> ExecuteRequestAsync<T>(string uri, Request request, Func<HttpMessageHandler> httpMessageHandlerFactory)
+        {
+            using (var messageHandler = httpMessageHandlerFactory())
+            using (var client = new HttpClient(messageHandler, false))
+            {
+                HttpResponseMessage response;
+                using (var stringContent = new StringContent(Serialize(request)))
+                {
+                    response = await client.PostAsync(uri, stringContent);
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStreamAsync();
+                var deserializer = new XmlSerializer(typeof(T));
+
+                return (T)deserializer.Deserialize(content);
+            }
+        }
+
+        private async Task<T> ReadAsync<T>(Read read, Func<Read, T> func)
+        {
+            var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
+
+            req.Read = read;
+
+            var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
+
+            return func(result.Read);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using MentorBot.Functions.Models.Domains.Base;
+
 namespace MentorBot.Functions.Models.Domains
 {
     /// <summary>A company department.</summary>
@@ -10,5 +12,8 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary>Gets or sets the open air department identifier.</summary>
         public long? OpenAirDepartmentId { get; set; }
+
+        /// <summary>Gets or sets the owner.</summary>
+        public UserReference Owner { get; set; }
     }
 }

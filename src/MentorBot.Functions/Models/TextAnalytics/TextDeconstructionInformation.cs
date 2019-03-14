@@ -10,12 +10,12 @@ namespace MentorBot.Functions.Models.TextAnalytics
     {
         /// <summary>Initializes a new instance of the <see cref="TextDeconstructionInformation"/> class.</summary>
         public TextDeconstructionInformation(string textSentanceChunk, string subject)
-            : this(textSentanceChunk, subject, SentenceTypes.Unknown, new Dictionary<string, string>(), null, 1.0)
+            : this(textSentanceChunk, subject, SentenceTypes.Unknown, new Dictionary<string, string[]>(), null, 1.0)
         {
         }
 
         /// <summary>Initializes a new instance of the <see cref="TextDeconstructionInformation"/> class.</summary>
-        public TextDeconstructionInformation(string textSentanceChunk, string subject, SentenceTypes sentenceType, IReadOnlyDictionary<string, string> entities, string[] phrases, double confidenceRating)
+        public TextDeconstructionInformation(string textSentanceChunk, string subject, SentenceTypes sentenceType, IReadOnlyDictionary<string, string[]> entities, string[] phrases, double confidenceRating)
         {
             TextSentanceChunk = textSentanceChunk;
             Subject = subject;
@@ -35,7 +35,7 @@ namespace MentorBot.Functions.Models.TextAnalytics
         public IReadOnlyList<string> InformativePhrases { get; }
 
         /// <summary>Gets the informative entities related to the subject.</summary>
-        public IReadOnlyDictionary<string, string> Entities { get; }
+        public IReadOnlyDictionary<string, string[]> Entities { get; }
 
         /// <summary>Gets the text sentance or a chunk of the sentance.</summary>
         public string TextSentanceChunk { get; }
