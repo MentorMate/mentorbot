@@ -238,15 +238,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
                 ToDateTime().CompareTo(other);
 
             /// <inheritdoc/>
-            public override bool Equals(object obj)
-            {
-                if (obj is DateTime dateTime)
-                {
-                    return CompareTo(dateTime) == 0;
-                }
-
-                return false;
-            }
+            public override bool Equals(object obj) =>
+                obj is DateTime dateTime && CompareTo(dateTime) == 0;
 
             /// <inheritdoc/>
             public override int GetHashCode() =>

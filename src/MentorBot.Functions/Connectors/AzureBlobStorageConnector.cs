@@ -38,7 +38,7 @@ namespace MentorBot.Functions.Connectors
         /// <summary>Gets a block Blob by a path asynchronous.</summary>
         /// <param name="path">The Blob path.</param>
         [ExcludeFromCodeCoverage]
-        protected virtual async Task<ICloudBlob> GetBlockBlobAsync(string path)
+        public virtual async Task<ICloudBlob> GetBlockBlobAsync(string path)
         {
             var myClient = _storageAccount.CreateCloudBlobClient();
             var blobPath = BlobPath.ParseAndValidate(path);
