@@ -148,18 +148,6 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlElement("Timesheet", Order = 4)]
             public Timesheet[] Timesheet { get; set; }
 
-            /// <summary>Gets or sets the projects.</summary>
-            [XmlElement("Project", Order = 5)]
-            public Project[] Project { get; set; }
-
-            /// <summary>Gets or sets the projects.</summary>
-            [XmlElement("Projecttask", Order = 6)]
-            public ProjectTask[] ProjectTasks { get; set; }
-
-            /// <summary>Gets or sets the projects.</summary>
-            [XmlElement("Projecttaskassign", Order = 7)]
-            public ProjectTaskAssign[] ProjectTaskAssigns { get; set; }
-
             /// <summary>Gets or sets the customers.</summary>
             [XmlElement("Customer", Order = 8)]
             public Customer[] Customer { get; set; }
@@ -362,89 +350,6 @@ namespace MentorBot.Functions.Connectors.OpenAir
             /// <summary>Gets or sets the name.</summary>
             [XmlElement("name")]
             public string Name { get; set; }
-        }
-
-        /// <summary>The open air project model.</summary>
-        [Serializable]
-        public sealed class Project
-        {
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlIgnore]
-            public long? Id { get; set; }
-
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlElement("id")]
-            public string IdAsText
-            {
-                get => Id?.ToString(CultureInfo.InvariantCulture);
-                set => Id = ParseStringToLong(value);
-            }
-
-            /// <summary>Gets or sets the project is active.</summary>
-            [XmlElement("active")]
-            public string Active { get; set; }
-
-            /// <summary>Gets or sets the name.</summary>
-            [XmlElement("name")]
-            public string Name { get; set; }
-        }
-
-        /// <summary>The open air project task model.</summary>
-        [Serializable]
-        public sealed class ProjectTask
-        {
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlIgnore]
-            public long? Id { get; set; }
-
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlElement("id")]
-            public string IdAsText
-            {
-                get => Id?.ToString(CultureInfo.InvariantCulture);
-                set => Id = ParseStringToLong(value);
-            }
-
-            /// <summary>Gets or sets the project identifier.</summary>
-            [XmlIgnore]
-            public long? ProjectId { get; set; }
-
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlElement("projectid")]
-            public string ProjectIdAsText
-            {
-                get => ProjectId?.ToString(CultureInfo.InvariantCulture);
-                set => ProjectId = ParseStringToLong(value);
-            }
-
-            /// <summary>Gets or sets if the project task is closed 1.</summary>
-            [XmlElement("closed")]
-            public string Closed { get; set; }
-
-            /// <summary>Gets or sets the name.</summary>
-            [XmlElement("name")]
-            public string Name { get; set; }
-        }
-
-        /// <summary>The open air project task model.</summary>
-        [Serializable]
-        public sealed class ProjectTaskAssign
-        {
-            /// <summary>Gets or sets the user identifier.</summary>
-            [XmlElement("userid")]
-            public long UserId { get; set; }
-
-            /// <summary>Gets or sets the project task identifier.</summary>
-            [XmlIgnore]
-            public long? ProjectTaskId { get; set; }
-
-            /// <summary>Gets or sets the identifier.</summary>
-            [XmlElement("projecttaskid")]
-            public string ProjectTaskIdAsText
-            {
-                get => ProjectTaskId?.ToString(CultureInfo.InvariantCulture);
-                set => ProjectTaskId = ParseStringToLong(value);
-            }
         }
 
         /// <summary>A open air customer model.</summary>
