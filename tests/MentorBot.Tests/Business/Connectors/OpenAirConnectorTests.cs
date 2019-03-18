@@ -60,23 +60,21 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual(2, results.Length);
         }
 
-        /*[TestMethod]
-        public async Task OpenAirClientGetUserByIdAsync_ShouldParseResult()
+        [TestMethod]
+        public async Task OpenAirClientGetAllActiveBookings_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
-                .Set("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><User><departmentid>2</departmentid><timezone>+0200</timezone><name>Doe, Jhon</name><id>100</id><addr><Address><salutation/><mobile/><state/><email>jhon.doe@mentormate.com</email><addr2/><city>City</city><fax/><contact_id/><addr1/><id>-1</id><middle/><country/><first>Jhon</first><last>Doe</last><phone/><addr4/><zip/><addr3/></Address></addr></User></Read ></response>");
+                .Set("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Booking><userid>257</userid><booking_typeid>9</booking_typeid><id>95603</id><ownerid>265</ownerid><projectid>3410</projectid><customerid>10</customerid></Booking></Read ></response>");
 
             var client = new OpenAirClient(() => handler, options);
-            var user = await client.GetUserByIdAsync(100);
+            var bookings = await client.GetAllActiveBookingsAsync(new DateTime(2019, 1, 1));
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"equal to\" limit=\"1\"><User><id>100</id></User><_Return><id /><name /><timezone/><addr /><departmentid /></_Return></Read></request>", content);
-            Assert.AreEqual(100, user.Id);
-            Assert.AreEqual("Doe, Jhon", user.Name);
-            Assert.AreEqual(2, user.DepartmentId);
-            Assert.AreEqual("jhon.doe@mentormate.com", user.Address.First().Email);
-        }*/
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"1000\"><Date><month>1</month><day>1</day><year>2019</year></Date><Date><month>1</month><day>1</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
+            Assert.AreEqual(257, bookings[0].UserId);
+            Assert.AreEqual(10, bookings[0].CustomerId);
+        }
 
         [TestMethod]
         public async Task OpenAirClientGetUsersByActiveAsync_ShouldParseResult()

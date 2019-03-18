@@ -39,30 +39,9 @@ AppVeyor uses appveyor.yml
 ## Contribution
 
 ### Milestones
-
-#### v1.0 MVP
-
-- Create an chat bot service and register it with Google
-- Chat bot can take a single command "What is the current time" and account for different time zones.
-- Create the Learning Center portal and display a pie chart of all answered questions agains unanswered.
-- The bot need to propose command if it is not sure what is asked.
-
-### v1.1
-
-- Integrate the bot with Google Calendar and OpenAir. Add commands like "Get my meetings", "Get next meeting", etc
-- Integrate a basic machine learning algorithm.
-- Create a command that send a reminder for missing timesheet in OpenAir.
-- Show confident chart in Learning Center.
-
-### v1.2
-
-- Setup distributed nodes with blochain validation and execution
-- Extend commands for math and different convertions.
-
-### v1.3
-
-- Include JIRA integration
-- Extend "Learning Center"
+* [v1.0 MVP](https://github.com/MentorSource/mentorbot/milestone/1?closed=1)
+* [v1.1 OpenAir, AI, Google Calendar](https://github.com/MentorSource/mentorbot/milestone/2?closed=1)
+* [v1.2 Wiki, JIRA, Settings, Roles](https://github.com/MentorSource/mentorbot/milestone/3?closed=1)
 
 ### Contribute with project management
 
