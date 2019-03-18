@@ -1,10 +1,13 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Models.Options;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage.Blob;
+
 using NSubstitute;
 
 namespace MentorBot.Tests.Business.Connectors
@@ -51,7 +54,7 @@ namespace MentorBot.Tests.Business.Connectors
 
             public ICloudBlob Blob { get; } = Substitute.For<ICloudBlob>();
 
-            protected override Task<ICloudBlob> GetBlockBlobAsync(string path) =>
+            public override Task<ICloudBlob> GetBlockBlobAsync(string path) =>
                 Task.FromResult(Blob);
         }
     }

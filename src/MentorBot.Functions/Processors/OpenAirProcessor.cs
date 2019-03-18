@@ -42,8 +42,11 @@ namespace MentorBot.Functions.Services
             var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
             var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer));
+            var period = info.Entities.GetValueOrDefault("Period")?.FirstOrDefault();
+            var today = DateTime.Today;
+            var date = period == "last week" || period == "previous week" || period == "for the last week" ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
 
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(DateTime.Today, customersValue)
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(date, customersValue)
                 .ContinueWith(task => ProcessNotifyAsync(
                     task.Result,
                     departmentValue,
