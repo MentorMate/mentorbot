@@ -17,21 +17,35 @@ namespace MentorBot.Tests.Business.Services
     [TestCategory("Business.Services")]
     public class DocumentClientServiceTests
     {
-        private DocumentClientService _service;
         private IDocumentClient _documentClient;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _documentClient = Substitute.For<IDocumentClient>();
-            _service = new DocumentClientService(new Lazy<IDocumentClient>(_documentClient));
         }
 
         [TestMethod]
-        public void Document_IsConnectedCanBeFalse()
+        public void DocumentClient_CheckConnectionPolicy()
         {
-            var doc = new DocumentClientService("DB", null);
-            Assert.IsFalse(doc.IsConnected);
+            Assert.AreEqual(ConnectionMode.Direct, DocumentClientService.Policy.ConnectionMode);
+            Assert.AreEqual(Protocol.Tcp, DocumentClientService.Policy.ConnectionProtocol);
+            Assert.AreEqual(30, DocumentClientService.Policy.RetryOptions.MaxRetryWaitTimeInSeconds);
+        }
+
+        [TestMethod]
+        public void DocumentClient_IsConnectedCanBeFalse()
+        {
+            var client = new DocumentClientService("DB", null);
+            Assert.IsFalse(client.IsConnected);
+        }
+
+        [TestMethod]
+        public void DocumentClient_GetReturnsDocument()
+        {
+            var client = new DocumentClientService(new Lazy<IDocumentClient>(_documentClient));
+            var doc = client.Get<Test>("D", "C");
+            Assert.IsInstanceOfType(doc, typeof(DocumentClientService.Document<Test>));
         }
 
 #pragma warning disable CS4014

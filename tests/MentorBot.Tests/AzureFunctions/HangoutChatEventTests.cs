@@ -14,6 +14,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;
 
+using ILogger = Microsoft.Extensions.Logging.ILogger;
+
 namespace MentorBot.Tests.AzureFunctions
 {
     [TestClass]
@@ -26,17 +28,7 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task RunAsync_ShouldCheckToken()
         {
-            var documentClientService = Substitute.For<IDocumentClientService>();
-            var document = Substitute.For<IDocument<Message>>();
-            var hangoutsChatService = Substitute.For<IHangoutsChatService>();
-            var options = new GoogleCloudOptions("А", "B", "C", "D");
-            var logger = Substitute.For<Microsoft.Extensions.Logging.ILogger>();
-            var message = new HttpRequestMessage { Content = new StringContent(EmptyMsg) };
-
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IDocumentClientService), documentClientService),
-                new ServiceDescriptor(typeof(IHangoutsChatService), hangoutsChatService),
-                new ServiceDescriptor(typeof(GoogleCloudOptions), options));
+            BuildTestCase(EmptyMsg, out ILogger logger, out HttpRequestMessage message);
 
             var result = await HangoutChatEvent.RunAsync(message, logger);
 
@@ -46,20 +38,10 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task RunAsync_ShouldCallService()
         {
-            var documentClientService = Substitute.For<IDocumentClientService>();
-            var document = Substitute.For<IDocument<Message>>();
-            var hangoutsChatService = Substitute.For<IHangoutsChatService>();
-            var options = new GoogleCloudOptions("AAA", "B", "C", "D");
-            var logger = Substitute.For<Microsoft.Extensions.Logging.ILogger>();
-            var requestMessage = new HttpRequestMessage { Content = new StringContent(FullMsg) };
             var message = new Message { Output = new ChatEventResult("OK") };
+            BuildTestCase(FullMsg, out ILogger logger, out HttpRequestMessage requestMessage);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IDocumentClientService), documentClientService),
-                new ServiceDescriptor(typeof(IHangoutsChatService), hangoutsChatService),
-                new ServiceDescriptor(typeof(GoogleCloudOptions), options));
-
-            hangoutsChatService
+            ServiceLocator.Get<IHangoutsChatService>()
                 .BasicAsync(Arg.Is<ChatEvent>(it =>
                     it.Message.Text == "What is this?" &&
                     it.Message.Name == "spaces/q/messages/y"))
@@ -73,32 +55,34 @@ namespace MentorBot.Tests.AzureFunctions
 
 #pragma warning disable CS4014
 
-        [Ignore]
         [TestMethod]
         public async Task RunAsync_ShouldSaveInDb()
         {
-            var documentClientService = Substitute.For<IDocumentClientService>();
-            var document = Substitute.For<IDocument<Message>>();
-            var hangoutsChatService = Substitute.For<IHangoutsChatService>();
-            var options = new GoogleCloudOptions("AAA", "B", "C", "D");
-            var logger = Substitute.For<Microsoft.Extensions.Logging.ILogger>();
-            var requestMessage = new HttpRequestMessage { Content = new StringContent(FullMsg) };
             var message = new Message();
-
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IDocumentClientService), documentClientService),
-                new ServiceDescriptor(typeof(IHangoutsChatService), hangoutsChatService),
-                new ServiceDescriptor(typeof(GoogleCloudOptions), options));
-
-            documentClientService.IsConnected.Returns(true);
-            documentClientService.Get<Message>("mentorbot", "messages").Returns(document);
-            hangoutsChatService.BasicAsync(null).ReturnsForAnyArgs(message);
-
+            BuildTestCase(FullMsg, out ILogger logger, out HttpRequestMessage requestMessage);
+            
+            ServiceLocator.Get<IHangoutsChatService>().BasicAsync(null).ReturnsForAnyArgs(message);
+            
             await HangoutChatEvent.RunAsync(requestMessage, logger);
 
-            document.Received().AddAsync(message);
+            //// ServiceLocator.Get<IStorageService>().Received().AddMessageAsync(message);
         }
 
 #pragma warning restore CS4014
+
+        private void BuildTestCase(string requestContent, out ILogger logger, out HttpRequestMessage requestMessage)
+        {
+            var storageService = Substitute.For<IStorageService>();
+            var hangoutsChatService = Substitute.For<IHangoutsChatService>();
+            var options = new GoogleCloudOptions("AAA", "B", "C", "D");
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                new ServiceDescriptor(typeof(IHangoutsChatService), hangoutsChatService),
+                new ServiceDescriptor(typeof(GoogleCloudOptions), options));
+
+            logger = Substitute.For<Microsoft.Extensions.Logging.ILogger>();
+            requestMessage = new HttpRequestMessage { Content = new StringContent(requestContent) };
+        }
     }
 }

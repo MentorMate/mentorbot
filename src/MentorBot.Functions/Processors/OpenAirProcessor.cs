@@ -43,14 +43,21 @@ namespace MentorBot.Functions.Services
             var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer));
             var period = info.Entities.GetValueOrDefault("Period")?.FirstOrDefault();
+            var state = GetState(info.Entities.GetValueOrDefault("State")?.FirstOrDefault());
             var today = DateTime.Today;
             var date = period == "last week" || period == "previous week" || period == "for the last week" ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
+            if (state == TimesheetStates.None)
+            {
+                return new ValueTask<ChatEventResult>(
+                    new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
+            }
 
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(date, customersValue)
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, customersValue)
                 .ContinueWith(task => ProcessNotifyAsync(
                     task.Result,
                     departmentValue,
                     notify,
+                    state,
                     new GoogleChatAddress(originalChatEvent),
                     responder as IHangoutsChatConnector));
 
@@ -62,16 +69,43 @@ namespace MentorBot.Functions.Services
             string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))
                 .Select(it => $"<b>{it.UserName}:</b> {it.Total} <i>({it.DepartmentName})</i><br>"));
 
+        private static TimesheetStates GetState(string state)
+        {
+            switch (state)
+            {
+                case "unsibmitted":
+                case "unsubmitted":
+                case "unsubmited":
+                case "not unsibmited":
+                case "not unsibmitted":
+                case "not unsubmited":
+                case "not unsubmitted":
+                case "didn ' t submit":
+                    return TimesheetStates.Unsubmitted;
+                case "unapproved":
+                case "unaproved":
+                case "not approved":
+                case "not aproved":
+                case "non approved":
+                    return TimesheetStates.Unapproved;
+                default:
+                    return TimesheetStates.None;
+            }
+        }
+
         /// <summary>Processes the specified timesheets.</summary>
         private async Task ProcessNotifyAsync(
             IReadOnlyList<Timesheet> timesheets,
             string department,
             bool notify,
+            TimesheetStates state,
             GoogleChatAddress address,
             IHangoutsChatConnector connector)
         {
             string text;
             var myemail = address.Sender.Email;
+            var stateText = state == TimesheetStates.Unapproved ? "approved" : "submitted";
+            var stateText2 = state == TimesheetStates.Unapproved ? "approve" : "submite";
             var filteredTimesheet = timesheets
                 .Where(it =>
                     myemail.Equals(it.DepartmentOwnerEmail, StringComparison.InvariantCultureIgnoreCase) ||
@@ -84,7 +118,7 @@ namespace MentorBot.Functions.Services
             var notifiedUserList = new List<string>();
             if (filteredTimesheet.Length == 0)
             {
-                text = "<b>All user have submitted timesheets.</b>";
+                text = $"<b>All user have {stateText} timesheets.</b>";
             }
             else if (notify && filteredTimesheet.Length > 0)
             {
@@ -113,7 +147,7 @@ namespace MentorBot.Functions.Services
 
                 foreach (var timesheet in filteredTimesheet)
                 {
-                    var message = $"{timesheet.UserName}, Please submit your timesheet. Your current hours are {timesheet.Total}.";
+                    var message = $"{timesheet.UserName}, You have {stateText} timesheet. Your current hours are {timesheet.Total}.";
                     var addr = filteredAddresses.FirstOrDefault(it => it.UserEmail == timesheet.UserEmail);
                     if (addr == null)
                     {
@@ -140,12 +174,12 @@ namespace MentorBot.Functions.Services
                 }
 
                 text = notifiedUserList.Count == filteredTimesheet.Length ?
-                    "All users width unsubmitted timesheets are notified! Total of " + notifiedUserList.Count :
+                    $"All users with not {stateText} timesheets are notified! Total of {notifiedUserList.Count}." :
                     "The following people where not notified: <br>" + GetCardText(filteredTimesheet, notifiedUserList);
             }
             else
             {
-                text = "The following people have to submit timesheet: <br>" + GetCardText(filteredTimesheet, notifiedUserList);
+                text = $"The following people have to {stateText2} timesheet: <br>" + GetCardText(filteredTimesheet, notifiedUserList);
             }
 
             var paragraph = new TextParagraph { Text = text };
