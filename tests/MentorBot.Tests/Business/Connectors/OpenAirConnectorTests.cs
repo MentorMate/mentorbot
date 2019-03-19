@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.OpenAir;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Tests.Base;
@@ -169,7 +170,7 @@ namespace MentorBot.Tests.Business.Processors
             storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, null);
 
             Assert.AreEqual(1, timesheets.Count);
             Assert.AreEqual("Test", timesheets[0].UserName);
@@ -204,7 +205,7 @@ namespace MentorBot.Tests.Business.Processors
                 });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, null);
 
             Assert.AreEqual(6, timesheets.Count);
         }

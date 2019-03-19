@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
@@ -33,7 +34,19 @@ namespace MentorBot.Tests.Business.Processors
             _processor = new OpenAirProcessor(_connector, _storageService);
         }
 
-        #pragma warning disable CS4014
+#pragma warning disable CS4014
+
+        [TestMethod]
+        public async Task OpenAirProcessor_ShouldReturnNoState()
+        {
+            var chatEvent = new ChatEvent();
+            var info = new TextDeconstructionInformation("Get unsubmitted timesheets", null);
+            
+            // Act
+            var result = await _processor.ProcessCommandAsync(info, chatEvent, null) as ChatEventResult;
+
+            Assert.AreEqual("Provide a state of the time sheets, like unsubmitted or unapproved!", result.Text);
+        }
 
         [TestMethod]
         public async Task WhenAskedItShouldGetTimesheets()
@@ -44,9 +57,15 @@ namespace MentorBot.Tests.Business.Processors
             var chat = new ChatEvent { Space = space, Message = message };
             var responder = Substitute.For<IHangoutsChatConnector>();
             var timesheet = new Timesheet { Name = "A", UserName = "users/B", UserEmail = "c@d.e", DepartmentOwnerEmail = "a@b.c", DepartmentName = "F", Total = 20 };
-            var info = new TextDeconstructionInformation("Get unsubmited timesheets", null);
+            var info = new TextDeconstructionInformation(
+                "Get unsubmited timesheets",
+                null,
+                SentenceTypes.Unknown,
+                new Dictionary<string, string[]> { { "State", new[] { "unsubmitted" } } },
+                null,
+                1.0);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, null).ReturnsForAnyArgs(new[] { timesheet });
+            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null).ReturnsForAnyArgs(new[] { timesheet });
 
             // Act
             var result = await _processor.ProcessCommandAsync(info, chat, responder);

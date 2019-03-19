@@ -28,7 +28,7 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, string[] filterByCustomers)
+        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string[] filterByCustomers)
         {
             var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
@@ -44,7 +44,12 @@ namespace MentorBot.Functions.Connectors
                 {
                     UserId = it.Key,
                     TimesheetName = it.FirstOrDefault()?.Name,
-                    Total = it.Where(sheet => sheet.StartDate.Date > toweek).Sum(sheet => sheet.Total)
+                    Total = it
+                        .Where(sheet => sheet.StartDate.Date > toweek)
+                        .Where(sheet =>
+                            (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
+                            (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
+                        .Sum(sheet => sheet.Total)
                 })
                 .Where(it => it.Total < requiredHours)
                 .ToArray();
