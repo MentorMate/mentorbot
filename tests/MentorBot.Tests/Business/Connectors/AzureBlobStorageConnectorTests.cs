@@ -30,6 +30,7 @@ namespace MentorBot.Tests.Business.Connectors
             var connector = new AzureBlobStorageConnectorWrapper(configuration);
             var result = await connector.GetFileStreamAsync("HIJ/KLM");
 
+            Assert.IsFalse(connector.IsConnected);
             Assert.IsInstanceOfType(result, typeof(MemoryStream));
             connector.Blob.Received().DownloadToStreamAsync(result);
         }

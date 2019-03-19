@@ -23,6 +23,50 @@ namespace MentorBot.Tests.Business.Processors
     public sealed class OpenAirConnectorTests
     {
         [TestMethod]
+        public void OpenAirClientUser_ShouldBeSet()
+        {
+            var user = new OpenAirClient.User { IdAsText = "3", ManagerIdAsText = "4", DepartmentIdAsText = "5", ActiveAsText = "1", LocationIdAsText = "6" };
+            Assert.AreEqual(3, user.Id);
+            Assert.AreEqual(4, user.ManagerId);
+            Assert.AreEqual(5, user.DepartmentId);
+            Assert.AreEqual(6, user.LocationId);
+            Assert.IsTrue(user.Active.Value);
+        }
+
+        [TestMethod]
+        public void OpenAirClientCustomer_ShouldBeSet()
+        {
+            var customer = new OpenAirClient.Customer { IdAsText = "100", ActiveAsText = string.Empty, Name = "A" };
+            Assert.AreEqual(100, customer.Id);
+            Assert.AreEqual("A", customer.Name);
+            Assert.IsFalse(customer.Active.Value);
+        }
+
+        [TestMethod]
+        public void OpenAirClientDepartment_ShouldBeSet()
+        {
+            var dep = new OpenAirClient.Department { UserIdAsText = "200", Name = "B" };
+            Assert.AreEqual(200, dep.UserId);
+            Assert.AreEqual("B", dep.Name);
+        }
+
+        [TestMethod]
+        public void OpenAirClientDate_ShouldCompare()
+        {
+            var dateTime = new DateTime(2019, 10, 10);
+            var date = new OpenAirClient.Date { Year = 2019, Month = 10, Day = 10 };
+            Assert.AreEqual(0, date.CompareTo(dateTime));
+            Assert.AreEqual(-1, date.CompareTo(new DateTime(2019, 11, 10)));
+            Assert.IsTrue(date.Equals(dateTime));
+            Assert.IsTrue(date == dateTime);
+            Assert.IsTrue(date >= dateTime);
+            Assert.IsTrue(date <= dateTime);
+            Assert.IsTrue(date > new DateTime(2019, 10, 9));
+            Assert.IsTrue(date < new DateTime(2019, 11, 10));
+            Assert.IsFalse(date != dateTime);
+        }
+
+        [TestMethod]
         public async Task OpenAirClientGetTimesheets_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");

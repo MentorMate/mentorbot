@@ -15,7 +15,8 @@ namespace MentorBot.Functions.Services
     /// <summary>An document database service for Azure Comtoso DB.</summary>
     public sealed class DocumentClientService : IDocumentClientService
     {
-        private static readonly ConnectionPolicy Policy = new ConnectionPolicy
+        /// <summary>The connection policy.</summary>
+        public static readonly ConnectionPolicy Policy = new ConnectionPolicy
         {
             ConnectionMode = ConnectionMode.Direct,
             ConnectionProtocol = Protocol.Tcp,
