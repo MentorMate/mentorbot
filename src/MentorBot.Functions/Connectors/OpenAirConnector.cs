@@ -54,7 +54,7 @@ namespace MentorBot.Functions.Connectors
                 .Where(it => it.Total < requiredHours)
                 .ToArray();
 
-            var users = _storageService.GetUsersByIdList(
+            var users = await _storageService.GetUsersByIdListAsync(
                 unsubmittedTimesheets.Select(it => it.UserId.Value).Distinct().ToArray());
 
             if (filterByCustomers != null && filterByCustomers.Any())
@@ -83,7 +83,7 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public async Task SyncUsersAsync()
         {
-            var storedUsers = _storageService.GetAllUsers();
+            var storedUsers = await _storageService.GetAllUsersAsync();
             var openAirModelUsers = await _client.GetAllUsersAsync();
             var openAirDepartments = await _client.GetAllDepartmentsAsync();
             var openAirCustomers = await _client.GetAllActiveCustomersAsync();

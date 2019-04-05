@@ -9,6 +9,7 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup Label="NuGet Packages">
+    <PackageReference Include="CoreHelpers.WindowsAzure.Storage.Table" Version="2.5.89" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.36.1.1424" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.2.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.2" />

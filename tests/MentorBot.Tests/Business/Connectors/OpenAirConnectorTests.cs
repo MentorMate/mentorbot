@@ -168,6 +168,7 @@ namespace MentorBot.Tests.Business.Processors
             var date = new DateTime(2019, 2, 1);
 
             storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
+            storageService.GetUsersByIdListAsync(null).ReturnsForAnyArgs(new[] { user });
 
             // Act
             var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, null);
@@ -194,6 +195,17 @@ namespace MentorBot.Tests.Business.Processors
 
             storageService
                 .GetUsersByIdList(null)
+                .ReturnsForAnyArgs(new[]
+                {
+                    CreateUser(397, "A", ".NET"),
+                    CreateUser(283, "B", ".NET"),
+                    CreateUser(520, "C", ".NET"),
+                    CreateUser(722, "D", ".NET"),
+                    CreateUser(133, "E", ".NET"),
+                    CreateUser(921, "F", ".NET"),
+                });
+            storageService
+                .GetUsersByIdListAsync(null)
                 .ReturnsForAnyArgs(new[]
                 {
                     CreateUser(397, "A", ".NET"),
@@ -270,6 +282,13 @@ namespace MentorBot.Tests.Business.Processors
 
             storageService
                 .GetAllUsers()
+                .ReturnsForAnyArgs(new[]
+                {
+                    CreateUser(1000, "A", ".NET", 1),
+                    CreateUser(1011, "B", ".NET", 2)
+                });
+            storageService
+                .GetAllUsersAsync()
                 .ReturnsForAnyArgs(new[]
                 {
                     CreateUser(1000, "A", ".NET", 1),

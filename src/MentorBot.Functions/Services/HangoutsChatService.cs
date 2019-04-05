@@ -17,12 +17,14 @@ namespace MentorBot.Functions.Services
 
         private readonly ICognitiveService _cognitiveService;
         private readonly IAsyncResponder _responder;
+        private readonly IStorageService _storageService;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatService"/> class.</summary>
-        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder)
+        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder, IStorageService storageService)
         {
             _cognitiveService = cognitiveService;
             _responder = responder;
+            _storageService = storageService;
         }
 
         /// <inheritdoc/>
@@ -32,9 +34,13 @@ namespace MentorBot.Functions.Services
                 .ProcessAsync(chatEvent)
                 .ConfigureAwait(false);
 
+            var settings = await _storageService.GetSettingsAsync();
+
             var fail =
                 command == null ||
                 command.CommandProcessor == null ||
+                settings == null ||
+                !settings.EnabledProcessors.Contains(command.CommandProcessor.GetType().Name) ||
                 command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
 
             var rating = fail ? 0 : command.TextDeconstructionInformation.ConfidenceRating * 100;

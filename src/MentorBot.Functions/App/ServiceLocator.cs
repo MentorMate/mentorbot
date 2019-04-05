@@ -90,7 +90,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
-            services.AddTransient<IStorageService, StorageService>();
+            services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
 
             services.AddTransient<LuisClient>();

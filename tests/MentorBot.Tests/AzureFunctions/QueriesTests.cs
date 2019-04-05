@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-
+using System.Threading.Tasks;
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
@@ -17,7 +17,7 @@ namespace MentorBot.Tests.AzureFunctions
     public class QueriesTests
     {
         [TestMethod]
-        public void GetMessagesStatisticsAsyncShouldQueryDocument()
+        public async Task GetMessagesStatisticsAsyncShouldQueryDocument()
         {
             var storageService = Substitute.For<IStorageService>();
             var document = Substitute.For<IDocument<Message>>();
@@ -25,11 +25,12 @@ namespace MentorBot.Tests.AzureFunctions
             var message2 = new Message { ProbabilityPercentage = 82 };
 
             storageService.GetMessages().Returns(new[] { message1, message2 });
+            storageService.GetMessagesAsync().Returns(new[] { message1, message2 });
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService));
 
-            var result = Queries.GetMessagesStatistics(null);
+            var result = await Queries.GetMessagesStatistics(null);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);
