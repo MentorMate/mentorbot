@@ -97,6 +97,12 @@ namespace MentorBot.Functions.Services
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
+        public Task<bool> SaveMessageAsync(Message message)
+        {
+            throw new NotImplementedException();
+        }
+
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {
             if (_documentClientService.IsConnected)

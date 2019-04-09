@@ -13,8 +13,15 @@ namespace MentorBot.Functions.Models.Domains
     public sealed class User
     {
         /// <summary>Gets or sets the identifier.</summary>
+        [RowKey]
         [JsonProperty("id")]
-        public Guid? Id { get; set; }
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the partition key for this record.
+        /// </summary>
+        [PartitionKey]
+        public string PartitionKey { get; set; }
 
         /// <summary>Gets or sets the email.</summary>
         public string Email { get; set; }
@@ -23,8 +30,6 @@ namespace MentorBot.Functions.Models.Domains
         public string Name { get; set; }
 
         /// <summary>Gets or sets the open air user identifier.</summary>
-        [PartitionKey]
-        [RowKey]
         public long OpenAirUserId { get; set; }
 
         /// <summary>Gets or sets the user manager.</summary>

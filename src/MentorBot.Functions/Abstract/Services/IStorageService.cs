@@ -46,6 +46,9 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets the messages.</summary>
         IReadOnlyList<Message> GetMessages();
 
+        /// <summary>Saves a message.</summary>
+        Task<bool> SaveMessageAsync(Message message);
+
         /// <summary>
         /// Reads the settings from the Table Storage
         /// </summary>

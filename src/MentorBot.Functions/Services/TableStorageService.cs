@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CoreHelpers.WindowsAzure.Storage.Table;
+using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Models.Settings;
@@ -16,6 +19,8 @@ namespace MentorBot.Functions.Services
     /// </summary>
     public sealed class TableStorageService : IStorageService, IDisposable
     {
+        private static readonly Regex _disallowedCharsInTableKeys = new Regex(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]");
+        private static readonly string _disallowedCharReplacement = "-";
         private readonly StorageContext _storageContext;
         private readonly bool _isConnected;
 
@@ -59,6 +64,7 @@ namespace MentorBot.Functions.Services
 
             foreach (var user in users)
             {
+                user.PartitionKey = _disallowedCharsInTableKeys.Replace(user.PartitionKey, _disallowedCharReplacement);
                 await _storageContext.MergeOrInsertAsync<User>(user);
             }
 
@@ -110,9 +116,7 @@ namespace MentorBot.Functions.Services
 
             var result = await _storageContext.QueryAsync<User>(2000);
 
-            result.Where(u => userIdList.Contains(u.OpenAirUserId));
-
-            return result.ToList();
+            return result.Where(u => userIdList.Contains(u.OpenAirUserId)).ToList();
         }
 
         /// <inheritdoc/>
@@ -128,6 +132,7 @@ namespace MentorBot.Functions.Services
 
             foreach (var address in addresses)
             {
+                address.PartitionKey = _disallowedCharsInTableKeys.Replace(address.SpaceName, _disallowedCharReplacement);
                 await _storageContext.MergeOrInsertAsync<GoogleAddress>(address);
             }
 
@@ -163,9 +168,24 @@ namespace MentorBot.Functions.Services
 
             var result = await _storageContext.QueryAsync<Message>(2000);
 
-            result.Select(m => m.ProbabilityPercentage);
-
             return result.ToList();
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> SaveMessageAsync(Message message)
+        {
+            if (!_isConnected)
+            {
+                return false;
+            }
+
+            // ensure the table exists
+            _storageContext.CreateTable<Message>();
+
+            message.PartitionKey = _disallowedCharsInTableKeys.Replace(message.Input, _disallowedCharReplacement);
+            await _storageContext.MergeOrInsertAsync<Message>(message);
+
+            return true;
         }
 
         /// <inheritdoc/>
@@ -179,9 +199,18 @@ namespace MentorBot.Functions.Services
             // ensure the table exists
             _storageContext.CreateTable<MentorBotSettings>();
 
-            var result = await _storageContext.QueryAsync<MentorBotSettings>();
+            var result = (await _storageContext.QueryAsync<MentorBotSettings>()).FirstOrDefault();
 
-            return result.FirstOrDefault();
+            if (result == null)
+            {
+                result = new MentorBotSettings();
+                ServiceLocator.EnsureServiceProvider();
+                var processors = ServiceLocator.GetServices<ICommandProcessor>();
+
+                result.Processors = processors.Select(p => new ProcessorSettings { Name = p.GetType().Name, Enabled = true }).ToList();
+            }
+
+            return result;
         }
 
         /// <inheritdoc/>

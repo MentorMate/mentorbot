@@ -1,5 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -40,12 +42,13 @@ namespace MentorBot.Functions.Services
                 command == null ||
                 command.CommandProcessor == null ||
                 settings == null ||
-                !settings.EnabledProcessors.Contains(command.CommandProcessor.GetType().Name) ||
+                !settings.Processors.Any(p => p.Name == command.CommandProcessor.GetType().Name && p.Enabled) ||
                 command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
 
             var rating = fail ? 0 : command.TextDeconstructionInformation.ConfidenceRating * 100;
             var result = new Message
             {
+                Id = Guid.NewGuid().ToString(),
                 Input = chatEvent?.Message?.Text,
                 ProbabilityPercentage = (byte)rating,
                 Output = fail

@@ -44,7 +44,7 @@ namespace MentorBot.Functions.AzureFunctions
                     var settings = JsonConvert.DeserializeObject<MentorBotSettings>(requestBody);
                     await storageService.SaveSettingsAsync(settings);
 
-                    return new OkResult();
+                    return new OkObjectResult(settings);
                 }
             }
             else if (string.Compare(req.Method, nameof(HttpMethod.Get), true) == 0)

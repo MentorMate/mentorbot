@@ -52,17 +52,16 @@ namespace MentorBot.Functions.Services
                     new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
             }
 
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, customersValue)
+            var result = _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, customersValue)
                 .ContinueWith(task => ProcessNotifyAsync(
                     task.Result,
                     departmentValue,
                     notify,
                     state,
                     new GoogleChatAddress(originalChatEvent),
-                    responder as IHangoutsChatConnector));
+                    responder as IHangoutsChatConnector)).Result;
 
-            return new ValueTask<ChatEventResult>(
-                new ChatEventResult(text: null));
+            return result;
         }
 
         private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
@@ -94,7 +93,7 @@ namespace MentorBot.Functions.Services
         }
 
         /// <summary>Processes the specified timesheets.</summary>
-        private async Task ProcessNotifyAsync(
+        private async ValueTask<ChatEventResult> ProcessNotifyAsync(
             IReadOnlyList<Timesheet> timesheets,
             string department,
             bool notify,
@@ -123,7 +122,7 @@ namespace MentorBot.Functions.Services
             else if (notify && filteredTimesheet.Length > 0)
             {
                 var emails = filteredTimesheet.Select(it => it.UserEmail).ToArray();
-                var storeAddresses = _storageService.GetAddresses();
+                var storeAddresses = await _storageService.GetAddressesAsync();
                 var filteredAddresses = storeAddresses.Where(it => emails.Contains(it.UserEmail)).ToArray();
                 var addressesForUpdate = new List<GoogleAddress>();
 
@@ -163,9 +162,10 @@ namespace MentorBot.Functions.Services
                     }
 
                     notifiedUserList.Add(timesheet.UserName);
+
                     await connector.SendMessageAsync(
-                        message,
-                        new GoogleChatAddress(addr.SpaceName, string.Empty, "DM", addr.UserName, addr.UserDisplayName));
+                       message,
+                       new GoogleChatAddress(addr.SpaceName, string.Empty, "DM", addr.UserName, addr.UserDisplayName));
                 }
 
                 if (addressesForUpdate.Count > 0)
@@ -186,6 +186,8 @@ namespace MentorBot.Functions.Services
             var card = ChatEventFactory.CreateCard(paragraph);
 
             await connector.SendMessageAsync(null, address, card);
+
+            return new ChatEventResult(new Card[] { card });
         }
     }
 }

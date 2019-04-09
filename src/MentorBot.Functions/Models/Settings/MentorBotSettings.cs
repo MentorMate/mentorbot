@@ -24,6 +24,6 @@ namespace MentorBot.Functions.Models.Settings
         /// Gets or sets the list of all enabled processors
         /// </summary>
         [StoreAsJsonObject]
-        public List<string> EnabledProcessors { get; set; }
+        public List<ProcessorSettings> Processors { get; set; } = new List<ProcessorSettings>();
     }
 }

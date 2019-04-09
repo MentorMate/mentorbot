@@ -9,6 +9,13 @@ namespace MentorBot.Functions.Models.HangoutsChat
     /// <seealso cref="Message"/>
     public class ChatEventResult
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatEventResult"/> class.
+        /// </summary>
+        public ChatEventResult()
+        {
+        }
+
         /// <summary>Initializes a new instance of the <see cref="ChatEventResult"/> class.</summary>
         public ChatEventResult(string text)
         {
