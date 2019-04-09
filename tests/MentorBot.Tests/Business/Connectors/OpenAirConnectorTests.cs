@@ -311,6 +311,6 @@ namespace MentorBot.Tests.Business.Processors
         #pragma warning restore CS4014
 
         private static User CreateUser(long id, string name, string departmentName, long departmentId = 1) =>
-            new User { Name = name, Department = new Department { Name = departmentName, OpenAirDepartmentId = departmentId }, OpenAirUserId = id, Active = true };
+            new User { Id = Guid.NewGuid().ToString(), PartitionKey = Guid.NewGuid().ToString(), Name = name, Department = new Department { Name = departmentName, OpenAirDepartmentId = departmentId }, OpenAirUserId = id, Active = true };
     }
 }
