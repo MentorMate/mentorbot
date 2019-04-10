@@ -17,55 +17,34 @@ namespace MentorBot.Functions.Services
     /// <summary>
     ///  Provides interface to a Azure Table Storage
     /// </summary>
-    public sealed class TableStorageService : IStorageService, IDisposable
+    public sealed class TableStorageService : IStorageService
     {
         private static readonly Regex _disallowedCharsInTableKeys = new Regex(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]");
         private static readonly string _disallowedCharReplacement = "-";
-        private readonly StorageContext _storageContext;
-        private readonly bool _isConnected;
+        private readonly ITableClientService _tableClientService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageService"/> class.
         /// </summary>
-        public TableStorageService(AzureCloudOptions azureCloudOptions)
+        public TableStorageService(ITableClientService tableClientService)
         {
-            _isConnected = azureCloudOptions != null && !string.IsNullOrWhiteSpace(azureCloudOptions.AzureStorageAccountConnectionString);
+            _tableClientService = tableClientService;
 
-            if (!_isConnected)
-            {
-                return;
-            }
-
-            try
-            {
-                _storageContext = new StorageContext(connectionString: azureCloudOptions.AzureStorageAccountConnectionString);
-
-                // ensure we are using the attributes
-                _storageContext.AddAttributeMapper(typeof(MentorBotSettings));
-                _storageContext.AddAttributeMapper(typeof(User));
-                _storageContext.AddAttributeMapper(typeof(Message));
-                _storageContext.AddAttributeMapper(typeof(GoogleAddress));
-            }
-            catch (Exception)
-            {
-                _isConnected = false;
-            }
+            _tableClientService.AddAttributeMapper(new List<Type> { typeof(MentorBotSettings), typeof(User), typeof(Message), typeof(GoogleAddress) });
         }
 
-            /// <inheritdoc/>
+        /// <inheritdoc/>
         public async Task<bool> AddUsersAsync(IReadOnlyList<User> users)
         {
-            if (!_isConnected)
+            if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            _storageContext.CreateTable<User>();
-
             foreach (var user in users)
             {
                 user.PartitionKey = _disallowedCharsInTableKeys.Replace(user.PartitionKey, _disallowedCharReplacement);
-                await _storageContext.MergeOrInsertAsync<User>(user);
+                await _tableClientService.MergeOrInsertAsync<User>(user);
             }
 
             return true;
@@ -74,15 +53,12 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<bool> UpdateUsersAsync(IReadOnlyList<User> users)
         {
-            if (!_isConnected)
+            if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            // ensure the table exists
-            _storageContext.CreateTable<User>();
-
-            await _storageContext.MergeAsync<User>(users);
+            await _tableClientService.MergeAsync<User>(users);
 
             return true;
         }
@@ -90,15 +66,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<IReadOnlyList<User>> GetAllUsersAsync()
         {
-            if (!_isConnected)
-            {
-                return new User[0];
-            }
-
-            // ensure the table exists
-            _storageContext.CreateTable<User>();
-
-            var result = await _storageContext.QueryAsync<User>(2000);
+            var result = await _tableClientService.QueryAsync<User>(2000);
 
             return result.ToList();
         }
@@ -106,15 +74,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<IReadOnlyList<User>> GetUsersByIdListAsync(IEnumerable<long> userIdList)
         {
-            if (!_isConnected)
-            {
-                return new User[0];
-            }
-
-            // ensure the table exists
-            _storageContext.CreateTable<User>();
-
-            var result = await _storageContext.QueryAsync<User>(2000);
+            var result = await _tableClientService.QueryAsync<User>(2000);
 
             return result.Where(u => userIdList.Contains(u.OpenAirUserId)).ToList();
         }
@@ -122,18 +82,15 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<bool> AddAddressesAsync(IReadOnlyList<GoogleAddress> addresses)
         {
-            if (!_isConnected)
+            if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            // ensure the table exists
-            _storageContext.CreateTable<GoogleAddress>();
-
             foreach (var address in addresses)
             {
                 address.PartitionKey = _disallowedCharsInTableKeys.Replace(address.SpaceName, _disallowedCharReplacement);
-                await _storageContext.MergeOrInsertAsync<GoogleAddress>(address);
+                await _tableClientService.MergeOrInsertAsync<GoogleAddress>(address);
             }
 
             return true;
@@ -142,15 +99,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync()
         {
-            if (!_isConnected)
-            {
-                return new GoogleAddress[0];
-            }
-
-            // ensure the table exists
-            _storageContext.CreateTable<GoogleAddress>();
-
-            var result = await _storageContext.QueryAsync<GoogleAddress>(1000);
+            var result = await _tableClientService.QueryAsync<GoogleAddress>(1000);
 
             return result.ToList();
         }
@@ -158,15 +107,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<IReadOnlyList<Message>> GetMessagesAsync()
         {
-            if (!_isConnected)
-            {
-                return new Message[0];
-            }
-
-            // ensure the table exists
-            _storageContext.CreateTable<Message>();
-
-            var result = await _storageContext.QueryAsync<Message>(2000);
+            var result = await _tableClientService.QueryAsync<Message>(2000);
 
             return result.ToList();
         }
@@ -174,16 +115,13 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<bool> SaveMessageAsync(Message message)
         {
-            if (!_isConnected)
+            if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            // ensure the table exists
-            _storageContext.CreateTable<Message>();
-
             message.PartitionKey = _disallowedCharsInTableKeys.Replace(message.Input, _disallowedCharReplacement);
-            await _storageContext.MergeOrInsertAsync<Message>(message);
+            await _tableClientService.MergeOrInsertAsync<Message>(message);
 
             return true;
         }
@@ -191,15 +129,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<MentorBotSettings> GetSettingsAsync()
         {
-            if (!_isConnected)
-            {
-                return new MentorBotSettings();
-            }
-
-            // ensure the table exists
-            _storageContext.CreateTable<MentorBotSettings>();
-
-            var result = (await _storageContext.QueryAsync<MentorBotSettings>()).FirstOrDefault();
+            var result = (await _tableClientService.QueryAsync<MentorBotSettings>()).FirstOrDefault();
 
             if (result == null)
             {
@@ -216,15 +146,12 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public async Task<bool> SaveSettingsAsync(MentorBotSettings settings)
         {
-            if (!_isConnected)
+            if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            // ensure the table exists
-            _storageContext.CreateTable<MentorBotSettings>();
-
-            await _storageContext.MergeOrInsertAsync<MentorBotSettings>(settings);
+            await _tableClientService.MergeOrInsertAsync<MentorBotSettings>(settings);
 
             return true;
         }
@@ -251,15 +178,6 @@ namespace MentorBot.Functions.Services
         public IReadOnlyList<Message> GetMessages()
         {
             throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            if (_storageContext != null)
-            {
-                _storageContext.Dispose();
-            }
         }
     }
 }

@@ -84,6 +84,7 @@ namespace MentorBot.Functions.App
             services.AddSingleton<Func<DateTime>>(
                 () => DateTime.Now);
 
+            services.AddTransient<ITableClientService, TableClientService>();
             services.AddTransient<IBlobStorageConnector, AzureBlobStorageConnector>();
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();
