@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.DataResultModels;
@@ -20,7 +20,7 @@ namespace MentorBot.Functions
     {
         /// <summary>The main Azure function.</summary>
         [FunctionName("get-messages-stats")]
-        public static IEnumerable<MessagesStatistic> GetMessagesStatistics(
+        public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatistics(
             [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
         {
             Debug.Write(req);
@@ -29,8 +29,7 @@ namespace MentorBot.Functions
 
             var storage = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
 
-            var messages = storage
-                .GetMessages()
+            var messages = (await storage.GetMessagesAsync())
                 .GroupBy(it => it.ProbabilityPercentage / 10)
                 .Select(group => new MessagesStatistic
                 {

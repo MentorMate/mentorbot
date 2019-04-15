@@ -17,6 +17,7 @@ const template = `
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
           <li><a routerLink="/app/dashboard" routerLinkActive="active">Dashboard</a></li>
+          <li><a routerLink="/app/settings" routerLinkActive="active">Settings</a></li>
           <li><a routerLink="/app/about" routerLinkActive="active">About</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">

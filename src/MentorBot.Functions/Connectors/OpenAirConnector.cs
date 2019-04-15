@@ -54,7 +54,7 @@ namespace MentorBot.Functions.Connectors
                 .Where(it => it.Total < requiredHours)
                 .ToArray();
 
-            var users = _storageService.GetUsersByIdList(
+            var users = await _storageService.GetUsersByIdListAsync(
                 unsubmittedTimesheets.Select(it => it.UserId.Value).Distinct().ToArray());
 
             if (filterByCustomers != null && filterByCustomers.Any())
@@ -83,13 +83,14 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public async Task SyncUsersAsync()
         {
-            var storedUsers = _storageService.GetAllUsers();
+            var storedUsers = await _storageService.GetAllUsersAsync();
             var openAirModelUsers = await _client.GetAllUsersAsync();
             var openAirDepartments = await _client.GetAllDepartmentsAsync();
             var openAirCustomers = await _client.GetAllActiveCustomersAsync();
             var openAirBookings = await _client.GetAllActiveBookingsAsync(DateTime.Today);
             var usersListToUpdate = new List<User>();
             var usersListToAdd = new List<User>();
+
             foreach (var user in openAirModelUsers)
             {
                 var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
@@ -99,11 +100,11 @@ namespace MentorBot.Functions.Connectors
 
                 var manager = CreateUserReferenceById(user.ManagerId, openAirModelUsers);
 
-                var customerIdList = openAirBookings
+                var customerIdList = openAirBookings?
                     .Where(it => it.UserId == user.Id)
                     .Select(it => it.CustomerId)
                     .Distinct()
-                    .ToArray();
+                    .ToArray() ?? new List<long?>().ToArray();
 
                 var customers = openAirCustomers
                     .Where(it => customerIdList.Contains(it.Id))
@@ -112,12 +113,12 @@ namespace MentorBot.Functions.Connectors
 
                 if (storedUser == null && user.Active == true)
                 {
-                    var createUser = CreateUser(null, user, manager, department, customers);
+                    var createUser = CreateUser(Guid.NewGuid().ToString(), department?.Name ?? "System", user, manager, department, customers);
                     usersListToAdd.Add(createUser);
                 }
                 else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
                 {
-                    var updateUser = CreateUser(storedUser.Id, user, manager, department, customers);
+                    var updateUser = CreateUser(storedUser.Id, storedUser.PartitionKey, user, manager, department, customers);
                     usersListToUpdate.Add(updateUser);
                 }
             }
@@ -150,10 +151,11 @@ namespace MentorBot.Functions.Connectors
         private static string NormalizeValue(string value) =>
             value.Replace(" ", string.Empty, StringComparison.InvariantCulture);
 
-        private static User CreateUser(Guid? id, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
+        private static User CreateUser(string id, string partitionKey, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
             new User
             {
-                Id = id,
+                Id = id.ToString(),
+                PartitionKey = partitionKey,
                 OpenAirUserId = user.Id.Value,
                 Name = user.Name,
                 Email = user.Address.FirstOrDefault()?.Email,

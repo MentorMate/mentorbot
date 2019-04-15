@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using MentorBot.Functions.Abstract.Connectors;
@@ -44,6 +45,11 @@ namespace MentorBot.Functions.App
         public static T Get<T>() =>
             DefaultInstance.ServiceProvider.GetService<T>();
 
+        /// <summary>Get a service.</summary>
+        /// <typeparam name="T">The type of the service.</typeparam>
+        public static IEnumerable<T> GetServices<T>() =>
+            DefaultInstance.ServiceProvider.GetServices<T>();
+
         /// <summary>Build the service provider with additional descriptors.</summary>
         public void BuildServiceProviderWithDescriptors(params ServiceDescriptor[] descriptors)
         {
@@ -78,6 +84,7 @@ namespace MentorBot.Functions.App
             services.AddSingleton<Func<DateTime>>(
                 () => DateTime.Now);
 
+            services.AddTransient<ITableClientService, TableClientService>();
             services.AddTransient<IBlobStorageConnector, AzureBlobStorageConnector>();
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();
@@ -90,7 +97,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
-            services.AddTransient<IStorageService, StorageService>();
+            services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
 
             services.AddTransient<LuisClient>();

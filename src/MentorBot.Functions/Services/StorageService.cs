@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Settings;
 
 namespace MentorBot.Functions.Services
 {
@@ -59,6 +60,48 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<bool> UpdateUsersAsync(IReadOnlyList<User> users) =>
             ExecuteIfConnectedAsync<User, bool>(doc => doc.UpdateManyAsync(users), UserDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<MentorBotSettings> GetSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<bool> SaveSettingsAsync(MentorBotSettings settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<User>> GetUsersByIdListAsync(IEnumerable<long> userIdList)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<User>> GetAllUsersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<Message>> GetMessagesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<bool> SaveMessageAsync(Message message)
+        {
+            throw new NotImplementedException();
+        }
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

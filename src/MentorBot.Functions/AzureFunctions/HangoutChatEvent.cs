@@ -40,6 +40,7 @@ namespace MentorBot.Functions
         {
             Debug.Write(req);
             ServiceLocator.EnsureServiceProvider();
+            var storageService = ServiceLocator.Get<IStorageService>();
 
             var content = req.Content ?? throw new ArgumentNullException(nameof(req));
             var hangoutsChatService = ServiceLocator.Get<IHangoutsChatService>();
@@ -62,6 +63,13 @@ namespace MentorBot.Functions
             var result = await hangoutsChatService
                 .BasicAsync(hangoutChatEvent)
                 .ConfigureAwait(false);
+
+            if (storageService != null)
+            {
+                await storageService
+                        .SaveMessageAsync(result)
+                        .ConfigureAwait(false);
+            }
 
             // TODO: Temp remove the adding of message to save DB RU resource.
             ////if (client.IsConnected)
