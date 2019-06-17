@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using CoreHelpers.WindowsAzure.Storage.Table;
+
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Options;
 
@@ -13,7 +14,7 @@ namespace MentorBot.Functions.Services
     public class TableClientService : ITableClientService, IDisposable
     {
         private readonly StorageContext _storageContext;
-        private bool disposed = false;
+        private bool disposed;
 
         /// <summary>Initializes a new instance of the <see cref="TableClientService"/> class.</summary>
         public TableClientService(AzureCloudOptions azureCloudOptions)
@@ -43,17 +44,6 @@ namespace MentorBot.Functions.Services
             {
                 _storageContext.AddAttributeMapper(t);
             }
-        }
-
-        /// <inheritdoc/>
-        public void CreateTable<T>(bool ignoreErrorIfExists = true)
-        {
-            if (!IsConnected)
-            {
-                return;
-            }
-
-            _storageContext.CreateTable<T>(ignoreErrorIfExists);
         }
 
         /// <inheritdoc/>

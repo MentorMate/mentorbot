@@ -24,13 +24,12 @@ namespace MentorBot.Tests.AzureFunctions
             var message1 = new Message { ProbabilityPercentage = 96 };
             var message2 = new Message { ProbabilityPercentage = 82 };
 
-            storageService.GetMessages().Returns(new[] { message1, message2 });
             storageService.GetMessagesAsync().Returns(new[] { message1, message2 });
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService));
 
-            var result = await Queries.GetMessagesStatistics(null);
+            var result = await Queries.GetMessagesStatisticsAsync(null);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);

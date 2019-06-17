@@ -140,8 +140,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     Field = "enddate,startdate",
                     Date = new[]
                     {
-                        Date.Create(today),
-                        Date.Create(today)
+                        Date.Create(today.AddDays(-1)),
+                        Date.Create(today.AddDays(1))
                     },
                     Booking = new[]
                     {

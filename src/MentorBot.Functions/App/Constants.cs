@@ -10,5 +10,8 @@ namespace MentorBot.Functions
     {
         /// <summary>Gets the swagger json endpoint.</summary>
         public static string SwaggerJsonEndpoint => "/swagger/v1/swagger.json";
+
+        /// <summary>Gets the settings cache key.</summary>
+        public static string SettingsCacheKey => "settings";
     }
 }

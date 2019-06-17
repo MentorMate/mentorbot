@@ -4,6 +4,7 @@ using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.App;
 
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,7 +26,7 @@ namespace MentorBot.Tests.AzureFunctions
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IOpenAirConnector), connector));
 
-            await Commands.SyncUsersAsync(null);
+            await Commands.SyncUsersAsync(new TimerInfo(null, null, false));
 
             connector.Received().SyncUsersAsync();
         }

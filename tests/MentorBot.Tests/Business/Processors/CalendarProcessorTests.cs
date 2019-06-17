@@ -41,7 +41,7 @@ namespace MentorBot.Tests.Business.Processors
 
             _connector.GetNextMeetingAsync(mail).Returns((Event)null);
 
-            var result = await _processor.ProcessCommandAsync(info, chatEvent, null);
+            var result = await _processor.ProcessCommandAsync(info, chatEvent, null, null);
 
             _connector.Received().GetNextMeetingAsync(mail);
         }

@@ -2,15 +2,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Base;
+
+using static MentorBot.Functions.Connectors.OpenAir.OpenAirFactory;
 
 namespace MentorBot.Functions.Connectors
 {
@@ -28,56 +32,52 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string[] filterByCustomers)
+        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, string[] filterByCustomers)
         {
             var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
             var lastWeek = toweek.AddDays(-7);
             var timesheets = new List<OpenAirClient.Timesheet>();
+            var normalizedCustomerNames = filterByCustomers?.Select(NormalizeValue).ToArray();
 
             timesheets.AddRange(await _client.GetTimesheetsAsync(lastWeek, lastWeek.AddDays(2)));
             timesheets.AddRange(await _client.GetTimesheetsAsync(toweek, date.AddDays(1)));
 
-            var unsubmittedTimesheets = timesheets
+            var timesheetsData = timesheets
                 .GroupBy(it => it.UserId)
-                .Select(it => new
-                {
-                    UserId = it.Key,
-                    TimesheetName = it.FirstOrDefault()?.Name,
-                    Total = it
-                        .Where(sheet => sheet.StartDate.Date > toweek)
-                        .Where(sheet =>
+                .Select(it =>
+                    new TimesheetBasicData(
+                        it.Key.Value,
+                        it.FirstOrDefault()?.Name,
+                        it.Where(sheet => sheet.StartDate.Date > toweek)
+                          .Where(sheet =>
                             (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
                             (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
-                        .Sum(sheet => sheet.Total)
-                })
-                .Where(it => it.Total < requiredHours)
+                          .Sum(sheet => sheet.Total ?? 0)))
                 .ToArray();
 
-            var users = await _storageService.GetUsersByIdListAsync(
-                unsubmittedTimesheets.Select(it => it.UserId.Value).Distinct().ToArray());
+            var users = await _storageService.GetAllActiveUsersAsync();
 
-            if (filterByCustomers != null && filterByCustomers.Any())
-            {
-                var normalizedCustomerNames = filterByCustomers.Select(NormalizeValue).ToArray();
-                users = users.Where(it => it.Customers == null || FiterCustomersByNames(it.Customers, normalizedCustomerNames)).ToArray();
-            }
-
-            var result = unsubmittedTimesheets
-                .Select(it => new { timesheet = it, user = users.FirstOrDefault(user => user.OpenAirUserId == it.UserId) })
-                .Where(it => it.user != null && it.user.Active)
+            // 1. Filter out only users where the sender is line manager.
+            // 2. Filter out customers.
+            // 3. Select timesheet
+            var result = users
+                .Where(it => IsManager(it, senderEmail, users, new List<string>()))
+                .Where(it => FiterCustomersByNames(it.Customers, normalizedCustomerNames))
+                .Select(user => new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user))
+                .Where(it => it.Timesheet.Total < requiredHours)
                 .Select(it => new Timesheet
                 {
-                    Name = it.timesheet.TimesheetName,
-                    UserName = FormatDisplayName(it.user.Name),
-                    UserEmail = it.user.Email,
-                    UserManagerEmail = it.user.Manager?.Email,
-                    DepartmentName = it.user.Department.Name,
-                    DepartmentOwnerEmail = it.user.Department.Owner?.Email,
-                    Total = it.timesheet.Total.Value
-                });
+                    Name = it.Timesheet.Name,
+                    Total = it.Timesheet.Total,
+                    UserName = FormatDisplayName(it.User.Name),
+                    UserEmail = it.User.Email,
+                    DepartmentName = it.User.Department.Name,
+                    ManagerName = FormatDisplayName(FindUser(it.User.Manager, users)?.Name)
+                })
+                .ToArray();
 
-            return result.ToArray();
+            return result;
         }
 
         /// <inheritdoc/>
@@ -90,36 +90,49 @@ namespace MentorBot.Functions.Connectors
             var openAirBookings = await _client.GetAllActiveBookingsAsync(DateTime.Today);
             var usersListToUpdate = new List<User>();
             var usersListToAdd = new List<User>();
-
             foreach (var user in openAirModelUsers)
             {
-                var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
-                var department = user.DepartmentId.HasValue ?
-                    CreateDepartment(openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId.Value), openAirModelUsers) :
-                    null;
-
-                var manager = CreateUserReferenceById(user.ManagerId, openAirModelUsers);
-
-                var customerIdList = openAirBookings?
-                    .Where(it => it.UserId == user.Id)
-                    .Select(it => it.CustomerId)
-                    .Distinct()
-                    .ToArray() ?? new List<long?>().ToArray();
-
-                var customers = openAirCustomers
-                    .Where(it => customerIdList.Contains(it.Id))
-                    .Select(it => new Customer { OpenAirId = it.Id.Value, Name = it.Name })
-                    .ToArray();
-
-                if (storedUser == null && user.Active == true)
+                try
                 {
-                    var createUser = CreateUser(Guid.NewGuid().ToString(), department?.Name ?? "System", user, manager, department, customers);
-                    usersListToAdd.Add(createUser);
+                    var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
+                    var department = user.DepartmentId.HasValue ?
+                        CreateDepartment(openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId.Value), openAirModelUsers) :
+                        null;
+
+                    var manager = CreateUserReferenceById(user.ManagerId, openAirModelUsers);
+
+                    var customerIdList = openAirBookings?
+                        .Where(it => it.UserId == user.Id)
+                        .Select(it => it.CustomerId)
+                        .Distinct()
+                        .ToArray() ?? new List<long?>().ToArray();
+
+                    var customers = openAirCustomers
+                        .Where(it => customerIdList.Contains(it.Id))
+                        .Select(it => new Customer { OpenAirId = it.Id.Value, Name = it.Name })
+                        .ToArray();
+
+                    var key = "System";
+
+                    if (storedUser == null && user.Active == true)
+                    {
+                        var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), key, user, manager, department, customers);
+                        usersListToAdd.Add(createUser);
+                    }
+                    else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
+                    {
+                        var updateUser = CreateUser(storedUser.Id, key, user, manager, department, customers);
+                        usersListToUpdate.Add(updateUser);
+                    }
                 }
-                else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
+                catch (Exception ex)
                 {
-                    var updateUser = CreateUser(storedUser.Id, storedUser.PartitionKey, user, manager, department, customers);
-                    usersListToUpdate.Add(updateUser);
+                    if (ex != null)
+                    {
+                        // Do something.
+                    }
+
+                    throw;
                 }
             }
 
@@ -138,53 +151,40 @@ namespace MentorBot.Functions.Connectors
             storedUser.Active != openAirUser.Active ||
             storedUser.Department?.OpenAirDepartmentId != openAirUser.DepartmentId ||
             storedUser.Department?.Owner?.OpenAirUserId != department?.Owner?.OpenAirUserId ||
-            storedUser.Manager?.OpenAirUserId != manager.OpenAirUserId ||
+            storedUser.Manager?.OpenAirUserId != manager?.OpenAirUserId ||
             storedUser.Customers?.Length != openAirCustomers.Length ||
             openAirCustomers.Any(it => !storedUser.Customers.Contains(it));
 
-        private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
-            !customers.Any(customer => InArray(NormalizeValue(customer.Name), customerNames));
+        private static bool IsManager(User user, string email, IReadOnlyList<User> users, List<string> emails) =>
+            user != null &&
+             (IsUserRefManager(user.Department?.Owner, email, users, emails) ||
+              IsUserRefManager(user.Manager, email, users, emails));
 
-        private static bool InArray(string value, string[] values) =>
-            values.Any(val2 => val2.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+        private static bool IsUserRefManager(UserReference userRef, string email, IReadOnlyList<User> users, List<string> emails)
+        {
+            if (userRef == null || emails.Contains(userRef.Email))
+            {
+                return false;
+            }
+
+            emails.Add(userRef.Email);
+
+            return userRef.Email.Equals(email, StringComparison.InvariantCultureIgnoreCase) ||
+                   IsManager(FindUser(userRef, users), email, users, emails);
+        }
+
+        private static User FindUser(UserReference userRef, IReadOnlyList<User> users) =>
+            users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
+
+        private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
+            customerNames == null ||
+            customerNames.Length == 0 ||
+            customers == null ||
+            customers.Length == 0 ||
+            !customers.AnyStringInCollection(customerNames, it => NormalizeValue(it.Name), StringComparison.InvariantCultureIgnoreCase);
 
         private static string NormalizeValue(string value) =>
             value.Replace(" ", string.Empty, StringComparison.InvariantCulture);
-
-        private static User CreateUser(string id, string partitionKey, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
-            new User
-            {
-                Id = id.ToString(),
-                PartitionKey = partitionKey,
-                OpenAirUserId = user.Id.Value,
-                Name = user.Name,
-                Email = user.Address.FirstOrDefault()?.Email,
-                Active = user.Active ?? false,
-                Department = department,
-                Manager = manager,
-                Customers = customers
-            };
-
-        private static UserReference CreateUserReferenceById(long? userId, OpenAirClient.User[] users) =>
-            userId.HasValue ? CreateUserReference(users.FirstOrDefault(it => it.Id == userId.Value)) : null;
-
-        private static UserReference CreateUserReference(OpenAirClient.User user) =>
-            user == null ?
-            null :
-            new UserReference
-            {
-                OpenAirUserId = user.Id.Value,
-                Email = user.Address.FirstOrDefault()?.Email
-            };
-
-        private static Department CreateDepartment(OpenAirClient.Department department, OpenAirClient.User[] users) =>
-            department == null ? null :
-            new Department
-            {
-                OpenAirDepartmentId = department.Id,
-                Name = department.Name,
-                Owner = CreateUserReferenceById(department.UserId, users)
-            };
 
         private static string FormatDisplayName(string name)
         {
@@ -195,6 +195,36 @@ namespace MentorBot.Functions.Connectors
 
             var names = name.Split(',');
             return names.Length == 1 ? name : $"{names[1].Trim()} {names[0].Trim()}";
+        }
+
+        private class TimesheetBasicData
+        {
+            public TimesheetBasicData(long userId, string name, double total)
+            {
+                UserId = userId;
+                Name = name;
+                Total = total;
+            }
+
+            public long UserId { get; set; }
+
+            public string Name { get; set; }
+
+            public double Total { get; set; }
+        }
+
+        private class TimesheetExtendedData
+        {
+            /// <summary>Initializes a new instance of the <see cref="TimesheetExtendedData" /> class.</summary>
+            public TimesheetExtendedData(TimesheetBasicData timesheet, User user)
+            {
+                Timesheet = timesheet ?? new TimesheetBasicData(user.OpenAirUserId, string.Empty, 0.0);
+                User = user;
+            }
+
+            public TimesheetBasicData Timesheet { get; set; }
+
+            public User User { get; set; }
         }
     }
 }

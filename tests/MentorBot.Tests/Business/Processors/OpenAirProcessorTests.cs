@@ -9,7 +9,7 @@ using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
-using MentorBot.Functions.Services;
+using MentorBot.Functions.Processors;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -24,6 +24,7 @@ namespace MentorBot.Tests.Business.Processors
     {
         private OpenAirProcessor _processor;
         private IOpenAirConnector _connector;
+        private IMailService _mailService;
         private IStorageService _storageService;
 
         [TestInitialize]
@@ -31,7 +32,8 @@ namespace MentorBot.Tests.Business.Processors
         {
             _connector = Substitute.For<IOpenAirConnector>();
             _storageService = Substitute.For<IStorageService>();
-            _processor = new OpenAirProcessor(_connector, _storageService);
+            _mailService = Substitute.For<IMailService>();
+            _processor = new OpenAirProcessor(_connector, _storageService, _mailService);
         }
 
 #pragma warning disable CS4014
@@ -39,11 +41,10 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task OpenAirProcessor_ShouldReturnNoState()
         {
-            var chatEvent = new ChatEvent();
             var info = new TextDeconstructionInformation("Get unsubmitted timesheets", null);
             
             // Act
-            var result = await _processor.ProcessCommandAsync(info, chatEvent, null) as ChatEventResult;
+            var result = await _processor.ProcessCommandAsync(info, CreateEvent("a@b.c"), null, new Dictionary<string, string>()) as ChatEventResult;
 
             Assert.AreEqual("Provide a state of the time sheets, like unsubmitted or unapproved!", result.Text);
         }
@@ -51,12 +52,16 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task WhenAskedItShouldGetTimesheets()
         {
-            var sender = new ChatEventMessageSender() { Email = "a@b.c" };
-            var space = new ChatEventSpace();
-            var message = new ChatEventMessage { Sender = sender };
-            var chat = new ChatEvent { Space = space, Message = message };
+            var chat = CreateEvent("a@b.c");
             var responder = Substitute.For<IHangoutsChatConnector>();
-            var timesheet = new Timesheet { Name = "A", UserName = "users/B", UserEmail = "c@d.e", DepartmentOwnerEmail = "a@b.c", DepartmentName = "F", Total = 20 };
+            var timesheet = new Timesheet
+            {
+                Name = "A",
+                UserName = "users/B",
+                UserEmail = "c@d.e",
+                DepartmentName = "F", Total = 20
+            };
+
             var info = new TextDeconstructionInformation(
                 "Get unsubmited timesheets",
                 null,
@@ -65,10 +70,10 @@ namespace MentorBot.Tests.Business.Processors
                 null,
                 1.0);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null).ReturnsForAnyArgs(new[] { timesheet });
+            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null, null).ReturnsForAnyArgs(new[] { timesheet });
 
             // Act
-            var result = await _processor.ProcessCommandAsync(info, chat, responder);
+            var result = await _processor.ProcessCommandAsync(info, chat, responder, new Dictionary<string, string>());
 
             // Test
             System.Threading.Thread.Sleep(150);
@@ -78,10 +83,18 @@ namespace MentorBot.Tests.Business.Processors
                 .Received()
                 .SendMessageAsync(
                     null,
-                    Arg.Is<GoogleChatAddress>(it => it.Sender == sender && it.Space == space),
+                    Arg.Is<GoogleChatAddress>(it => it.Sender == chat.Message.Sender && it.Space == chat.Space),
                     Arg.Any<Card[]>());
         }
 
         #pragma warning restore CS4014
+
+        private static ChatEvent CreateEvent(string senderEmail)
+        {
+            var sender = new ChatEventMessageSender() { Email = senderEmail };
+            var space = new ChatEventSpace();
+            var message = new ChatEventMessage { Sender = sender };
+            return new ChatEvent { Space = space, Message = message };
+        }
     }
 }

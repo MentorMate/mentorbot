@@ -40,16 +40,10 @@ namespace MentorBot.Functions.Connectors
         [ExcludeFromCodeCoverage]
         public virtual async Task<ICloudBlob> GetBlockBlobAsync(string path)
         {
-            var myClient = _storageAccount.CreateCloudBlobClient();
             var blobPath = BlobPath.ParseAndValidate(path);
-            var container = myClient.GetContainerReference(blobPath.ContainerName);
+            var container = _storageAccount.CreateCloudBlobClient().GetContainerReference(blobPath.ContainerName);
             var exists = await container.ExistsAsync();
-            if (!exists)
-            {
-                throw new DirectoryNotFoundException(@"Container with name {container} do not exists.");
-            }
-
-            return container.GetBlockBlobReference(blobPath.FilePath);
+            return exists ? container.GetBlockBlobReference(blobPath.FilePath) : throw new DirectoryNotFoundException(@"Container with name {container} do not exists.");
         }
 
         /// <summary>Holds a connection path to a Blob resource.</summary>

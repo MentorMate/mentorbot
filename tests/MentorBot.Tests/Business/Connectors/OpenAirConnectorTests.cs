@@ -9,6 +9,7 @@ using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Domains.Base;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Tests.Base;
 
@@ -116,7 +117,7 @@ namespace MentorBot.Tests.Business.Processors
             var bookings = await client.GetAllActiveBookingsAsync(new DateTime(2019, 1, 1));
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"1000\"><Date><month>1</month><day>1</day><year>2019</year></Date><Date><month>1</month><day>1</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"1000\"><Date><month>12</month><day>31</day><year>2018</year></Date><Date><month>1</month><day>2</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
             Assert.AreEqual(257, bookings[0].UserId);
             Assert.AreEqual(10, bookings[0].CustomerId);
         }
@@ -164,14 +165,13 @@ namespace MentorBot.Tests.Business.Processors
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
             var connector = new OpenAirConnector(client, storageService);
-            var user = CreateUser(2, "Test", "Q");
+            var user = CreateUser(2, "Test", "Q", "d@e.f");
             var date = new DateTime(2019, 2, 1);
 
-            storageService.GetUsersByIdList(null).ReturnsForAnyArgs(new[] { user });
-            storageService.GetUsersByIdListAsync(null).ReturnsForAnyArgs(new[] { user });
+            storageService.GetAllActiveUsersAsync().ReturnsForAnyArgs(new[] { user });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", null);
 
             Assert.AreEqual(1, timesheets.Count);
             Assert.AreEqual("Test", timesheets[0].UserName);
@@ -194,30 +194,19 @@ namespace MentorBot.Tests.Business.Processors
             var date = new DateTime(2019, 3, 6);
 
             storageService
-                .GetUsersByIdList(null)
+                .GetAllActiveUsersAsync()
                 .ReturnsForAnyArgs(new[]
                 {
-                    CreateUser(397, "A", ".NET"),
-                    CreateUser(283, "B", ".NET"),
-                    CreateUser(520, "C", ".NET"),
-                    CreateUser(722, "D", ".NET"),
-                    CreateUser(133, "E", ".NET"),
-                    CreateUser(921, "F", ".NET"),
-                });
-            storageService
-                .GetUsersByIdListAsync(null)
-                .ReturnsForAnyArgs(new[]
-                {
-                    CreateUser(397, "A", ".NET"),
-                    CreateUser(283, "B", ".NET"),
-                    CreateUser(520, "C", ".NET"),
-                    CreateUser(722, "D", ".NET"),
-                    CreateUser(133, "E", ".NET"),
-                    CreateUser(921, "F", ".NET"),
+                    CreateUser(397, "A", ".NET", "d@e.f"),
+                    CreateUser(283, "B", ".NET", "d@e.f"),
+                    CreateUser(520, "C", ".NET", "d@e.f"),
+                    CreateUser(722, "D", ".NET", "d@e.f"),
+                    CreateUser(133, "E", ".NET", "d@e.f"),
+                    CreateUser(921, "F", ".NET", "d@e.f"),
                 });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", null);
 
             Assert.AreEqual(6, timesheets.Count);
         }
@@ -281,18 +270,11 @@ namespace MentorBot.Tests.Business.Processors
             var connector = new OpenAirConnector(client, storageService);
 
             storageService
-                .GetAllUsers()
-                .ReturnsForAnyArgs(new[]
-                {
-                    CreateUser(1000, "A", ".NET", 1),
-                    CreateUser(1011, "B", ".NET", 2)
-                });
-            storageService
                 .GetAllUsersAsync()
                 .ReturnsForAnyArgs(new[]
                 {
-                    CreateUser(1000, "A", ".NET", 1),
-                    CreateUser(1011, "B", ".NET", 2)
+                    CreateUser(1000, "A", ".NET", "bill.manager@mentormate.com", 1),
+                    CreateUser(1011, "B", ".NET", "bill.manager@mentormate.com", 2)
                 });
 
             // Act
@@ -310,7 +292,14 @@ namespace MentorBot.Tests.Business.Processors
 
         #pragma warning restore CS4014
 
-        private static User CreateUser(long id, string name, string departmentName, long departmentId = 1) =>
-            new User { Id = Guid.NewGuid().ToString(), PartitionKey = Guid.NewGuid().ToString(), Name = name, Department = new Department { Name = departmentName, OpenAirDepartmentId = departmentId }, OpenAirUserId = id, Active = true };
+        private static User CreateUser(long id, string name, string departmentName, string managerEmail, long departmentId = 1, long managerId = 100) =>
+            new User
+            {
+                Name = name,
+                Department = new Department { Name = departmentName, OpenAirDepartmentId = departmentId },
+                Manager = new UserReference { Email = managerEmail, OpenAirUserId = managerId },
+                OpenAirUserId = id,
+                Active = true
+            };
     }
 }

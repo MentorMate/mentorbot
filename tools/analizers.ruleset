@@ -21,5 +21,9 @@
     <Rule Id="CC0097" Action="None" />
     <Rule Id="CC0091" Action="Info" />
     <Rule Id="CC0031" Action="Info" />
+    <Rule Id="CC0022" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SA1413" Action="Info" />
   </Rules>
 </RuleSet>

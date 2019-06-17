@@ -31,7 +31,7 @@ namespace MentorBot.Tests.Business.Processors
         public async Task WhenAskedForCurrentTime(string phrase, string expectedResult)
         {
             var info = new TextDeconstructionInformation(phrase, null);
-            var result = await _processor.ProcessCommandAsync(info, GetChatEvent(phrase), null);
+            var result = await _processor.ProcessCommandAsync(info, GetChatEvent(phrase), null, null);
             Assert.AreEqual(expectedResult, result.Text);
         }
 

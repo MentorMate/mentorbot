@@ -56,9 +56,9 @@ namespace MentorBot.Tests.Business.Services
             var uri = UriFactory.CreateDocumentCollectionUri("DB", "DOC");
             var doc = new DocumentClientService.Document<Test>(_documentClient, "DB", "DOC");
 
-            await doc.AddAsync(model);
+            await doc.AddOrUpdateAsync(model);
 
-            _documentClient.Received().CreateDocumentAsync(uri, model);
+            _documentClient.Received().UpsertDocumentAsync(uri, model);
         }
 
         [TestMethod]

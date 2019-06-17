@@ -7,15 +7,15 @@ namespace MentorBot.Functions.Models.HangoutsChat
     public class ChatEventSpace
     {
         /// <summary>Gets or sets the space name.</summary>
-        /// <example>spaces/AAAAAAAAAAA</example>
+        /// <example>"spaces/AAAAAAAAAAA".</example>
         public string Name { get; set; }
 
         /// <summary>Gets or sets the space display name.</summary>
-        /// <example>Chuck Norris Discussion Room</example>
+        /// <example>Chuck Norris Discussion Room.</example>
         public string DisplayName { get; set; }
 
         /// <summary>Gets or sets the space type.</summary>
-        /// <example>ROOM, DM</example>
+        /// <example>ROOM, DM.</example>
         public string Type { get; set; }
     }
 }

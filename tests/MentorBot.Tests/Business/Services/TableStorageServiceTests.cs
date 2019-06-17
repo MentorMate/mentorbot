@@ -101,18 +101,6 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task GetUsersByIdListAsync_NotConnected_returns_EmptyList()
-        {
-            _tableClientService.IsConnected.Returns(false);
-
-            var result = await _storageService.GetUsersByIdListAsync(null);
-
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(IReadOnlyList<User>));
-            Assert.AreEqual(0, result.Count);
-        }
-
-        [TestMethod]
         public async Task AddAddressesAsync_NotConnected_returns_False()
         {
             _tableClientService.IsConnected.Returns(false);
@@ -237,20 +225,6 @@ namespace MentorBot.Tests.Business.Services
             Assert.IsInstanceOfType(result, typeof(IReadOnlyList<User>));
             Assert.AreEqual(3, result.Count);
             Assert.AreEqual(3, result[2].OpenAirUserId);
-        }
-
-        [TestMethod]
-        public async Task GetUsersByIdListAsync_Connected_returns_2_out_of_3_users()
-        {
-            _tableClientService.QueryAsync<User>(Arg.Any<int>()).Returns(_users.AsQueryable());
-
-            var result = await _storageService.GetUsersByIdListAsync(new List<long> { 1, 2 });
-
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(IReadOnlyList<User>));
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(1, result[0].OpenAirUserId);
-            Assert.AreEqual(2, result[1].OpenAirUserId);
         }
 
         [TestMethod]

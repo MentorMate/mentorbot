@@ -20,15 +20,13 @@ namespace MentorBot.Tests.Business.Services
         private HangoutsChatService _service;
         private ICognitiveService _cognitiveService;
         private IAsyncResponder _asyncResponder;
-        private IStorageService _storageService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _cognitiveService = Substitute.For<ICognitiveService>();
             _asyncResponder = Substitute.For<IAsyncResponder>();
-            _storageService = Substitute.For<IStorageService>();
-            _service = new HangoutsChatService(_cognitiveService, _asyncResponder, _storageService);
+            _service = new HangoutsChatService(_cognitiveService, _asyncResponder);
         }
 
         [TestMethod]
@@ -58,6 +56,6 @@ namespace MentorBot.Tests.Business.Services
             new ChatEvent();
 
         private static CognitiveTextAnalysisResult GetCognitiveTextAnalysisResult() =>
-            new CognitiveTextAnalysisResult(null, null);
+            new CognitiveTextAnalysisResult(null, null, null);
     }
 }

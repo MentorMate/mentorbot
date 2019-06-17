@@ -70,9 +70,6 @@ namespace MentorBot.Functions.Connectors
         /// <summary>Execute asyncronius request.</summary>
         /// <typeparam name="T">The type of the request result.</typeparam>
         protected virtual Task<T> ExecuteAsync<T>(CalendarBaseServiceRequest<T> request)
-            where T : class
-        {
-            return request.ExecuteAsync();
-        }
+            where T : class => request.ExecuteAsync();
     }
 }
