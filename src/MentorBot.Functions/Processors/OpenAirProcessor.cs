@@ -11,6 +11,7 @@ using Google.Apis.HangoutsChat.v1.Data;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
@@ -127,6 +128,7 @@ namespace MentorBot.Functions.Processors
                     var textMessage = OpenAirText.GetText(state, OpenAirTextTypes.Notify);
                     var emails = filteredTimesheet
                         .Where(it => !notifiedUserList.Contains(it.UserName))
+                        .Apply(it => notifiedUserList.Add(it.UserName))
                         .Select(it => it.UserEmail)
                         .Distinct()
                         .ToArray();

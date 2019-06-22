@@ -7,6 +7,7 @@ using Google.Apis.HangoutsChat.v1.Data;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
@@ -87,7 +88,66 @@ namespace MentorBot.Tests.Business.Processors
                     Arg.Any<Card[]>());
         }
 
-        #pragma warning restore CS4014
+        [TestMethod]
+        public async Task WhenAskedNotifyForTimesheets()
+        {
+            var date = new DateTime(2000, 1, 1, 1, 1, 1);
+            var customers = new[] { "D" };
+            var responder = Substitute.For<IHangoutsChatConnector>();
+            var address = new GoogleChatAddress("space/B", "MentorBot", null, "A", "Jhon");
+            var timesheet = new Timesheet
+            {
+                Name = "A",
+                UserName = "Jhon",
+                UserEmail = "c@d.e",
+                DepartmentName = "F",
+                Total = 20
+            };
+
+            var timesheet2 = new Timesheet
+            {
+                Name = "E",
+                UserName = "ElA",
+                UserEmail = "w@n.m",
+                DepartmentName = "F",
+                Total = 15
+            };
+
+            responder.GetPrivateAddress(Arg.Any<IReadOnlyList<string>>()).Returns(new[] { address });
+
+            _storageService.GetAddressesAsync().Returns(new GoogleAddress[0]);
+            _connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "a@b.c", null)
+                .ReturnsForAnyArgs(new[] { timesheet, timesheet2 });
+
+            // Act
+            await _processor.NotifyAsync(
+                new DateTime(2000, 1, 1, 1, 1, 1),
+                TimesheetStates.Unsubmitted,
+                "a@b.c",
+                new[] { "D" },
+                "F",
+                true,
+                true,
+                null,
+                responder);
+
+            // Test
+            responder.Received()
+                .SendMessageAsync(
+                    "Jhon, You have unsubmitted timesheet. Please, submit your timesheet.",
+                    Arg.Is<GoogleChatAddress>(it => it.Space.Name == "space/B"));
+            _mailService.Received()
+                .SendMailAsync(
+                    "Timesheet is pending",
+                    ", You have unsubmitted timesheet. Please, submit your timesheet.",
+                    Arg.Is<string[]>(it => it[0] == "w@n.m"));
+            _storageService.Received()
+                .AddAddressesAsync(Arg.Is<IReadOnlyList<GoogleAddress>>(arr => arr[0].SpaceName == "space/B"));
+            _mailService.Received()
+                .SendMailAsync("Users not notified", "All users with unsibmitted timesheets are notified! Total of 2.", "a@b.c");
+        }
+
+#pragma warning restore CS4014
 
         private static ChatEvent CreateEvent(string senderEmail)
         {
