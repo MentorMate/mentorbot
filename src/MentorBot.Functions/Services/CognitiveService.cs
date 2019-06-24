@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ namespace MentorBot.Functions.Services
             {
                 if (processor.Subject.Equals(definition.Subject, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var name = processor.GetType().Name;
+                    var name = processor.Name;
                     var configuration = settings.Processors.FirstOrDefault(it => it.Name == name);
                     if (configuration.Enabled)
                     {

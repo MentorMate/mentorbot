@@ -30,7 +30,6 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Executes a query against table of type T and limits the result to maxItems.</summary>
         /// <typeparam name="T">Table model type.</typeparam>
         /// <param name="maxItems">The max number of items to be returned.</param>
-        /// <returns>IQueryable from the specified type.</returns>
         Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
             where T : new();
     }

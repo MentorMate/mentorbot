@@ -28,6 +28,9 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
+        public string Name => nameof(LocalTimeProcessor);
+
+        /// <inheritdoc/>
         public string Subject => "Time";
 
         /// <inheritdoc/>

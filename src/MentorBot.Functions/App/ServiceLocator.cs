@@ -15,6 +15,7 @@ using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
 using MentorBot.Functions.Services;
+using MentorBot.Functions.Services.AzureStorage;
 using MentorBot.Localize;
 
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,20 @@ namespace MentorBot.Functions.App
 
         /// <summary>Gets the service provider.</summary>
         public IServiceProvider ServiceProvider { get; private set; }
+
+        /// <summary>Tries to create a type or return default value.</summary>
+        /// <typeparam name="T">The type to be created.</typeparam>
+        public static T Try<T>(Func<T> creator, T defaultValue = default)
+        {
+            try
+            {
+                return creator();
+            }
+            catch (Exception)
+            {
+                return defaultValue;
+            }
+        }
 
         /// <summary>Configure the service provider if not configured.</summary>
         public static void EnsureServiceProvider()
@@ -86,6 +101,8 @@ namespace MentorBot.Functions.App
                 () => TimeZoneInfo.FindSystemTimeZoneById(config["DefaultTimeZoneName"]));
             services.AddSingleton<Func<DateTime>>(
                 () => DateTime.Now);
+            services.AddTransient<IAzureStorageContext, AzureStorageContext>(x =>
+                Try(() => new AzureStorageContext(x.GetService<AzureCloudOptions>()?.AzureStorageAccountConnectionString)));
 
             services.AddTransient<ISmtpClient, SmtpClientBase>();
             services.AddTransient<IMailService, MailService>();

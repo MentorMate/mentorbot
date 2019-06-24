@@ -26,6 +26,9 @@ namespace MentorBot.Functions.Processors
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <inheritdoc/>
+        public string Name => nameof(RepeatProcessor);
+
+        /// <inheritdoc/>
         public string Subject => "Repeat";
 
         /// <inheritdoc/>

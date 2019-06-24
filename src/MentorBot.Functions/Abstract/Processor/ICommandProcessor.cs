@@ -11,6 +11,10 @@ namespace MentorBot.Functions.Abstract.Processor
     /// <summary>An abstraction used for command processing.</summary>
     public interface ICommandProcessor
     {
+        /// <summary>Gets the current processor name.</summary>
+        /// <example>"Timesheet", "CalendarProcessor" or "Extended Calendar Processor".</example>
+        string Name { get; }
+
         /// <summary>Gets the subject the proccessor is processing.</summary>
         string Subject { get; }
 

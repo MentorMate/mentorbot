@@ -41,6 +41,9 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
+        public string Name => nameof(OpenAirProcessor);
+
+        /// <inheritdoc/>
         public string Subject => "Timesheets";
 
         /// <inheritdoc/>
