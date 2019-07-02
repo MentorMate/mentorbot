@@ -2,6 +2,7 @@
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Services;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -76,6 +77,17 @@ namespace MentorBot.Tests.Business.Services
             var result = await _service.GetAllUsersAsync();
 
             Assert.AreEqual(model, result[0]);
+        }
+
+        [TestMethod]
+        public async Task StorageService_GetSettings()
+        {
+            var model = new MentorBotSettings();
+            SetDocumentQuery("mentorbot", "settings", "SELECT TOP 2000 * FROM settings", model);
+
+            var result = await _service.GetSettingsAsync();
+
+            Assert.AreEqual(model, result);
         }
 
         [TestMethod]

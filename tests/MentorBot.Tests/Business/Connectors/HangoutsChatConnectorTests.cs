@@ -27,13 +27,14 @@ namespace MentorBot.Tests.Business.Connectors
             var requestCreator = Substitute.For<HangoutsChatConnector.IRequestCreator>();
             var connector = new HangoutsChatConnector(new Lazy<HangoutsChatService>(() => null));
 
+            address.ThreadName = "T1";
             connector.RequestCreator = requestCreator;
 
             await connector.SendMessageAsync("A", address);
 
             requestCreator
                 .Received()
-                .SpacesMessagesCreate(Arg.Is<Message>(it => it.Text.Equals("A")), "S1");
+                .SpacesMessagesCreate(Arg.Is<Message>(it => it.Text.Equals("A") && it.Thread.Name == "T1" && it.Sender.Name == "U1"), "S1");
         }
 
         [TestMethod]

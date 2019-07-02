@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace MentorBot.Functions.Processors
         /// <inheritdoc/>
         public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
         {
-            Contract.Ensures(info != null);
+            Contract.Ensures(info != null, "Text deconstruction information is required!");
 
             var sender = originalChatEvent?.Message.Sender ??
                 throw new ArgumentNullException(nameof(originalChatEvent));

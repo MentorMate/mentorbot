@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -59,25 +58,14 @@ namespace MentorBot.Functions.Connectors
             /// <param name="path">The full path.</param>
             public static BlobPath ParseAndValidate(string path)
             {
-                if (string.IsNullOrEmpty(path))
-                {
-                    throw new ArgumentNullException(nameof(path));
-                }
-
+                Contract.Ensures(!string.IsNullOrEmpty(path), "Path is not provided!");
                 var index = path.IndexOf('/');
-                if (index <= 0)
-                {
-                    throw new ArgumentException("Blob path need to be of type container/blobpath.", nameof(path));
-                }
 
+                Contract.Ensures(index > 0, "Path do not contain '/' char, that indicate container name is not provided!");
                 var containerName = path.Substring(0, index);
                 var filePath = path.Substring(index + 1);
-                if (string.IsNullOrWhiteSpace(containerName) ||
-                    string.IsNullOrWhiteSpace(filePath))
-                {
-                    throw new ArgumentException("Blob path is invalid");
-                }
 
+                Contract.Ensures(!string.IsNullOrWhiteSpace(containerName) && !string.IsNullOrWhiteSpace(filePath), "Blob path is invalid!");
                 return new BlobPath
                 {
                     ContainerName = containerName,

@@ -21,6 +21,8 @@ namespace MentorBot.Functions.Connectors
     /// <summary>Provider methods connected to OpenAir service endpoints.</summary>
     public sealed class OpenAirConnector : IOpenAirConnector
     {
+        private const string PartitionKey = "System";
+
         private readonly IOpenAirClient _client;
         private readonly IStorageService _storageService;
 
@@ -92,47 +94,33 @@ namespace MentorBot.Functions.Connectors
             var usersListToAdd = new List<User>();
             foreach (var user in openAirModelUsers)
             {
-                try
+                var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
+                var department = user.DepartmentId.HasValue ?
+                    CreateDepartment(openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId.Value), openAirModelUsers) :
+                    null;
+
+                var manager = CreateUserReferenceById(user.ManagerId, openAirModelUsers);
+
+                var customerIdList = openAirBookings?
+                    .Where(it => it.UserId == user.Id)
+                    .Select(it => it.CustomerId)
+                    .Distinct()
+                    .ToArray() ?? new List<long?>().ToArray();
+
+                var customers = openAirCustomers
+                    .Where(it => customerIdList.Contains(it.Id))
+                    .Select(it => new Customer { OpenAirId = it.Id.Value, Name = it.Name })
+                    .ToArray();
+
+                if (storedUser == null && user.Active == true)
                 {
-                    var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
-                    var department = user.DepartmentId.HasValue ?
-                        CreateDepartment(openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId.Value), openAirModelUsers) :
-                        null;
-
-                    var manager = CreateUserReferenceById(user.ManagerId, openAirModelUsers);
-
-                    var customerIdList = openAirBookings?
-                        .Where(it => it.UserId == user.Id)
-                        .Select(it => it.CustomerId)
-                        .Distinct()
-                        .ToArray() ?? new List<long?>().ToArray();
-
-                    var customers = openAirCustomers
-                        .Where(it => customerIdList.Contains(it.Id))
-                        .Select(it => new Customer { OpenAirId = it.Id.Value, Name = it.Name })
-                        .ToArray();
-
-                    var key = "System";
-
-                    if (storedUser == null && user.Active == true)
-                    {
-                        var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), key, user, manager, department, customers);
-                        usersListToAdd.Add(createUser);
-                    }
-                    else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
-                    {
-                        var updateUser = CreateUser(storedUser.Id, key, user, manager, department, customers);
-                        usersListToUpdate.Add(updateUser);
-                    }
+                    var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), PartitionKey, user, manager, department, customers);
+                    usersListToAdd.Add(createUser);
                 }
-                catch (Exception ex)
+                else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
                 {
-                    if (ex != null)
-                    {
-                        // Do something.
-                    }
-
-                    throw;
+                    var updateUser = CreateUser(storedUser.Id, PartitionKey, user, manager, department, customers);
+                    usersListToUpdate.Add(updateUser);
                 }
             }
 
