@@ -2,5 +2,6 @@ export const environment = {
   production: true,
   apiPath: '${AZURE_API_PATH}',
   webPath: '${AZURE_WEB_PATH}',
-  googleClientId: '${GOOGLE_CLIENT_ID}'
+  googleClientId: '${GOOGLE_CLIENT_ID}',
+  azureCode: '${AZURE_CODE}'
 };

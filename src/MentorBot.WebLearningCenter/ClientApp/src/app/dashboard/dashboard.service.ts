@@ -11,7 +11,11 @@ export class DashboardService {
     private http: HttpClient) {
   }
 
+  get query(): string {
+    return environment.azureCode === null ? '' : ('?code=' + environment.azureCode);
+  }
+
   public getData(): Observable<MessagesStatistic[]> {
-    return this.http.get<MessagesStatistic[]>(environment.apiPath + DashboardService.getMessagesStatistics)
+    return this.http.get<MessagesStatistic[]>(environment.apiPath + DashboardService.getMessagesStatistics + this.query);
   }
 }

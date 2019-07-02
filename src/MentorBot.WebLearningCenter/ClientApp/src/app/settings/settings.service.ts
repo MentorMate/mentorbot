@@ -14,11 +14,15 @@ export class SettingsService {
     private http: HttpClient) {
   }
 
+  get query(): string {
+    return environment.azureCode === null ? '' : ('?code=' + environment.azureCode);
+  }
+
   public getSettings(): Observable<ProcessorSettings[]> {
-    return this.http.get<ProcessorSettings[]>(environment.apiPath + SettingsService.getSettings);
+    return this.http.get<ProcessorSettings[]>(environment.apiPath + SettingsService.getSettings + this.query);
   }
 
   public saveSettings(settings: ProcessorSettings[]): Observable<Object> {
-    return this.http.post(environment.apiPath + SettingsService.saveSettings, settings);
+    return this.http.post(environment.apiPath + SettingsService.saveSettings + this.query, settings);
   }
 }
