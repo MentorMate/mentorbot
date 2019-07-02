@@ -12,9 +12,7 @@ namespace MentorBot.Functions.Models.Domains
 #pragma warning restore CC0021
     public sealed class Message
     {
-        /// <summary>
-        /// Gets or sets the Message Id
-        /// </summary>
+        /// <summary>Gets or sets the Message Id.</summary>
         [RowKey]
         public string Id { get; set; }
 

@@ -2,12 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.DataResultModels;
+using MentorBot.Functions.Models.Settings;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -18,12 +20,12 @@ namespace MentorBot.Functions
     /// <summary>Application query functions.</summary>
     public static class Queries
     {
-        /// <summary>The main Azure function.</summary>
+        /// <summary>Get the messages statistics asynchronous.</summary>
         [FunctionName("get-messages-stats")]
-        public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatistics(
-            [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+        public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatisticsAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
         {
-            Debug.Write(req);
+            Contract.Ensures(req != null, "Request is not instanciated");
 
             ServiceLocator.EnsureServiceProvider();
 
@@ -38,6 +40,22 @@ namespace MentorBot.Functions
                 });
 
             return messages;
+        }
+
+        /// <summary>Gets the settings asynchronous.</summary>
+        [FunctionName("get-settings")]
+        public static async Task<IEnumerable<ProcessorSettings>> GetSettingsAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+        {
+            Contract.Ensures(req != null, "Request is not instanciated");
+
+            ServiceLocator.EnsureServiceProvider();
+
+            var storage = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+
+            var settings = await storage.GetSettingsAsync();
+
+            return settings?.Processors;
         }
     }
 }

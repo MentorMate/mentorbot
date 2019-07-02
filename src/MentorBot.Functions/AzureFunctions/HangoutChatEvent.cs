@@ -35,7 +35,7 @@ namespace MentorBot.Functions
         /// <summary>The main Azure function.</summary>
         [FunctionName("chatEvent")]
         public static async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, nameof(HttpMethods.Post), Route = null)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Post), Route = null)] HttpRequestMessage req,
             ILogger log)
         {
             Debug.Write(req);
@@ -70,18 +70,6 @@ namespace MentorBot.Functions
                         .SaveMessageAsync(result)
                         .ConfigureAwait(false);
             }
-
-            // TODO: Temp remove the adding of message to save DB RU resource.
-            ////if (client.IsConnected)
-            ////{
-            ////    var document = await client
-            ////        .GetAsync<Message>("mentorbot", "messages")
-            ////        .ConfigureAwait(false);
-
-            ////    await document
-            ////        .AddAsync(result)
-            ////        .ConfigureAwait(false);
-            ////}
 
             log.LogInformation(result.Output?.Text);
 

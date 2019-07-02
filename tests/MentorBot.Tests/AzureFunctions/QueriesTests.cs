@@ -4,7 +4,7 @@ using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.Domains;
-
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -24,13 +24,15 @@ namespace MentorBot.Tests.AzureFunctions
             var message1 = new Message { ProbabilityPercentage = 96 };
             var message2 = new Message { ProbabilityPercentage = 82 };
 
-            storageService.GetMessages().Returns(new[] { message1, message2 });
+            HttpContext context = new DefaultHttpContext();
+            context.Request.Method = "GET";
+
             storageService.GetMessagesAsync().Returns(new[] { message1, message2 });
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService));
 
-            var result = await Queries.GetMessagesStatistics(null);
+            var result = await Queries.GetMessagesStatisticsAsync(context.Request);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);

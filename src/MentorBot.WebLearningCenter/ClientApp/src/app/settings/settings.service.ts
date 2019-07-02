@@ -1,40 +1,28 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Settings } from './settings.models';
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { ProcessorSettings } from './settings.models';
+
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class SettingsService {
-  static readonly getSettings = 'settings';
+  static readonly getSettings = 'get-settings';
+  static readonly saveSettings = 'save-settings';
 
   constructor(
     private http: HttpClient) {
   }
 
-  public getSettings(): Observable<Settings> {
-    return this.http.get<Settings>(environment.apiPath + SettingsService.getSettings);
+  get query(): string {
+    return environment.azureCode === null ? '' : ('?code=' + environment.azureCode);
   }
 
-  public saveSettings(settings: Settings): Observable<Settings> {
-    return this.http.post<Settings>(environment.apiPath + SettingsService.getSettings, settings);
+  public getSettings(): Observable<ProcessorSettings[]> {
+    return this.http.get<ProcessorSettings[]>(environment.apiPath + SettingsService.getSettings + this.query);
   }
 
-  /**
-   * Handle Http operation that failed.
-   * Let the app continue.
-   * @param operation - name of the operation that failed
-   * @param result - optional value to return as the observable result
-   */
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
-      // Let the app keep running by returning an empty result.
-      return of(result as T);
-    };
+  public saveSettings(settings: ProcessorSettings[]): Observable<Object> {
+    return this.http.post(environment.apiPath + SettingsService.saveSettings + this.query, settings);
   }
 }

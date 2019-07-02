@@ -35,7 +35,7 @@ namespace MentorBot.Tests.Business.Processors
         public async Task WhenAskedItShouldRepeat(string phrase, string expectedResult)
         {
             var info = new TextDeconstructionInformation(phrase, null);
-            var result = await _processor.ProcessCommandAsync(info, new ChatEvent(), null);
+            var result = await _processor.ProcessCommandAsync(info, new ChatEvent(), null, null);
             Assert.AreEqual(expectedResult, result.Text);
         }
 
@@ -57,7 +57,7 @@ namespace MentorBot.Tests.Business.Processors
                 null,
                 1.0);
 
-            var result = await _processor.ProcessCommandAsync(info, chat, responder);
+            var result = await _processor.ProcessCommandAsync(info, chat, responder, null);
 
             responder
                 .DidNotReceive()

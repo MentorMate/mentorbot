@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
@@ -90,8 +91,12 @@ namespace MentorBot.Functions.Services
             }
 
             /// <inheritdoc/>
-            public Task AddAsync(T item) =>
-                _client.CreateDocumentAsync(DocumentCollectionUri, item);
+            public Task<bool> AddOrUpdateAsync(T item) =>
+                _client.UpsertDocumentAsync(DocumentCollectionUri, item)
+                    .ContinueWith(task =>
+                        task.Result == null ||
+                        task.Result.StatusCode == HttpStatusCode.Created ||
+                        task.Result.StatusCode == HttpStatusCode.OK);
 
             /// <inheritdoc/>
             public IReadOnlyList<T> Query(string sqlExpression) =>

@@ -7,6 +7,7 @@ using System.IO;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App.SmtpClient;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Connectors.Luis;
@@ -14,6 +15,7 @@ using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
 using MentorBot.Functions.Services;
+using MentorBot.Functions.Services.AzureStorage;
 using MentorBot.Localize;
 
 using Microsoft.Extensions.Configuration;
@@ -31,7 +33,21 @@ namespace MentorBot.Functions.App
         /// <summary>Gets the service provider.</summary>
         public IServiceProvider ServiceProvider { get; private set; }
 
-        /// <summary>Configure the service provider if not configured</summary>
+        /// <summary>Tries to create a type or return default value.</summary>
+        /// <typeparam name="T">The type to be created.</typeparam>
+        public static T Try<T>(Func<T> creator, T defaultValue = default)
+        {
+            try
+            {
+                return creator();
+            }
+            catch (Exception)
+            {
+                return defaultValue;
+            }
+        }
+
+        /// <summary>Configure the service provider if not configured.</summary>
         public static void EnsureServiceProvider()
         {
             if (DefaultInstance.ServiceProvider == null)
@@ -72,10 +88,12 @@ namespace MentorBot.Functions.App
 
             var services = new ServiceCollection();
 
+            services.AddMemoryCache();
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton(new AzureCloudOptions(config));
             services.AddSingleton(new GoogleCloudOptions(config));
             services.AddSingleton(new OpenAirOptions(config));
+            services.AddSingleton(new SmtpOptions(config));
             services.AddSingleton<IDocumentClientService>(
                 new DocumentClientService(config["AzureCosmosDBAccountEndpoint"], config["AzureCosmosDBKey"]));
 
@@ -83,10 +101,15 @@ namespace MentorBot.Functions.App
                 () => TimeZoneInfo.FindSystemTimeZoneById(config["DefaultTimeZoneName"]));
             services.AddSingleton<Func<DateTime>>(
                 () => DateTime.Now);
+            services.AddTransient<IAzureStorageContext, AzureStorageContext>(x =>
+                Try(() => new AzureStorageContext(x.GetService<AzureCloudOptions>()?.AzureStorageAccountConnectionString)));
 
+            services.AddTransient<ISmtpClient, SmtpClientBase>();
+            services.AddTransient<IMailService, MailService>();
             services.AddTransient<ITableClientService, TableClientService>();
             services.AddTransient<IBlobStorageConnector, AzureBlobStorageConnector>();
             services.AddTransient<IAsyncResponder, HangoutsChatConnector>();
+            services.AddTransient<IHangoutsChatConnector, HangoutsChatConnector>();
             services.AddTransient<IGoogleCalendarConnector, GoogleCalendarConnector>();
             services.AddTransient<IOpenAirConnector, OpenAirConnector>();
             services.AddTransient<ILanguageUnderstandingConnector, AzureLuisConnector>();
@@ -96,6 +119,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
+            services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();

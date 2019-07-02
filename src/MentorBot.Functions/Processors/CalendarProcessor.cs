@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,15 +30,15 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
+        public string Name => nameof(CalendarProcessor);
+
+        /// <inheritdoc/>
         public string Subject => "Meetings";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
         {
-            if (info == null)
-            {
-                return new ChatEventResult("I do not understand the sentance.");
-            }
+            Contract.Ensures(info != null, "Text deconstruction information is required!");
 
             var sender = originalChatEvent?.Message.Sender ??
                 throw new ArgumentNullException(nameof(originalChatEvent));

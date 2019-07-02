@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -19,14 +18,12 @@ namespace MentorBot.Functions.Services
 
         private readonly ICognitiveService _cognitiveService;
         private readonly IAsyncResponder _responder;
-        private readonly IStorageService _storageService;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatService"/> class.</summary>
-        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder, IStorageService storageService)
+        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder)
         {
             _cognitiveService = cognitiveService;
             _responder = responder;
-            _storageService = storageService;
         }
 
         /// <inheritdoc/>
@@ -36,13 +33,9 @@ namespace MentorBot.Functions.Services
                 .ProcessAsync(chatEvent)
                 .ConfigureAwait(false);
 
-            var settings = await _storageService.GetSettingsAsync();
-
             var fail =
                 command == null ||
                 command.CommandProcessor == null ||
-                settings == null ||
-                !settings.Processors.Any(p => p.Name == command.CommandProcessor.GetType().Name && p.Enabled) ||
                 command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
 
             var rating = fail ? 0 : command.TextDeconstructionInformation.ConfidenceRating * 100;
@@ -55,7 +48,7 @@ namespace MentorBot.Functions.Services
                     ? new ChatEventResult(Messages.UnknownCommandText)
                     : await command
                         .CommandProcessor
-                        .ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, _responder)
+                        .ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, _responder, command.Settings)
             };
 
             return result;

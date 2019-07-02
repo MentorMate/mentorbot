@@ -1,14 +1,14 @@
 import { Component, AfterViewInit, OnChanges } from '@angular/core';
 import { SettingsService } from './settings.service';
-import { Settings } from './settings.models';
+import { ProcessorSettings } from './settings.models';
 
 const template = `
-  <div *ngIf="settings">
+  <div *ngIf="processors">
     <form
       class="settings-form"
       #settingsForm="ngForm">
       <h2>Command processors</h2>
-      <div *ngFor="let processor of settings.processors">
+      <div *ngFor="let processor of processors">
         <label class="switch">
           <input type="checkbox"
             name="{{ processor.name }}"
@@ -18,6 +18,14 @@ const template = `
           <span class="slider round"></span>
           <span class="text">{{ processor.name }}</span>
         </label>
+        <table *ngIf="processor.enabled && processor.data && processor.data.length">
+          <tr *ngFor="let config of processor.data">
+            <td>{{config.key}}:</td>
+            <td><input type="text"
+                     [name]="config.key"
+                     [(ngModel)]="config.value"></td>
+          </tr>
+        </table>
       </div>
 
       <button
@@ -108,33 +116,24 @@ const style = `
   styles: [style]
 })
 export class SettingsPageComponent implements AfterViewInit {
-  settings: Settings;
+  processors: ProcessorSettings[];
 
   constructor(
-    private service: SettingsService) {
-
-  }
+    private service: SettingsService) { }
 
   ngAfterViewInit(): void {
     this.service.getSettings().subscribe(
       data => {
-        this.settings = data;
+        this.processors = data;
     });
   }
 
   onSave(form): void {
-    this.service.saveSettings(this.settings).subscribe(
-      data => {
-        this.settings = data;
-        form.reset(this.settings);
-        console.log("POST Request is successful ", data);
-      },
+    this.service.saveSettings(this.processors).subscribe(
+      data => { },
       error => {
-
         console.log("Error", error);
-
       }
-
     );
   }
 }

@@ -2,6 +2,7 @@
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Services;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,57 +26,68 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public void StorageService_GetNotWorkIfOffLine()
+        public async Task StorageService_GetNotWorkIfOffLine()
         {
             _documentClientService.IsConnected.Returns(false);
 
-            var address = _service.GetAddresses();
+            var address = await _service.GetAddressesAsync();
             Assert.AreEqual(0, address.Count);
         }
 
         [TestMethod]
-        public void StorageService_GetAddresses()
+        public async Task StorageService_GetAddresses()
         {
             var model = new GoogleAddress { UserName = "A" };
             SetDocumentQuery("mentorbot", "addresses", "SELECT TOP 1000 * FROM addresses", model);
 
-            var result = _service.GetAddresses();
+            var result = await _service.GetAddressesAsync();
 
             Assert.AreEqual("A", result[0].UserName);
         }
 
         [TestMethod]
-        public void StorageService_GetMessages()
+        public async Task StorageService_GetMessages()
         {
             var model = new Message { Input = "T" };
-            SetDocumentQuery("mentorbot", "messages", "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m", model);
+            SetDocumentQuery("mentorbot", "messages", "SELECT TOP 2000 m.ProbabilityPercentage FROM messages m", model);
 
-            var result = _service.GetMessages();
+            var result = await _service.GetMessagesAsync();
 
             Assert.AreEqual("T", result[0].Input);
         }
 
         [TestMethod]
-        public void StorageService_GetUsersByIdList()
+        public async Task StorageService_GetUsersByIdList()
         {
             var model = new User { OpenAirUserId = 10 };
-            SetDocumentQuery("mentorbot", "users", "SELECT TOP 1000 * FROM users u WHERE u.OpenAirUserId in (10,15)", model);
+            SetDocumentQuery("mentorbot", "users", "SELECT TOP 1000 * FROM users u WHERE u.Active == 1", model);
 
-            var result = _service.GetUsersByIdList(new[] { 10L, 15L });
+            var result = await _service.GetAllActiveUsersAsync();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(10, result[0].OpenAirUserId);
         }
 
         [TestMethod]
-        public void StorageService_GetAllUsers()
+        public async Task StorageService_GetAllUsers()
         {
             var model = new User();
             SetDocumentQuery("mentorbot", "users", "SELECT TOP 2000 * FROM users", model);
 
-            var result = _service.GetAllUsers();
+            var result = await _service.GetAllUsersAsync();
 
             Assert.AreEqual(model, result[0]);
+        }
+
+        [TestMethod]
+        public async Task StorageService_GetSettings()
+        {
+            var model = new MentorBotSettings();
+            SetDocumentQuery("mentorbot", "settings", "SELECT TOP 2000 * FROM settings", model);
+
+            var result = await _service.GetSettingsAsync();
+
+            Assert.AreEqual(model, result);
         }
 
         [TestMethod]

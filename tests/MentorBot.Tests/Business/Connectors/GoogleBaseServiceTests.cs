@@ -1,4 +1,5 @@
-﻿using Google.Apis.Services;
+﻿using Google.Apis.Requests;
+using Google.Apis.Services;
 
 using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Models.Options;
@@ -28,6 +29,17 @@ namespace MentorBot.Tests.Business.Connectors
 
             Assert.AreEqual("ABC", result.ApiKey);
             Assert.AreEqual("EFG", result.ApplicationName);
+        }
+
+        [TestMethod]
+        public void GoogleBaseServiceSetup_ShouldSet()
+        {
+            var req = Substitute.For<IClientServiceRequest>();
+            var res = req.Setup(it => it.ExecuteAsStream());
+
+            req.Received().ExecuteAsStream();
+
+            Assert.AreEqual(req, res);
         }
     }
 }

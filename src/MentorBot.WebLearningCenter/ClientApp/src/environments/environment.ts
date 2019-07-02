@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  apiPath: "https://localhost:7071/api/",
+  apiPath: "http://localhost:7071/api/",
   webPath: "https://localhost:44312/",
-  googleClientId: null
+  googleClientId: null,
+  azureCode: null
 };

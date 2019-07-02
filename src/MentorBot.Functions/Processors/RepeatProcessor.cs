@@ -26,10 +26,13 @@ namespace MentorBot.Functions.Processors
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <inheritdoc/>
+        public string Name => nameof(RepeatProcessor);
+
+        /// <inheritdoc/>
         public string Subject => "Repeat";
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
         {
             var text = RegExp.Replace(info.TextSentanceChunk, string.Empty);
             var delayStr = info.Entities.GetValueOrDefault("Time")?.FirstOrDefault();

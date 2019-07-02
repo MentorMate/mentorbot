@@ -63,10 +63,9 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public Task SendMessageAsync(string text, GoogleChatAddress address, params Card[] cards)
         {
-            if (address == null || address.Sender == null || address.Space == null)
-            {
-                throw new InvalidOperationException("When async responder is called, space and sender are requireired.");
-            }
+            Contract.Ensures(address != null, "Chat address is required!");
+            Contract.Ensures(address.Sender != null, "When async responder is called, sender is required!");
+            Contract.Ensures(address.Space != null, "When async responder is called, space is required!");
 
             var message = new Message
             {

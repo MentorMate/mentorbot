@@ -23,6 +23,6 @@ namespace MentorBot.Functions.Abstract.Services
 
         /// <summary>Add an document object to the collection.</summary>
         /// <param name="item">The new object.</param>
-        Task AddAsync(T item);
+        Task<bool> AddOrUpdateAsync(T item);
     }
 }

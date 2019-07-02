@@ -18,6 +18,7 @@ namespace MentorBot.Functions.Services
         private const string UserDocumentName = "users";
         private const string AddressDocumentName = "addresses";
         private const string MessagesDocumentName = "messages";
+        private const string SettingsDocumentName = "settings";
 
         private readonly IDocumentClientService _documentClientService;
 
@@ -28,30 +29,18 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<GoogleAddress> GetAddresses() =>
-             QueryWhenConnected<GoogleAddress>(
-                 "SELECT TOP 1000 * FROM addresses",
-                 AddressDocumentName);
-
-        /// <inheritdoc/>
-        public IReadOnlyList<Message> GetMessages() =>
-             QueryWhenConnected<Message>(
-                 "SELECT TOP 1000 m.ProbabilityPercentage FROM messages m",
-                 MessagesDocumentName);
-
-        /// <inheritdoc/>
         public Task<bool> AddAddressesAsync(IReadOnlyList<GoogleAddress> addresses) =>
             ExecuteIfConnectedAsync<GoogleAddress, bool>(doc => doc.AddManyAsync(addresses), AddressDocumentName, false);
 
         /// <inheritdoc/>
-        public IReadOnlyList<User> GetAllUsers() =>
-            QueryWhenConnected<User>("SELECT TOP 2000 * FROM users", UserDocumentName);
+        public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<User>("SELECT TOP 2000 * FROM users", UserDocumentName));
 
         /// <inheritdoc/>
-        public IReadOnlyList<User> GetUsersByIdList(IEnumerable<long> userIdList) =>
-            userIdList != null && userIdList.Any() ?
-                QueryWhenConnected<User>($"SELECT TOP 1000 * FROM users u WHERE u.OpenAirUserId in ({string.Join(',', userIdList)})", UserDocumentName) :
-                new User[0];
+        public Task<IReadOnlyList<User>> GetAllActiveUsersAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<User>("SELECT TOP 1000 * FROM users u WHERE u.Active == 1", UserDocumentName));
 
         /// <inheritdoc/>
         public Task<bool> AddUsersAsync(IReadOnlyList<User> users) =>
@@ -62,46 +51,33 @@ namespace MentorBot.Functions.Services
             ExecuteIfConnectedAsync<User, bool>(doc => doc.UpdateManyAsync(users), UserDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<MentorBotSettings> GetSettingsAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<MentorBotSettings> GetSettingsAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<MentorBotSettings>(
+                    "SELECT TOP 2000 * FROM settings",
+                    SettingsDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
-        public Task<bool> SaveSettingsAsync(MentorBotSettings settings)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<bool> SaveSettingsAsync(MentorBotSettings settings) =>
+            ExecuteIfConnectedAsync<MentorBotSettings, bool>(doc => doc.AddOrUpdateAsync(settings), SettingsDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<GoogleAddress>(
+                    "SELECT TOP 1000 * FROM addresses",
+                    AddressDocumentName));
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<User>> GetUsersByIdListAsync(IEnumerable<long> userIdList)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IReadOnlyList<Message>> GetMessagesAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<Message>(
+                    "SELECT TOP 2000 m.ProbabilityPercentage FROM messages m",
+                    MessagesDocumentName));
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<User>> GetAllUsersAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public Task<IReadOnlyList<Message>> GetMessagesAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public Task<bool> SaveMessageAsync(Message message)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<bool> SaveMessageAsync(Message message) =>
+            ExecuteIfConnectedAsync<Message, bool>(doc => doc.AddOrUpdateAsync(message), MessagesDocumentName, false);
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {
@@ -113,12 +89,12 @@ namespace MentorBot.Functions.Services
             return new T[0];
         }
 
-        private async Task<T> ExecuteIfConnectedAsync<F, T>(Func<IDocument<F>, Task<T>> action, string documentName, T defaultValue)
+        private async Task<T> ExecuteIfConnectedAsync<TModel, T>(Func<IDocument<TModel>, Task<T>> action, string documentName, T defaultValue)
         {
             if (_documentClientService.IsConnected)
             {
-                var document = _documentClientService.Get<F>(DatabaseName, documentName);
-                return await action(document);
+                var document = _documentClientService.Get<TModel>(DatabaseName, documentName);
+                return await action?.Invoke(document);
             }
 
             return defaultValue;

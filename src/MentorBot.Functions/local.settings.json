@@ -1,8 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": null,
-    "AzureWebJobsDashboard": ""
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true"
   },
   "HangoutChatRequestToken": null,
   "GoogleCloudApplicationName": null,
@@ -18,5 +18,12 @@
   "OpenAirPassword": null,
   "LuisApiHostName": null,
   "LuisApiAppId": null,
-  "LuisApiAppKey": null
+  "LuisApiAppKey": null,
+  "SmtpHost": null,
+  "SmtpPort": 0,
+  "MailFrom": null,
+  "MailFromName": null,
+  "SmtpUser": null,
+  "SmtpPassword": null,
+  "SmtpUseSsl": true
 }
