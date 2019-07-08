@@ -11,6 +11,12 @@ namespace MentorBot.Functions.App.SmtpClient
         /// <summary>Gets or sets the delivery method.</summary>
         SmtpDeliveryMethod DeliveryMethod { get; set; }
 
+        /// <summary>Gets or sets the SMTP host.</summary>
+        string Host { get; set; }
+
+        /// <summary>Gets or sets the SMTP port.</summary>
+        int Port { get; set; }
+
         /// <summary>Gets or sets a value indicating whether [use default credentials].</summary>
         bool UseDefaultCredentials { get; set; }
 

@@ -144,7 +144,7 @@ namespace MentorBot.Tests.Business.Processors
             _storageService.Received()
                 .AddAddressesAsync(Arg.Is<IReadOnlyList<GoogleAddress>>(arr => arr[0].SpaceName == "space/B"));
             _mailService.Received()
-                .SendMailAsync("Users not notified", "All users with unsibmitted timesheets are notified! Total of 2.", "a@b.c");
+                .SendMailAsync("Users not notified", "All users with unsibmitted timesheets are notified! Total of 2.<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>Jhon</b><br/><b>ElA</b>", "a@b.c");
         }
 
 #pragma warning restore CS4014

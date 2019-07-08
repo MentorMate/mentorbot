@@ -60,10 +60,12 @@ namespace MentorBot.Functions.Connectors
 
             var users = await _storageService.GetAllActiveUsersAsync();
 
+            // 0. Filter out the sender.
             // 1. Filter out only users where the sender is line manager.
             // 2. Filter out customers.
             // 3. Select timesheet
             var result = users
+                .Where(it => it.Email != senderEmail)
                 .Where(it => IsManager(it, senderEmail, users, new List<string>()))
                 .Where(it => FiterCustomersByNames(it.Customers, normalizedCustomerNames))
                 .Select(user => new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user))

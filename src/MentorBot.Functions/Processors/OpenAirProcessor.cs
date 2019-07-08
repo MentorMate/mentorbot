@@ -157,7 +157,8 @@ namespace MentorBot.Functions.Processors
             }
             else if (email != null)
             {
-                await _mailService.SendMailAsync("Users not notified", text, email);
+                var emailText = $"{text}<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>{string.Join("</b><br/><b>", notifiedUserList)}</b>";
+                await _mailService.SendMailAsync("Users not notified", emailText, email);
             }
         }
 
