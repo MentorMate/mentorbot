@@ -36,6 +36,8 @@ namespace MentorBot.Functions.Services
         /// <summary>Setups the SMTP client.</summary>
         public static void SetupSmtpClient(ISmtpClient client, SmtpOptions options)
         {
+            client.Host = options.SmtpHost;
+            client.Port = options.SmtpPort;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
             client.EnableSsl = options.SmtpUseSsl;
