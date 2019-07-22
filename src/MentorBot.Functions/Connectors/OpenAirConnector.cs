@@ -21,8 +21,6 @@ namespace MentorBot.Functions.Connectors
     /// <summary>Provider methods connected to OpenAir service endpoints.</summary>
     public sealed class OpenAirConnector : IOpenAirConnector
     {
-        private const string PartitionKey = "System";
-
         private readonly IOpenAirClient _client;
         private readonly IStorageService _storageService;
 
@@ -116,12 +114,12 @@ namespace MentorBot.Functions.Connectors
 
                 if (storedUser == null && user.Active == true)
                 {
-                    var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), PartitionKey, user, manager, department, customers);
+                    var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), user, manager, department, customers);
                     usersListToAdd.Add(createUser);
                 }
                 else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
                 {
-                    var updateUser = CreateUser(storedUser.Id, PartitionKey, user, manager, department, customers);
+                    var updateUser = CreateUser(storedUser.Id, user, manager, department, customers);
                     usersListToUpdate.Add(updateUser);
                 }
             }

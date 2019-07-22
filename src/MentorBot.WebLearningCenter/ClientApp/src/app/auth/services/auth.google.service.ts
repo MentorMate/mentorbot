@@ -4,26 +4,16 @@ import { OAuthService, JwksValidationHandler } from 'angular-oauth2-oidc';
 
 import { AuthService } from '../auth.service';
 import { authConfig } from './auth.google.config';
-
-function userStore(user?: any) : any {
-  const key = 'mentorbot-learner-center-user';
-  if (!user) {
-    user = JSON.parse(sessionStorage.getItem(key));
-  } else {
-    sessionStorage.setItem(key, JSON.stringify(user))
-  }
-
-  return user;
-}
+import { userRole, userInfo, UserInfo } from '../auth.operations';
 
 @Injectable()
 export class GoogleAuthService implements AuthService {
-  private user: any;
+  private user: UserInfo;
 
   constructor(private oauthService: OAuthService) {
     this.oauthService.configure(authConfig);
     this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-    this.user = userStore();
+    this.user = userInfo();
   }
 
   get isLoggedIn(): boolean {
@@ -34,7 +24,13 @@ export class GoogleAuthService implements AuthService {
     return this.user!.given_name;
   }
 
+  get accessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
   public signout(): void {
+    userRole(null);
+    userInfo(null);
     this.oauthService.logOut();
   }
 
@@ -46,8 +42,8 @@ export class GoogleAuthService implements AuthService {
     return new Promise(resolver => {
       this.oauthService.loadDiscoveryDocumentAndTryLogin().then(success => {
         if (success) {
-          this.oauthService.loadUserProfile().then(user => {
-            this.user = userStore(user);
+          this.oauthService.loadUserProfile().then((user: UserInfo) => {
+            this.user = userInfo(user);
             resolver(true);
           });
         }

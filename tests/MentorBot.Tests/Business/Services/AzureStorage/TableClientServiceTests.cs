@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using CoreHelpers.WindowsAzure.Storage.Table.Models;
 using MentorBot.Functions.Services.AzureStorage;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +25,8 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             await service.MergeAsync<Test>(data);
 
             Assert.IsTrue(service.IsConnected);
-            await client.Received().CreateTableAsync<Test>(true);
+            client.Received().AddAttributeMapper(typeof(Test));
+            await client.Received().CreateTableAsync(typeof(Test), true);
             await client.Received().MergeAsync<Test>(data);
         }
 
@@ -38,7 +40,8 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             await service.MergeOrInsertAsync<Test>(data);
 
             Assert.IsTrue(service.IsConnected);
-            await client.Received().CreateTableAsync<Test>(true);
+            client.Received().AddAttributeMapper(typeof(Test));
+            await client.Received().CreateTableAsync(typeof(Test), true);
             await client.Received().MergeOrInsertAsync<Test>(data);
         }
 
@@ -67,15 +70,19 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
         }
 
         [TestMethod]
-        public void TableClientService_ShouldAddSchema()
+        public async Task TableClientService_ShouldQueryByExpression()
         {
             var client = Substitute.For<IAzureStorageContext>();
             var service = new TableClientService(client);
-            var data = typeof(Test);
+            var data = new Test();
+            var filters = new[] { new QueryFilter() };
 
-            service.AddAttributeMapper(new[] { data });
+            client.CreateQueryFilters("Prop1 eq 2").Returns(filters);
+            client.QueryAsync<Test>(null, filters, 1000).Returns(new[] { data }.AsQueryable());
 
-            client.Received().AddAttributeMapper(data);
+            var result = await service.QueryAsync<Test>("Prop1 eq 2", 1000);
+
+            Assert.AreEqual(result.First(), data);
         }
 
         private class Test { }

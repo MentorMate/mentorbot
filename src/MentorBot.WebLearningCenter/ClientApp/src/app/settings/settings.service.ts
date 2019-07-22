@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { ProcessorSettings } from './settings.models';
 
 import { Observable } from 'rxjs';
@@ -10,19 +9,13 @@ export class SettingsService {
   static readonly getSettings = 'get-settings';
   static readonly saveSettings = 'save-settings';
 
-  constructor(
-    private http: HttpClient) {
-  }
-
-  get query(): string {
-    return environment.azureCode === null ? '' : ('?code=' + environment.azureCode);
-  }
+  constructor(private http: HttpClient) { }
 
   public getSettings(): Observable<ProcessorSettings[]> {
-    return this.http.get<ProcessorSettings[]>(environment.apiPath + SettingsService.getSettings + this.query);
+    return this.http.get<ProcessorSettings[]>(SettingsService.getSettings);
   }
 
   public saveSettings(settings: ProcessorSettings[]): Observable<Object> {
-    return this.http.post(environment.apiPath + SettingsService.saveSettings + this.query, settings);
+    return this.http.post(SettingsService.saveSettings, settings);
   }
 }

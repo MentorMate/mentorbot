@@ -37,9 +37,9 @@ namespace MentorBot.Tests.Business.Services
 
             _users = new List<User>
             {
-                new User { Id = "3C039142-CF1A-42CC-87E8-893D8791D4A9", PartitionKey = "47157C92-9836-47CE-83DD-00F32D197BCE", OpenAirUserId = 1 },
-                new User { Id = "C32EC69C-977C-4C42-B84E-13E51195FE6D", PartitionKey = "47157C92-9836-47CE-83DD-00F32D197BCE", OpenAirUserId = 2 },
-                new User { Id = "7408FCFA-6F55-4824-A192-A88D7C12FECE", PartitionKey = "47157C92-9836-47CE-83DD-00F32D197BCE", OpenAirUserId = 3 },
+                new User { Id = "3C039142-CF1A-42CC-87E8-893D8791D4A9", OpenAirUserId = 1 },
+                new User { Id = "C32EC69C-977C-4C42-B84E-13E51195FE6D", OpenAirUserId = 2 },
+                new User { Id = "7408FCFA-6F55-4824-A192-A88D7C12FECE", OpenAirUserId = 3 },
             };
 
             _addresses = new List<GoogleAddress>
@@ -205,8 +205,8 @@ namespace MentorBot.Tests.Business.Services
 
             var result = await _storageService.UpdateUsersAsync(new List<User>
             {
-                new User { Id = "3C039142-CF1A-42CC-87E8-893D8791D4A9", PartitionKey = "47157C92-9836-47CE-83DD-00F32D197BCE", OpenAirUserId = 1, Name = "User 1" },
-                new User { Id = "7408FCFA-6F55-4824-A192-A88D7C12FECE", PartitionKey = "47157C92-9836-47CE-83DD-00F32D197BCE", OpenAirUserId = 3, Name = "User 3" },
+                new User { Id = "3C039142-CF1A-42CC-87E8-893D8791D4A9", OpenAirUserId = 1, Name = "User 1" },
+                new User { Id = "7408FCFA-6F55-4824-A192-A88D7C12FECE", OpenAirUserId = 3, Name = "User 3" },
             });
 
             Assert.IsTrue(result);

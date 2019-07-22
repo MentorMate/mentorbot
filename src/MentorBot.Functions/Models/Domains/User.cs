@@ -17,11 +17,9 @@ namespace MentorBot.Functions.Models.Domains
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        /// <summary>
-        /// Gets or sets the partition key for this record.
-        /// </summary>
+        /// <summary>Gets the partition key for this record.</summary>
         [PartitionKey]
-        public string PartitionKey { get; set; }
+        public string PartitionKey { get; } = "System";
 
         /// <summary>Gets or sets the email.</summary>
         public string Email { get; set; }
@@ -31,6 +29,12 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary>Gets or sets the open air user identifier.</summary>
         public long OpenAirUserId { get; set; }
+
+        /// <summary>Gets or sets the google account user identifier.</summary>
+        public string GoogleUserId { get; set; }
+
+        /// <summary>Gets or sets the user role.</summary>
+        public int Role { get; set; }
 
         /// <summary>Gets or sets the user manager.</summary>
         [StoreAsJsonObject]

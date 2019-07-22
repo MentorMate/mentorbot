@@ -11,11 +11,13 @@ import { AppMainComponent } from './app-main.component';
 import { AppRootComponent } from './app-root.component';
 import { MenuComponent } from './shared/menu.component';
 import { NotFoundPageComponent } from './shared/not-found-page.component';
+import { NoAccessPageComponent } from './shared/no-access.component';
 
 export const appRoutes: Routes = [
   { path: '', redirectTo: 'app', pathMatch: 'full' },
   { path: 'app/signin-google', component: AuthCallbackComponent },
   { path: 'app/signout-callback', component: AuthCallbackLogoutComponent },
+  { path: 'app/no-access', component: NoAccessPageComponent },
   {
     path: 'app',
     component: AppMainComponent,
@@ -36,6 +38,10 @@ export const appRoutes: Routes = [
         loadChildren: './settings/settings.module#SettingsModule'
       },
       {
+        path: 'users',
+        loadChildren: './users/user.module#UsersModule'
+      },
+      {
         path: 'about',
         loadChildren: './about/about.module#AboutModule'
       },
@@ -50,6 +56,7 @@ export const appRoutes: Routes = [
     AppRootComponent,
     AppMainComponent,
     NotFoundPageComponent,
+    NoAccessPageComponent,
     MenuComponent
   ],
   imports: [

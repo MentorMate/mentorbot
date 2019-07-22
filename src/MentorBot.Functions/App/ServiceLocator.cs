@@ -25,7 +25,7 @@ namespace MentorBot.Functions.App
 {
 #pragma warning disable S1200 // Classes should not be coupled to too many other classes (Single Responsibility Principle)
     /// <summary>Service locator is normally bad practice, but other methods are not realiable in Azure Functions.</summary>
-    public class ServiceLocator
+    public sealed class ServiceLocator
     {
         /// <summary>Gets the default service locator instance.</summary>
         public static ServiceLocator DefaultInstance { get; } = new ServiceLocator();
@@ -123,6 +123,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
+            services.AddTransient<IAccessTokenService, GoogleAccessTokenService>();
 
             services.AddTransient<LuisClient>();
             services.AddTransient<GoogleServiceAccountCredential>();
