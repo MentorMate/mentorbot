@@ -31,12 +31,27 @@ namespace MentorBot.Tests.Business.Processors
         [DataRow("Repeat after me I am a long test", "I am a long test", DisplayName = "Test long repeat")]
         [DataRow("Repeat after this I am a long test", "after this I am a long test", DisplayName = "Test odd repeat")]
         [DataRow("@mentorbot Repeat test", "test", DisplayName = "Test with @mentorbot")]
+        [DataRow("", "Repeat command can not recognise some segments.", DisplayName = "Unknow text")]
         [DataTestMethod]
         public async Task WhenAskedItShouldRepeat(string phrase, string expectedResult)
         {
             var info = new TextDeconstructionInformation(phrase, null);
             var result = await _processor.ProcessCommandAsync(info, new ChatEvent(), null, null);
             Assert.AreEqual(expectedResult, result.Text);
+        }
+
+        [TestMethod]
+        public void RepeatProcessorSubjectShoudBeRepeat()
+        {
+            Assert.AreEqual(_processor.Subject, "Repeat");
+        }
+
+        [TestMethod]
+        public void RepeatProcessorCanParseTimeString()
+        {
+            Assert.AreEqual(RepeatProcessor.GetTime("10min"), 600000);
+            Assert.AreEqual(RepeatProcessor.GetTime("6sec"), 6000);
+            Assert.AreEqual(RepeatProcessor.GetTime("2h"), 7200000);
         }
 
 #pragma warning disable CS4014

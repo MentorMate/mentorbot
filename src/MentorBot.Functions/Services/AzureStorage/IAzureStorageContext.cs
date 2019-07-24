@@ -14,9 +14,6 @@ namespace MentorBot.Functions.Services.AzureStorage
         /// <summary>Adds a database shema mapping.</summary>
         void AddAttributeMapper(Type type);
 
-        /// <summary>Create query filters from query exp.</summary>
-        IEnumerable<QueryFilter> CreateQueryFilters(string query);
-
         /// <summary>Creates a table if not exists asynchronous.</summary>
         Task CreateTableAsync(Type entityType, bool ignoreErrorIfExists = true);
 

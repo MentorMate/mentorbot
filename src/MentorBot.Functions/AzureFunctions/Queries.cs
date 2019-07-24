@@ -101,8 +101,8 @@ namespace MentorBot.Functions
                 Email = it.Email,
                 Manager = it.Manager?.Email,
                 Department = it.Department?.Name,
-                Role = Enum.GetName(typeof(UserRoles), it.Role == default ? UserRoles.User : (UserRoles)it.Role),
-                Customers = string.Join(", ", it.Customers?.Select(cust => cust.Name)),
+                Role = Enum.GetName(typeof(UserRoles), it.Role),
+                Customers = string.Join(", ", it.Customers?.Select(cust => cust.Name) ?? Enumerable.Empty<string>()),
             });
         }
     }

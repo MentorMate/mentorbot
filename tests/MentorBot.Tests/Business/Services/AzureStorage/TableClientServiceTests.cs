@@ -12,7 +12,7 @@ using NSubstitute;
 namespace MentorBot.Tests.Business.Services.AzureStorage
 {
     [TestClass]
-    [TestCategory("Business.Services")]
+    [TestCategory("Business.Services.Azure")]
     public sealed class TableClientServiceTests
     {
         [TestMethod]
@@ -77,8 +77,7 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             var data = new Test();
             var filters = new[] { new QueryFilter() };
 
-            client.CreateQueryFilters("Prop1 eq 2").Returns(filters);
-            client.QueryAsync<Test>(null, filters, 1000).Returns(new[] { data }.AsQueryable());
+            client.QueryAsync<Test>(null, Arg.Any<IEnumerable<QueryFilter>>(), 1000).Returns(new[] { data }.AsQueryable());
 
             var result = await service.QueryAsync<Test>("Prop1 eq 2", 1000);
 

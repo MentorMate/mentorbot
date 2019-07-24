@@ -41,5 +41,12 @@ namespace MentorBot.Tests.Business.Services
                         it.IsBodyHtml &&
                         it.BodyEncoding == Encoding.UTF8));
         }
+
+        [TestMethod]
+        public void MailServiceDisposses()
+        {
+            _service.Dispose();
+            _client.Received().Dispose();
+        }
     }
 }

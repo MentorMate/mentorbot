@@ -37,6 +37,12 @@ namespace MentorBot.Tests.Business.Processors
             _processor = new OpenAirProcessor(_connector, _storageService, _mailService);
         }
 
+        [TestMethod]
+        public void OpenAirProcessorSubjectShoudBeTimesheets()
+        {
+            Assert.AreEqual(_processor.Subject, "Timesheets");
+        }
+
 #pragma warning disable CS4014
 
         [TestMethod]

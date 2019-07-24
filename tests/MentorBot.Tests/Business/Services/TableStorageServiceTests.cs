@@ -228,6 +228,32 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
+        public async Task GetAllActiveUsersShouldReturnFromContext()
+        {
+            var user = new User { Id = "AA", Active = false };
+            var user2 = new User { Id = "BB", Active = true };
+
+            _tableClientService.QueryAsync<User>(2000).Returns(new[] { user, user2 }.AsQueryable());
+
+            var result = await _storageService.GetAllActiveUsersAsync();
+
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual(result[0].Id, "BB");
+        }
+
+        [TestMethod]
+        public async Task GetUserByEmailShouldReturnFromContext()
+        {
+            var user = new User { Id = "AA" };
+
+            _tableClientService.QueryAsync<User>("Email eq 'aa@bb.cc'", 1).Returns(new[] { user }.AsQueryable());
+
+            var result = await _storageService.GetUserByEmailAsync("aa@bb.cc");
+
+            Assert.AreEqual(result.Id, "AA");
+        }
+
+        [TestMethod]
         public async Task AddAddressesAsync_Connected_returns_true_and_stores_3_addresses()
         {
             var addresses = new List<GoogleAddress>();

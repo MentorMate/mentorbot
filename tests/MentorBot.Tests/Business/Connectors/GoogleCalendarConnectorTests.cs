@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Google;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
@@ -30,7 +31,7 @@ namespace MentorBot.Tests.Business.Connectors
             var eventsListRequest = Substitute.ForPartsOf<EventsResource.ListRequest>(clientService, email);
             var eventsResource = Substitute.ForPartsOf<EventsResource>(clientService);
             var service = Substitute.ForPartsOf<CalendarService>();
-            var connector = new MockedGoogleCalendarConnector(new Lazy<CalendarService>(service), eventsResult);
+            var connector = new MockedGoogleCalendarConnector(new Lazy<CalendarService>(service), () => eventsResult);
 
             service.Events.Returns(eventsResource);
             eventsResource.List(email).Returns(eventsListRequest);
@@ -48,18 +49,38 @@ namespace MentorBot.Tests.Business.Connectors
             Assert.IsTrue(eventsListRequest.TimeMax.HasValue);
         }
 
+        [TestMethod]
+        public async Task GoogleCalendarConnector_ShouldReturnNullWhenNotFound()
+        {
+            var email = "william.wallace@gmail.com";
+            var clientService = Substitute.For<IClientService>();
+            var eventsListRequest = Substitute.ForPartsOf<EventsResource.ListRequest>(clientService, email);
+            var eventsResource = Substitute.ForPartsOf<EventsResource>(clientService);
+            var service = Substitute.ForPartsOf<CalendarService>();
+            var connector = new MockedGoogleCalendarConnector(
+                new Lazy<CalendarService>(service),
+                () => throw new GoogleApiException(string.Empty, string.Empty) { HttpStatusCode = System.Net.HttpStatusCode.NotFound });
+
+            service.Events.Returns(eventsResource);
+            eventsResource.List(email).Returns(eventsListRequest);
+
+            var result = await connector.GetNextMeetingAsync(email);
+
+            Assert.AreEqual(result, null);
+        }
+
         public class MockedGoogleCalendarConnector : GoogleCalendarConnector
         {
-            private object _result;
+            private Func<object> _action;
 
-            public MockedGoogleCalendarConnector(Lazy<CalendarService> service, object result)
+            public MockedGoogleCalendarConnector(Lazy<CalendarService> service, Func<object> action)
                 : base(service)
             {
-                _result = result;
+                _action = action;
             }
 
             protected override Task<T> ExecuteAsync<T>(CalendarBaseServiceRequest<T> request) =>
-                Task.FromResult((T)_result);
+                Task.FromResult((T)_action());
         }
     }
 }

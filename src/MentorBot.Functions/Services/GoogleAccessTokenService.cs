@@ -66,7 +66,7 @@ namespace MentorBot.Functions.Services
                         await _storageService.UpdateUsersAsync(new[] { user });
                     }
 
-                    return user.Role == default ? UserRoles.User : (UserRoles)user.Role;
+                    return (UserRoles)user.Role;
                 });
 
             return new AccessTokenUserInfo

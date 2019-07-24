@@ -80,6 +80,17 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
+        public async Task StorageService_GetUserByEmailShouldReturnFromStorage()
+        {
+            var model = new User();
+            SetDocumentQuery("mentorbot", "users", "SELECT TOP 1 * FROM users u WHERE u.Email == 'jhon.doe@mail.com'", model);
+
+            var result = await _service.GetUserByEmailAsync("jhon.doe@mail.com");
+
+            Assert.AreEqual(model, result);
+        }
+
+        [TestMethod]
         public async Task StorageService_GetSettings()
         {
             var model = new MentorBotSettings();

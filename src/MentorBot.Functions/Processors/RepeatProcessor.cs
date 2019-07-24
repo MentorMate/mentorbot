@@ -31,6 +31,27 @@ namespace MentorBot.Functions.Processors
         /// <inheritdoc/>
         public string Subject => "Repeat";
 
+        /// <summary>Gets the number in miliseconds from a time string.</summary>
+        public static int GetTime(string value)
+        {
+            var match = RegExpTime.Match(value);
+            var val = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            switch (match.Groups[2].Value)
+            {
+                case "h":
+                case "hour":
+                    return val * 3600000;
+                case "min":
+                case "m":
+                    return val * 60000;
+                case "s":
+                case "sec":
+                    return val * 1000;
+                default:
+                    return val;
+            }
+        }
+
         /// <inheritdoc/>
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
         {
@@ -56,25 +77,5 @@ namespace MentorBot.Functions.Processors
         private static ValueTask<ChatEventResult> Value(string text) =>
             new ValueTask<ChatEventResult>(
                 result: string.IsNullOrEmpty(text) ? null : new ChatEventResult(text));
-
-        private static int GetTime(string value)
-        {
-            var match = RegExpTime.Match(value);
-            var val = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            switch (match.Groups[2].Value)
-            {
-                case "h":
-                case "hour":
-                    return val * 3600000;
-                case "min":
-                case "m":
-                    return val * 60000;
-                case "s":
-                case "sec":
-                    return val * 1000;
-                default:
-                    return val;
-            }
-        }
     }
 }

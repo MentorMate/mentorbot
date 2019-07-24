@@ -29,7 +29,13 @@ namespace MentorBot.Tests.Business.Processors
             _processor = new CalendarProcessor(_connector, () => TimeZoneInfo.Local);
         }
 
-        #pragma warning disable CS4014
+        [TestMethod]
+        public void CalendarProcessorSubjectShoudBeMeetings()
+        {
+            Assert.AreEqual(_processor.Subject, "Meetings");
+        }
+
+#pragma warning disable CS4014
 
         [DataRow("What is my next meeting", "jhon.doe@gmail.com", DisplayName = "next meeting")]
         [DataRow("get the next meeting", "robin.hood@gmail.com", DisplayName = "get next")]
