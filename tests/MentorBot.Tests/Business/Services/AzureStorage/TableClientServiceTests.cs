@@ -75,13 +75,33 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             var client = Substitute.For<IAzureStorageContext>();
             var service = new TableClientService(client);
             var data = new Test();
-            var filters = new[] { new QueryFilter() };
 
             client.QueryAsync<Test>(null, Arg.Any<IEnumerable<QueryFilter>>(), 1000).Returns(new[] { data }.AsQueryable());
 
             var result = await service.QueryAsync<Test>("Prop1 eq 2", 1000);
 
             Assert.AreEqual(result.First(), data);
+        }
+
+        [TestMethod]
+        public void TableClientService_ShouldDisposeClient()
+        {
+            var client = Substitute.For<IAzureStorageContext>();
+            var service = new TableClientService(client);
+
+            service.Dispose();
+
+            client.Received().Dispose();
+        }
+
+        [TestMethod]
+        public async Task TableClientService_NotConnectedMergeDoNothing()
+        {
+            var service = new TableClientService(null);
+
+            await service.MergeAsync(new[] { new Test() });
+
+            Assert.IsFalse(service.IsConnected);
         }
 
         private class Test { }
