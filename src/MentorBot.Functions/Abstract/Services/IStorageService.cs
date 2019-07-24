@@ -23,6 +23,9 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets all stored users.</summary>
         Task<IReadOnlyList<User>> GetAllUsersAsync();
 
+        /// <summary>Gets stored user by email.</summary>
+        Task<User> GetUserByEmailAsync(string email);
+
         /// <summary>Adds the users asynchronous.</summary>
         Task<bool> AddUsersAsync(IReadOnlyList<User> users);
 

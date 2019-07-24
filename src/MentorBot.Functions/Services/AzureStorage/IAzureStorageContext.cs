@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreHelpers.WindowsAzure.Storage.Table.Models;
 
 namespace MentorBot.Functions.Services.AzureStorage
 {
@@ -14,12 +15,16 @@ namespace MentorBot.Functions.Services.AzureStorage
         void AddAttributeMapper(Type type);
 
         /// <summary>Creates a table if not exists asynchronous.</summary>
-        /// <typeparam name="T">The database schema type.</typeparam>
-        Task CreateTableAsync<T>(bool ignoreErrorIfExists = true);
+        Task CreateTableAsync(Type entityType, bool ignoreErrorIfExists = true);
 
         /// <summary>Queries a table asynchronous.</summary>
         /// <typeparam name="T">The table schema type.</typeparam>
         Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
+            where T : new();
+
+        /// <summary>Queries a table asynchronous.</summary>
+        /// <typeparam name="T">The table schema type.</typeparam>
+        Task<IQueryable<T>> QueryAsync<T>(string partitionKey, IEnumerable<QueryFilter> queryFilters, int maxItems = 0)
             where T : new();
 
         /// <summary>Update or Insert a record in the database asynchronous.</summary>

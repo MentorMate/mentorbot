@@ -12,7 +12,9 @@ using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Processors;
 
@@ -73,9 +75,11 @@ namespace MentorBot.Functions
         /// <summary>Sets the MentorBot settings to storage.</summary>
         [FunctionName("save-settings")]
         public static async Task SaveSettingsAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Post), nameof(HttpMethod.Options), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Post), Route = null)] HttpRequest req)
         {
             ServiceLocator.EnsureServiceProvider();
+
+            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
 
             var storageService = ServiceLocator.Get<IStorageService>();
 

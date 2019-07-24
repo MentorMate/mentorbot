@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using CoreHelpers.WindowsAzure.Storage.Table.Models;
 using MentorBot.Functions.Services.AzureStorage;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +12,7 @@ using NSubstitute;
 namespace MentorBot.Tests.Business.Services.AzureStorage
 {
     [TestClass]
-    [TestCategory("Business.Services")]
+    [TestCategory("Business.Services.Azure")]
     public sealed class TableClientServiceTests
     {
         [TestMethod]
@@ -24,7 +25,8 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             await service.MergeAsync<Test>(data);
 
             Assert.IsTrue(service.IsConnected);
-            await client.Received().CreateTableAsync<Test>(true);
+            client.Received().AddAttributeMapper(typeof(Test));
+            await client.Received().CreateTableAsync(typeof(Test), true);
             await client.Received().MergeAsync<Test>(data);
         }
 
@@ -38,7 +40,8 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
             await service.MergeOrInsertAsync<Test>(data);
 
             Assert.IsTrue(service.IsConnected);
-            await client.Received().CreateTableAsync<Test>(true);
+            client.Received().AddAttributeMapper(typeof(Test));
+            await client.Received().CreateTableAsync(typeof(Test), true);
             await client.Received().MergeOrInsertAsync<Test>(data);
         }
 
@@ -67,15 +70,38 @@ namespace MentorBot.Tests.Business.Services.AzureStorage
         }
 
         [TestMethod]
-        public void TableClientService_ShouldAddSchema()
+        public async Task TableClientService_ShouldQueryByExpression()
         {
             var client = Substitute.For<IAzureStorageContext>();
             var service = new TableClientService(client);
-            var data = typeof(Test);
+            var data = new Test();
 
-            service.AddAttributeMapper(new[] { data });
+            client.QueryAsync<Test>(null, Arg.Any<IEnumerable<QueryFilter>>(), 1000).Returns(new[] { data }.AsQueryable());
 
-            client.Received().AddAttributeMapper(data);
+            var result = await service.QueryAsync<Test>("Prop1 eq 2", 1000);
+
+            Assert.AreEqual(result.First(), data);
+        }
+
+        [TestMethod]
+        public void TableClientService_ShouldDisposeClient()
+        {
+            var client = Substitute.For<IAzureStorageContext>();
+            var service = new TableClientService(client);
+
+            service.Dispose();
+
+            client.Received().Dispose();
+        }
+
+        [TestMethod]
+        public async Task TableClientService_NotConnectedMergeDoNothing()
+        {
+            var service = new TableClientService(null);
+
+            await service.MergeAsync(new[] { new Test() });
+
+            Assert.IsFalse(service.IsConnected);
         }
 
         private class Test { }

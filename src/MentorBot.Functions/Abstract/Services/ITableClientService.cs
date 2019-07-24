@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,10 +11,6 @@ namespace MentorBot.Functions.Abstract.Services
     {
         /// <summary>Gets a value indicating whether this instance is connected.</summary>
         bool IsConnected { get; }
-
-        /// <summary>Adds the specified types to the Attribute mapper.</summary>
-        /// <param name="types">A list of types to register.</param>
-        void AddAttributeMapper(IEnumerable<Type> types);
 
         /// <summary>Inserts new or updates existing record.</summary>
         /// <typeparam name="T">The model type for the table.</typeparam>
@@ -31,6 +28,11 @@ namespace MentorBot.Functions.Abstract.Services
         /// <typeparam name="T">Table model type.</typeparam>
         /// <param name="maxItems">The max number of items to be returned.</param>
         Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
+            where T : new();
+
+        /// <summary>Executes a query against table of type T and limits the result to maxItems.</summary>
+        /// <typeparam name="T">Table model type.</typeparam>
+        Task<IQueryable<T>> QueryAsync<T>(string query, int maxItems = 0)
             where T : new();
     }
 }

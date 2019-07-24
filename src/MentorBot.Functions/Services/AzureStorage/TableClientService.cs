@@ -12,6 +12,8 @@ namespace MentorBot.Functions.Services.AzureStorage
     /// <summary>Handle access to a Table storage.</summary>
     public sealed class TableClientService : ITableClientService, IDisposable
     {
+        private readonly List<string> _mappedTypes = new List<string>();
+
         private readonly IAzureStorageContext _storageContext;
 
         /// <summary>Initializes a new instance of the <see cref="TableClientService"/> class.</summary>
@@ -24,16 +26,24 @@ namespace MentorBot.Functions.Services.AzureStorage
         public bool IsConnected => _storageContext != null;
 
         /// <inheritdoc/>
-        public void AddAttributeMapper(IEnumerable<Type> types)
-        {
-            if (IsConnected)
-            {
-                foreach (var t in types)
-                {
-                    _storageContext.AddAttributeMapper(t);
-                }
-            }
-        }
+        public Task MergeAsync<T>(IEnumerable<T> models)
+            where T : new() =>
+            ExecuteAsync<T>(ctx => ctx.MergeAsync(models));
+
+        /// <inheritdoc/>
+        public Task MergeOrInsertAsync<T>(T model)
+            where T : new() =>
+            ExecuteAsync<T>(ctx => ctx.MergeOrInsertAsync(model));
+
+        /// <inheritdoc/>
+        public Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
+            where T : new() =>
+            QueryAsync(ctx => ctx.QueryAsync<T>(maxItems));
+
+        /// <inheritdoc/>
+        public Task<IQueryable<T>> QueryAsync<T>(string query, int maxItems = 0)
+            where T : new() =>
+            QueryAsync(ctx => ctx.QueryAsync<T>(null, AzureQuery.CreateQueryFilters(query), maxItems));
 
         /// <inheritdoc/>
         public void Dispose()
@@ -44,39 +54,36 @@ namespace MentorBot.Functions.Services.AzureStorage
             }
         }
 
-        /// <inheritdoc/>
-        public async Task MergeAsync<T>(IEnumerable<T> models)
-            where T : new()
+        private Task ExecuteAsync<T>(Func<IAzureStorageContext, Task> action)
         {
             if (IsConnected)
             {
-                await _storageContext.CreateTableAsync<T>();
-                await _storageContext.MergeAsync(models);
+                AddMapper(typeof(T));
+                return action(_storageContext);
             }
+
+            return Task.CompletedTask;
         }
 
-        /// <inheritdoc/>
-        public async Task MergeOrInsertAsync<T>(T model)
-            where T : new()
+        private async Task<IQueryable<T>> QueryAsync<T>(Func<IAzureStorageContext, Task<IQueryable<T>>> action)
         {
             if (IsConnected)
             {
-                await _storageContext.CreateTableAsync<T>();
-                await _storageContext.MergeOrInsertAsync(model);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
-            where T : new()
-        {
-            if (IsConnected)
-            {
-                await _storageContext.CreateTableAsync<T>();
-                return await _storageContext.QueryAsync<T>(maxItems);
+                AddMapper(typeof(T));
+                return await action(_storageContext);
             }
 
             return Enumerable.Empty<T>().AsQueryable();
+        }
+
+        private void AddMapper(Type type)
+        {
+            if (!_mappedTypes.Contains(type.FullName))
+            {
+                _storageContext.AddAttributeMapper(type);
+                _storageContext.CreateTableAsync(type, true);
+                _mappedTypes.Add(type.FullName);
+            }
         }
     }
 }

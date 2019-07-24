@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Settings;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MentorBot.Functions.Services
 {
@@ -17,14 +18,10 @@ namespace MentorBot.Functions.Services
         private static readonly string _disallowedCharReplacement = "-";
         private readonly ITableClientService _tableClientService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TableStorageService"/> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="TableStorageService"/> class.</summary>
         public TableStorageService(ITableClientService tableClientService)
         {
             _tableClientService = tableClientService;
-
-            _tableClientService.AddAttributeMapper(new List<Type> { typeof(MentorBotSettings), typeof(User), typeof(Message), typeof(GoogleAddress) });
         }
 
         /// <inheritdoc/>
@@ -37,8 +34,7 @@ namespace MentorBot.Functions.Services
 
             foreach (var user in users)
             {
-                user.PartitionKey = _disallowedCharsInTableKeys.Replace(user.PartitionKey, _disallowedCharReplacement);
-                await _tableClientService.MergeOrInsertAsync<User>(user);
+                await _tableClientService.MergeOrInsertAsync(user);
             }
 
             return true;
@@ -143,5 +139,10 @@ namespace MentorBot.Functions.Services
         public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
             _tableClientService.QueryAsync<User>(2000)
                 .ContinueWith(task => (IReadOnlyList<User>)task.Result.ToList());
+
+        /// <inheritdoc/>
+        public Task<User> GetUserByEmailAsync(string email) =>
+            _tableClientService.QueryAsync<User>($"Email eq '{email}'", 1)
+                .ContinueWith(task => task.Result.FirstOrDefault());
     }
 }

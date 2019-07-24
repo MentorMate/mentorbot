@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { ProcessorSettings } from './settings.models';
 
@@ -115,13 +115,13 @@ const style = `
   template: template,
   styles: [style]
 })
-export class SettingsPageComponent implements AfterViewInit {
+export class SettingsPageComponent implements OnInit {
   processors: ProcessorSettings[];
 
   constructor(
     private service: SettingsService) { }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.service.getSettings().subscribe(
       data => {
         this.processors = data;

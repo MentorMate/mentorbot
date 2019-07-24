@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
+using MentorBot.Functions.Models.DataResultModels;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Settings;
 
 using Microsoft.AspNetCore.Http;
@@ -26,8 +28,11 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetSettings_HappyPath_GET()
         {
+            var tokenService = Substitute.For<IAccessTokenService>();
             var storageService = Substitute.For<IStorageService>();
+            var info = new AccessTokenUserInfo { IsValid = true, UserRole = UserRoles.Administrator };
 
+            tokenService.ValidateTokenAsync(Arg.Any<HttpRequest>()).Returns(info);
             storageService.GetSettingsAsync().Returns(new MentorBotSettings
             {
                 Processors = new List<ProcessorSettings> {
@@ -37,7 +42,8 @@ namespace MentorBot.Tests.AzureFunctions
             });
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService));
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                new ServiceDescriptor(typeof(IAccessTokenService), tokenService));
 
             HttpContext context = new DefaultHttpContext();
             context.Request.Method = "GET";
@@ -54,15 +60,20 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetSettings_HappyPath_POST()
         {
+            var tokenService = Substitute.For<IAccessTokenService>();
             var storageService = Substitute.For<IStorageService>();
+            var info = new AccessTokenUserInfo { IsValid = true, UserRole = UserRoles.Administrator };
             var settingsToSave = new List<ProcessorSettings>
                 {
                     new ProcessorSettings { Name = "Processor 1", Enabled = true },
                     new ProcessorSettings { Name = "Processor 2", Enabled = false },
                 };
 
+            tokenService.ValidateTokenAsync(Arg.Any<HttpRequest>()).Returns(info);
+
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService));
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                 new ServiceDescriptor(typeof(IAccessTokenService), tokenService));
 
             HttpContext context = new DefaultHttpContext();
             context.Request.Method = "POST";

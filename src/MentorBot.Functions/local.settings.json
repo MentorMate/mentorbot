@@ -25,5 +25,8 @@
   "MailFromName": null,
   "SmtpUser": null,
   "SmtpPassword": null,
-  "SmtpUseSsl": true
+  "SmtpUseSsl": true,
+  "Host": {
+    "CORS": "*"
+  }
 }

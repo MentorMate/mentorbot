@@ -12,11 +12,10 @@ namespace MentorBot.Functions.Connectors.OpenAir
     public static class OpenAirFactory
     {
         /// <summary>Creates a <see cref="User"/> model.</summary>
-        public static User CreateUser(string id, string partitionKey, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
+        public static User CreateUser(string id, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
            new User
            {
                Id = id,
-               PartitionKey = partitionKey,
                OpenAirUserId = user.Id.Value,
                Name = user.Name,
                Email = user.Address.FirstOrDefault()?.Email,
