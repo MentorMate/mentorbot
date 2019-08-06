@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 const template = `
-  <lp-menu></lp-menu>
+  <app-menu></app-menu>
   <router-outlet></router-outlet>
 `;
 
@@ -14,7 +14,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-app',
+  selector: 'app-main',
   template: template,
   styles: [style]
 })

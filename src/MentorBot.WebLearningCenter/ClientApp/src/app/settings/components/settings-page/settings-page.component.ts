@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { SettingsService } from './settings.service';
-import { ProcessorSettings } from './settings.models';
+import { SettingsService } from '../../settings.service';
+import { ProcessorSettings } from '../../settings.models';
 
 const template = `
   <div *ngIf="processors">
@@ -50,7 +50,7 @@ const style = `
     height: 37px;
   }
 
-  .switch input { 
+  .switch input {
     opacity: 0;
     width: 0;
     height: 0;
@@ -111,7 +111,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-settings',
+  selector: 'app-settings',
   template: template,
   styles: [style]
 })
@@ -132,7 +132,7 @@ export class SettingsPageComponent implements OnInit {
     this.service.saveSettings(this.processors).subscribe(
       data => { },
       error => {
-        console.log("Error", error);
+        console.log('Error', error);
       }
     );
   }

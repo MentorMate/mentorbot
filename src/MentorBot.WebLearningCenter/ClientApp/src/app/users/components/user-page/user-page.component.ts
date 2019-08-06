@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UserService } from './user.service';
-import { UserInfo } from './user.models';
+import { UserService } from '../../user.service';
+import { UserInfo } from '../../user.models';
 
 const template = `
   <h2>Users</h2>
@@ -41,12 +41,13 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-users',
+  selector: 'app-users',
   template: template,
   styles: [style]
 })
 export class UserPageComponent implements OnInit {
-  users$: Observable<UserInfo[]>
+  users$: Observable<UserInfo[]>;
+
   constructor(
     private readonly service: UserService) { }
 

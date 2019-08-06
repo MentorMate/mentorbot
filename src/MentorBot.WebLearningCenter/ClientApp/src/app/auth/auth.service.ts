@@ -12,7 +12,7 @@ export abstract class AuthService {
   abstract startAuthentication(): void;
   abstract completeAuthentication(): Promise<boolean>;
   abstract signout(): void;
-};
+}
 
 @Injectable()
 export class RoleAuthService {

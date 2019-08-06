@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
   }
 
   private IsAuthenticated(url: string): Observable<boolean> {
-    var auth = this.auth.isLoggedIn;
+    const auth = this.auth.isLoggedIn;
     if (!auth) {
       this.auth.startAuthentication();
       return of(false);

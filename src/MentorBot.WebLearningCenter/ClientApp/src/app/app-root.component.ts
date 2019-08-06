@@ -6,7 +6,7 @@ const style = `
 `;
 
 @Component({
-  selector: '[app-root]',
+  selector: 'app-root,[app-root]',
   template: template,
   styles: [style]
 })

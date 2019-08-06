@@ -5,13 +5,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthModule } from './auth/auth.module';
 
 import { AuthGuard } from './auth/auth-guard.service';
-import { AuthCallbackComponent } from './auth/auth-callback.component';
-import { AuthCallbackLogoutComponent } from './auth/auth-callback-logout.component';
+import { AuthCallbackComponent } from './auth/components/auth-callback/auth-callback.component';
+import { AuthCallbackLogoutComponent } from './auth/components/auth-callback-logout/auth-callback-logout.component';
 import { AppMainComponent } from './app-main.component';
 import { AppRootComponent } from './app-root.component';
-import { MenuComponent } from './shared/menu.component';
-import { NotFoundPageComponent } from './shared/not-found-page.component';
-import { NoAccessPageComponent } from './shared/no-access.component';
+import { MenuComponent } from './shared/components/menu/menu.component';
+import { NotFoundPageComponent } from './shared/components/not-found-page/not-found-page.component';
+import { NoAccessPageComponent } from './shared/components/no-access/no-access.component';
 
 export const appRoutes: Routes = [
   { path: '', redirectTo: 'app', pathMatch: 'full' },

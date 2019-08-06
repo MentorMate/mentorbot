@@ -16,7 +16,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   isExternalUrl(url: string): boolean {
     return url.startsWith('http://') || url.startsWith('https://');
   }
-  
+
   path(url: string): string {
     const code = environment.azureCode === null ? '' : ('?code=' + environment.azureCode);
     return environment.apiPath + url + code;

@@ -11,7 +11,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-no-access',
+  selector: 'app-no-access',
   template: template,
   styles: [style]
 })
