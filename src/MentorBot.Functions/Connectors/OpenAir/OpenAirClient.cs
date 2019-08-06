@@ -51,6 +51,31 @@ namespace MentorBot.Functions.Connectors.OpenAir
                 },
                 result => result.Timesheet ?? new Timesheet[0]);
 
+        /// <summary>Gets the timesheets by status asynchronous.</summary>
+        public Task<Timesheet[]> GetTimesheetsByStatusAsync(DateTime startDate, DateTime endDate, string status) =>
+            ReadAsync(
+                new Read
+                {
+                    Type = DateType.Timesheet,
+                    Filter = "newer-than,older-than",
+                    Field = "starts,starts",
+                    Method = "equal to",
+                    Date = new[]
+                    {
+                        Date.Create(startDate),
+                        Date.Create(endDate),
+                    },
+                    Timesheet = new[]
+                    {
+                        new Timesheet { Status = status },
+                    },
+                    Return = new RaedReturn
+                    {
+                        Content = "<status/><name /><total/><notes /><userid /><starts />",
+                    },
+                },
+                result => result.Timesheet ?? new Timesheet[0]);
+
         /// <summary>Gets all users asynchronous.</summary>
         public Task<User[]> GetAllUsersAsync() =>
             Task.WhenAll(GetUsersByActiveAsync(true), GetUsersByActiveAsync(false))

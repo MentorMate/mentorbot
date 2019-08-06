@@ -47,7 +47,7 @@ namespace MentorBot.Functions
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder")]
         public static async Task TimesheetsReminderAsync(
-            [TimerTrigger("0 */30 18-19 * * Fri")] TimerInfo myTimer)
+            [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer)
         {
             Contract.Ensures(myTimer != null, "Timer is not instanciated");
 
@@ -63,6 +63,45 @@ namespace MentorBot.Functions
             await processor.NotifyAsync(
                 DateTime.Today,
                 TimesheetStates.Unsubmitted,
+                data?.GetValueOrDefault(Default.EmailKey),
+                data?.GetAsArray(Default.DefaultExcludedClientKey),
+                null,
+                true,
+                data?.GetValueOrDefault(Default.NotifyByEmailKey) == "true",
+                null,
+                connector);
+        }
+
+        /// <summary>A sync users command.</summary>
+        [FunctionName("timesheets-reminder-last-week")]
+        public static async Task TimesheetsReminderLastWeekAsync(
+            [TimerTrigger("0 0 12 * * Mon")] TimerInfo myTimer)
+        {
+            Contract.Ensures(myTimer != null, "Timer is not instanciated");
+
+            ServiceLocator.EnsureServiceProvider();
+
+            var storage = ServiceLocator.Get<IStorageService>();
+            var connector = ServiceLocator.Get<IHangoutsChatConnector>();
+            var processor = ServiceLocator.Get<ITimesheetProcessor>();
+
+            var settings = await storage.GetSettingsAsync();
+            var data = settings.Processors.FirstOrDefault(it => it.Name == nameof(OpenAirProcessor))?.DataAsDictionary();
+
+            await processor.NotifyAsync(
+                DateTime.Today.AddDays(-3),
+                TimesheetStates.Unsubmitted,
+                data?.GetValueOrDefault(Default.EmailKey),
+                data?.GetAsArray(Default.DefaultExcludedClientKey),
+                null,
+                true,
+                data?.GetValueOrDefault(Default.NotifyByEmailKey) == "true",
+                null,
+                connector);
+
+            await processor.NotifyAsync(
+                DateTime.Today.AddDays(-3),
+                TimesheetStates.Unapproved,
                 data?.GetValueOrDefault(Default.EmailKey),
                 data?.GetAsArray(Default.DefaultExcludedClientKey),
                 null,

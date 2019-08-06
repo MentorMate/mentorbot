@@ -38,7 +38,9 @@ clone_depth: 1
 # to run your custom scripts instead of automatic tests
 test_script:
   - cmd: dotnet test ./tests/MentorBot.Tests/MentorBot.Tests.csproj -c Debug -l Appveyor /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByFile=\"../../src/MentorBot.Functions/Models/**/*.cs\"
+  - cmd: npm run test:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
   - cmd: codecov -f ./tests/MentorBot.Tests/coverage.opencover.xml
+  - cmd: codecov -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov
 on_finish :
   # any cleanup in here
 deploy:
