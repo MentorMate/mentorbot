@@ -91,6 +91,21 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
+        public async Task OpenAirClientGetTimesheetsByStatus_ShouldParseResult()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler()
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"></Read ></response>");
+
+            var client = new OpenAirClient(() => handler, options);
+            var date = new DateTime(2000, 10, 10);
+            var results = await client.GetTimesheetsByStatusAsync(date, date, "A");
+            var content = Encoding.UTF8.GetString(handler[0].RequestContent);
+
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"equal to\" limit=\"1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><Timesheet><status>A</status></Timesheet><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
+        }
+
+        [TestMethod]
         public async Task OpenAirClientGetCustomers_ShouldParseResult()
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");

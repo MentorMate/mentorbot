@@ -34,6 +34,18 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
+        public async Task ValidateTokenShouldCheckTokenSchema()
+        {
+            var ctx = new DefaultHttpContext();
+
+            ctx.Request.Headers.Add("Authorization", "Basic ABC123");
+
+            var result = await _service.ValidateTokenAsync(ctx.Request);
+
+            Assert.IsFalse(result.IsValid);
+        }
+
+        [TestMethod]
         public async Task ValidateTokenShouldGetUserFromStore()
         {
             var usr = new User { GoogleUserId = "123", Role = 2 };
