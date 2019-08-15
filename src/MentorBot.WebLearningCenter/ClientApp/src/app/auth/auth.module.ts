@@ -4,8 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { OAuthModule } from 'angular-oauth2-oidc';
 
-import { AuthCallbackComponent } from './auth-callback.component';
-import { AuthCallbackLogoutComponent } from './auth-callback-logout.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { AuthCallbackLogoutComponent } from './components/auth-callback-logout/auth-callback-logout.component';
 
 import { AuthService, RoleAuthService } from './auth.service';
 import { GoogleAuthService } from './services/auth.google.service';

@@ -40,15 +40,15 @@ namespace MentorBot.Functions.Connectors
             var timesheets = new List<OpenAirClient.Timesheet>();
             var normalizedCustomerNames = filterByCustomers?.Select(NormalizeValue).ToArray();
 
-            timesheets.AddRange(await _client.GetTimesheetsAsync(lastWeek, lastWeek.AddDays(2)));
-            timesheets.AddRange(await _client.GetTimesheetsAsync(toweek, date.AddDays(1)));
+            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, lastWeek.AddDays(2), "A"));
+            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "S"));
+            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "A"));
 
             var timesheetsData = timesheets
                 .GroupBy(it => it.UserId)
                 .Select(it =>
                     new TimesheetBasicData(
                         it.Key.Value,
-                        it.FirstOrDefault()?.Name,
                         it.Where(sheet => sheet.StartDate.Date > toweek)
                           .Where(sheet =>
                             (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
@@ -64,13 +64,14 @@ namespace MentorBot.Functions.Connectors
             // 3. Select timesheet
             var result = users
                 .Where(it => it.Email != senderEmail)
-                .Where(it => IsManager(it, senderEmail, users, new List<string>()))
+                .Where(it =>
+                    (it.Department?.Owner?.Email.Equals(senderEmail, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                    IsManager(it, senderEmail, users, new List<string>()))
                 .Where(it => FiterCustomersByNames(it.Customers, normalizedCustomerNames))
                 .Select(user => new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user))
                 .Where(it => it.Timesheet.Total < requiredHours)
                 .Select(it => new Timesheet
                 {
-                    Name = it.Timesheet.Name,
                     Total = it.Timesheet.Total,
                     UserName = FormatDisplayName(it.User.Name),
                     UserEmail = it.User.Email,
@@ -144,9 +145,7 @@ namespace MentorBot.Functions.Connectors
             openAirCustomers.Any(it => !storedUser.Customers.Contains(it));
 
         private static bool IsManager(User user, string email, IReadOnlyList<User> users, List<string> emails) =>
-            user != null &&
-             (IsUserRefManager(user.Department?.Owner, email, users, emails) ||
-              IsUserRefManager(user.Manager, email, users, emails));
+            user != null && IsUserRefManager(user.Manager, email, users, emails);
 
         private static bool IsUserRefManager(UserReference userRef, string email, IReadOnlyList<User> users, List<string> emails)
         {
@@ -187,16 +186,13 @@ namespace MentorBot.Functions.Connectors
 
         private class TimesheetBasicData
         {
-            public TimesheetBasicData(long userId, string name, double total)
+            public TimesheetBasicData(long userId, double total)
             {
                 UserId = userId;
-                Name = name;
                 Total = total;
             }
 
             public long UserId { get; set; }
-
-            public string Name { get; set; }
 
             public double Total { get; set; }
         }
@@ -206,7 +202,7 @@ namespace MentorBot.Functions.Connectors
             /// <summary>Initializes a new instance of the <see cref="TimesheetExtendedData" /> class.</summary>
             public TimesheetExtendedData(TimesheetBasicData timesheet, User user)
             {
-                Timesheet = timesheet ?? new TimesheetBasicData(user.OpenAirUserId, string.Empty, 0.0);
+                Timesheet = timesheet ?? new TimesheetBasicData(user.OpenAirUserId, 0.0);
                 User = user;
             }
 

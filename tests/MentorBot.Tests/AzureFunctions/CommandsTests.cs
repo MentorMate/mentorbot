@@ -82,6 +82,64 @@ namespace MentorBot.Tests.AzureFunctions
                 hangoutsChatConnector);
         }
 
+        [TestMethod]
+        public async Task TimesheetsReminderLastWeekShouldCallTimesheetNotify()
+        {
+            var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
+            var storageService = Substitute.For<IStorageService>();
+            var hangoutsChatConnector = Substitute.For<IHangoutsChatConnector>();
+            var lastWeekFriday = DateTime.Today.AddDays(-((int)DateTime.Today.DayOfWeek + 2));
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(ITimesheetProcessor), timesheetProcessor),
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                new ServiceDescriptor(typeof(IHangoutsChatConnector), hangoutsChatConnector));
+
+            storageService.GetSettingsAsync().Returns(
+                new MentorBotSettings
+                {
+                    Processors = new[]
+                    {
+                        new ProcessorSettings
+                        {
+                            Name = "OpenAirProcessor",
+                            Enabled = true,
+                            Data = new []
+                            {
+                                new KeyValuePair<string, string>(Default.EmailKey, "test@domain.com"),
+                                new KeyValuePair<string, string>(Default.DefaultExcludedClientKey, "A;B"),
+                                new KeyValuePair<string, string>(Default.NotifyByEmailKey, null)
+                            }
+                        }
+                    }
+                });
+
+            await Commands.TimesheetsReminderLastWeekAsync(new TimerInfo(null, null, false));
+
+            Assert.AreEqual(lastWeekFriday.DayOfWeek, DayOfWeek.Friday);
+            timesheetProcessor.Received().NotifyAsync(
+                lastWeekFriday,
+                TimesheetStates.Unsubmitted,
+                "test@domain.com",
+                Arg.Is<string[]>(data => data[0] == "A" && data[1] == "B"),
+                null,
+                true,
+                false,
+                null,
+                hangoutsChatConnector);
+
+            timesheetProcessor.Received().NotifyAsync(
+                lastWeekFriday,
+                TimesheetStates.Unapproved,
+                "test@domain.com",
+                Arg.Is<string[]>(data => data[0] == "A" && data[1] == "B"),
+                null,
+                true,
+                false,
+                null,
+                hangoutsChatConnector);
+        }
+
 #pragma warning restore CS4014
     }
 }

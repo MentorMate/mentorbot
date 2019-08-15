@@ -23,6 +23,11 @@ namespace MentorBot.Functions.Models.Settings
             {
                 new ProcessorSettings
                 {
+                    Name = WikipediaProcessor.CommandName,
+                    Enabled = true
+                },
+                new ProcessorSettings
+                {
                     Name = nameof(CalendarProcessor),
                     Enabled = true
                 },

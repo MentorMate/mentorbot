@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Chart } from 'chart.js';
-import { DashboardService } from './dashboard.service';
+import { DashboardService } from '../../dashboard.service';
 
 const template = `
   Dashboard
@@ -16,7 +16,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-dashboard',
+  selector: 'app-dashboard',
   template: template,
   styles: [style]
 })
@@ -35,8 +35,7 @@ export class DashboardPageComponent implements AfterViewInit {
       next.forEach(it => {
         if (it.probabilityPercentage > 60) {
           answeredCount += it.count;
-        }
-        else {
+        } else {
           unansweredCount += it.count;
         }
       });
@@ -56,6 +55,6 @@ export class DashboardPageComponent implements AfterViewInit {
         }
       });
     });
-    
+
   }
 }

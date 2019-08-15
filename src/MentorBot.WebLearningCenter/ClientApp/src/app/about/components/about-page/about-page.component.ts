@@ -8,7 +8,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-about',
+  selector: 'app-about',
   template: template,
   styles: [style]
 })

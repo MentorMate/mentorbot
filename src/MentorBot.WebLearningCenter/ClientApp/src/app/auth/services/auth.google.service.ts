@@ -21,7 +21,7 @@ export class GoogleAuthService implements AuthService {
   }
 
   get name(): string {
-    return this.user!.given_name;
+    return this.user === null ? null : this.user.given_name;
   }
 
   get accessToken(): string {
@@ -46,8 +46,7 @@ export class GoogleAuthService implements AuthService {
             this.user = userInfo(user);
             resolver(true);
           });
-        }
-        else {
+        } else {
           resolver(false);
         }
       });

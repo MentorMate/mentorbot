@@ -11,7 +11,7 @@ const style = `
 `;
 
 @Component({
-  selector: 'lp-not-found',
+  selector: 'app-not-found',
   template: template,
   styles: [style]
 })

@@ -63,7 +63,6 @@ namespace MentorBot.Tests.Business.Processors
             var responder = Substitute.For<IHangoutsChatConnector>();
             var timesheet = new Timesheet
             {
-                Name = "A",
                 UserName = "users/B",
                 UserEmail = "c@d.e",
                 DepartmentName = "F", Total = 20
@@ -103,7 +102,6 @@ namespace MentorBot.Tests.Business.Processors
             var address = new GoogleChatAddress("space/B", "MentorBot", null, "A", "Jhon");
             var timesheet = new Timesheet
             {
-                Name = "A",
                 UserName = "Jhon",
                 UserEmail = "c@d.e",
                 DepartmentName = "F",
@@ -112,7 +110,6 @@ namespace MentorBot.Tests.Business.Processors
 
             var timesheet2 = new Timesheet
             {
-                Name = "E",
                 UserName = "ElA",
                 UserEmail = "w@n.m",
                 DepartmentName = "F",

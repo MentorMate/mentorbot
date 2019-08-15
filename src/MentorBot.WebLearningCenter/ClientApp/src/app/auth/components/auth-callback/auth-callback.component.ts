@@ -1,9 +1,9 @@
-import { AuthService } from './auth.service';
+import { AuthService } from '../../auth.service';
 import { Router } from '@angular/router';
 import { Component, OnInit, NgZone } from '@angular/core';
 
 @Component({
-  selector: 'lp-auth-callback',
+  selector: 'app-auth-callback',
   template: '<p>Please wait while we redirect you back</p>'
 })
 
