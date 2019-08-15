@@ -46,6 +46,7 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder")]
+        [Disable]
         public static async Task TimesheetsReminderAsync(
             [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer)
         {
@@ -74,6 +75,7 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder-last-week")]
+        [Disable]
         public static async Task TimesheetsReminderLastWeekAsync(
             [TimerTrigger("0 0 12 * * Mon")] TimerInfo myTimer)
         {
@@ -87,9 +89,10 @@ namespace MentorBot.Functions
 
             var settings = await storage.GetSettingsAsync();
             var data = settings.Processors.FirstOrDefault(it => it.Name == nameof(OpenAirProcessor))?.DataAsDictionary();
+            var lastWeekFriday = DateTime.Today.AddDays(-((int)DateTime.Today.DayOfWeek + 2));
 
             await processor.NotifyAsync(
-                DateTime.Today.AddDays(-3),
+                lastWeekFriday,
                 TimesheetStates.Unsubmitted,
                 data?.GetValueOrDefault(Default.EmailKey),
                 data?.GetAsArray(Default.DefaultExcludedClientKey),
@@ -100,7 +103,7 @@ namespace MentorBot.Functions
                 connector);
 
             await processor.NotifyAsync(
-                DateTime.Today.AddDays(-3),
+                lastWeekFriday,
                 TimesheetStates.Unapproved,
                 data?.GetValueOrDefault(Default.EmailKey),
                 data?.GetAsArray(Default.DefaultExcludedClientKey),

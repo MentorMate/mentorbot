@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using MentorBot.Functions;
@@ -10,6 +11,7 @@ using MentorBot.Functions.Models.Options;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;
@@ -26,7 +28,7 @@ namespace MentorBot.Tests.AzureFunctions
         private const string FullMsg = @"{ ""type"": ""MESSAGE"", ""eventTime"": ""2019-01-14T15:55:20.120287Z"", ""token"": ""AAA"", ""message"": { ""name"": ""spaces/q/messages/y"", ""sender"": { ""name"": ""users/1"", ""displayName"": ""Jhon Doe"", ""avatarUrl"": null, ""email"": ""a.b@c.com"", ""type"": ""HUMAN"" }, ""createTime"": ""2019-01-14T15:55:20.120287Z"", ""text"": ""What is this?"", ""thread"": { ""name"": ""spaces/q/threads/y"", ""retentionSettings"": { ""state"": ""PERMANENT"" } }, ""space"": { ""name"": ""spaces/q"", ""type"": ""DM"" }, ""argumentText"": ""What is this"" }, ""user"": { ""name"": ""users/1"", ""displayName"": ""Jhon Doe"", ""avatarUrl"": null, ""email"": ""a.b@c.com"", ""type"": ""HUMAN"" }, ""space"": { ""name"": ""spaces/q"", ""type"": ""DM"" }}";
 
         [TestMethod]
-        public async Task RunAsync_ShouldCheckToken()
+        public async Task RunShouldCheckToken()
         {
             BuildTestCase(EmptyMsg, out ILogger logger, out HttpRequestMessage message);
 
@@ -36,7 +38,24 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
-        public async Task RunAsync_ShouldCallService()
+        public async Task RunShouldLogDebugInfo()
+        {
+            BuildTestCase(EmptyMsg, out ILogger logger, out HttpRequestMessage message);
+
+            logger.IsEnabled(LogLevel.Debug).Returns(true);
+
+            await HangoutChatEvent.RunAsync(message, logger);
+
+            logger.Received().Log(
+                LogLevel.Debug,
+                default(EventId),
+                Arg.Is<object>(it => it.ToString() == EmptyMsg),
+                Arg.Any<Exception>(),
+                Arg.Any<Func<object, Exception, string>>());
+        }
+
+        [TestMethod]
+        public async Task RunShouldCallService()
         {
             var message = new Message { Output = new ChatEventResult("OK") };
             BuildTestCase(FullMsg, out ILogger logger, out HttpRequestMessage requestMessage);
@@ -56,7 +75,7 @@ namespace MentorBot.Tests.AzureFunctions
 #pragma warning disable CS4014
 
         [TestMethod]
-        public async Task RunAsync_ShouldSaveInDb()
+        public async Task RunShouldSaveInDb()
         {
             var message = new Message();
             BuildTestCase(FullMsg, out ILogger logger, out HttpRequestMessage requestMessage);

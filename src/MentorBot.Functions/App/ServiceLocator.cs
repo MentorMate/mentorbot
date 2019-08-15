@@ -12,6 +12,7 @@ using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Connectors.Luis;
 using MentorBot.Functions.Connectors.OpenAir;
+using MentorBot.Functions.Connectors.Wikipedia;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
 using MentorBot.Functions.Services;
@@ -78,6 +79,7 @@ namespace MentorBot.Functions.App
             ServiceProvider = services.BuildServiceProvider(false);
         }
 
+        /// <summary>Configures the services.</summary>
         private static IServiceCollection ConfigureServices()
         {
             var config = new ConfigurationBuilder()
@@ -119,11 +121,13 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
+            services.AddTransient<ICommandProcessor, WikipediaProcessor>();
             services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
             services.AddTransient<IAccessTokenService, GoogleAccessTokenService>();
+            services.AddTransient<IWikiClient, WikiClient>();
 
             services.AddTransient<LuisClient>();
             services.AddTransient<GoogleServiceAccountCredential>();

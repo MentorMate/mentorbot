@@ -20,6 +20,7 @@ namespace MentorBot.Tests.Base
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var res = Responses[_index++];
+            res.Url = request.RequestUri.AbsoluteUri;
             if (request.Content != null)
             {
                 res.RequestContent = await request.Content.ReadAsByteArrayAsync();
@@ -49,6 +50,8 @@ namespace MentorBot.Tests.Base
 
         public class Response
         {
+            public string Url { get; set; }
+
             public string ResponseContent { get; set; }
 
             public string ResponseContentType { get; set; }
