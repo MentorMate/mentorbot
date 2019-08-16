@@ -46,7 +46,6 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder")]
-        [Disable]
         public static async Task TimesheetsReminderAsync(
             [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer)
         {
@@ -75,7 +74,6 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder-last-week")]
-        [Disable]
         public static async Task TimesheetsReminderLastWeekAsync(
             [TimerTrigger("0 0 12 * * Mon")] TimerInfo myTimer)
         {
