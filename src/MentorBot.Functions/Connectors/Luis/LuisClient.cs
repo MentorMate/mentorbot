@@ -49,7 +49,8 @@ namespace MentorBot.Functions.Connectors.Luis
         /// <inheritdoc/>
         public async Task<Utterance[]> GetExamplesAsync()
         {
-            var url = $"https://{_options.LuisApiHostName}/luis/v2.0/apps/{_options.LuisApiAppId}/versions/0.1/examples?subscription-key={_options.LuisApiAppKey}";
+            var take = 100;
+            var url = $"https://{_options.LuisApiHostName}/luis/api/v2.0/apps/{_options.LuisApiAppId}/versions/0.1/examples?skip=0&take={take}&subscription-key={_options.LuisApiAppKey}";
             using (var messageHandler = _messageHandlerFactory())
             {
                 using (var client = new HttpClient(messageHandler, false))

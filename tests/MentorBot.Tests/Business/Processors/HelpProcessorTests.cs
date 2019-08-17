@@ -64,7 +64,7 @@ namespace MentorBot.Tests.Business.Processors
 
             var result = await _processor.ProcessCommandAsync(new TextDeconstructionInformation(null, null), null, null, null);
 
-            Assert.AreEqual(result.Cards[0].Sections[0].Widgets[0].TextParagraph.Text, "1<br />10");
+            Assert.AreEqual(result.Cards[0].Sections[0].Widgets[0].TextParagraph.Text, "1<br />2<br />10");
         }
     }
 }

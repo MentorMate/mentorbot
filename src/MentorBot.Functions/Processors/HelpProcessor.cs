@@ -38,7 +38,9 @@ namespace MentorBot.Functions.Processors
         public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
         {
             var examples = await _luisClient.GetExamplesAsync();
-            var results = examples.GroupBy(it => it.IntentLabel, (key, group) => group.FirstOrDefault().Text);
+            var results = examples
+                .GroupBy(it => it.IntentLabel)
+                .SelectMany(group => group.Take(2).Select(it => it.Text));
 
             return new ChatEventResult(
                 ChatEventFactory.CreateCard(
