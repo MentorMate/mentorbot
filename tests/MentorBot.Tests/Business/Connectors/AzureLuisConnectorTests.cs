@@ -30,5 +30,20 @@ namespace MentorBot.Tests.Business.Connectors
             Assert.AreEqual(0.75, info.ConfidenceRating);
             Assert.AreEqual("bob", info.Entities["Name"].FirstOrDefault());
         }
+
+        [TestMethod]
+        public async Task AzureLuisClientExamplest()
+        {
+            var options = new AzureCloudOptions(null, "A", "B", "C");
+            var handler = new MockHttpMessageHandler()
+                .Set("[{ \"id\": 533303694, \"text\": \"good day\", \"intentLabel\": \"Hello\" }]", "application/json");
+
+            var client = new LuisClient(() => handler, options);
+            var result = await client.GetExamplesAsync();
+
+            Assert.AreEqual(533303694, result[0].Id);
+            Assert.AreEqual("good day", result[0].Text);
+            Assert.AreEqual("Hello", result[0].IntentLabel);
+        }
     }
 }

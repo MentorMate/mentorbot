@@ -49,5 +49,18 @@ namespace MentorBot.Functions.Connectors.Luis
             /// <summary>Gets or sets the score.</summary>
             public double Score { get; set; }
         }
+
+        /// <summary>The LUIS utterance info.</summary>
+        public sealed class Utterance
+        {
+            /// <summary>Gets or sets the utterance identifier.</summary>
+            public long Id { get; set; }
+
+            /// <summary>Gets or sets the text.</summary>
+            public string Text { get; set; }
+
+            /// <summary>Gets or sets the intent label.</summary>
+            public string IntentLabel { get; set; }
+        }
     }
 }

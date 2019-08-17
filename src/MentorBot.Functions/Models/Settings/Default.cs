@@ -23,6 +23,16 @@ namespace MentorBot.Functions.Models.Settings
             {
                 new ProcessorSettings
                 {
+                    Name = HelloProcessor.CommandName,
+                    Enabled = true
+                },
+                new ProcessorSettings
+                {
+                    Name = HelpProcessor.CommandName,
+                    Enabled = true
+                },
+                new ProcessorSettings
+                {
                     Name = WikipediaProcessor.CommandName,
                     Enabled = true
                 },
