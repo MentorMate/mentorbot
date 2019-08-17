@@ -13,10 +13,10 @@ namespace MentorBot.Functions.Connectors
     /// <summary>Use Microsoft language understanding service to deconstruct a sentance/phrase.</summary>
     public class AzureLuisConnector : ILanguageUnderstandingConnector
     {
-        private readonly LuisClient _client;
+        private readonly ILuisClient _client;
 
         /// <summary>Initializes a new instance of the <see cref="AzureLuisConnector"/> class.</summary>
-        public AzureLuisConnector(LuisClient client)
+        public AzureLuisConnector(ILuisClient client)
         {
             _client = client;
         }

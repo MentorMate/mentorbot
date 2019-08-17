@@ -122,14 +122,16 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
             services.AddTransient<ICommandProcessor, OpenAirProcessor>();
             services.AddTransient<ICommandProcessor, WikipediaProcessor>();
+            services.AddTransient<ICommandProcessor, HelpProcessor>();
+            services.AddTransient<ICommandProcessor, HelloProcessor>();
             services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
             services.AddTransient<IAccessTokenService, GoogleAccessTokenService>();
             services.AddTransient<IWikiClient, WikiClient>();
+            services.AddTransient<ILuisClient, LuisClient>();
 
-            services.AddTransient<LuisClient>();
             services.AddTransient<GoogleServiceAccountCredential>();
 
             return services;
