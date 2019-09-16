@@ -49,6 +49,13 @@ namespace MentorBot.Tests.Business.Processors
                     Thumbnail = new WikiClient.Image
                     {
                         Source = "dummy"
+                    },
+                    ContentUrls = new WikiClient.Content
+                    {
+                        Desktop = new WikiClient.Urls
+                        {
+                            Page = "https://wikipedia.com/michael"
+                        }
                     }
                 });
 
@@ -56,6 +63,7 @@ namespace MentorBot.Tests.Business.Processors
                 new TextDeconstructionInformation("Who is Michael Jackson", "dance", SentenceTypes.Question, new Dictionary<string, string[]>(), null, 1), null, null, null);
 
             Assert.AreEqual(result.Cards[0].Header.Title, "Michael");
+            Assert.AreEqual(result.Cards[0].Header.ImageUrl, "dummy");
         }
     }
 }

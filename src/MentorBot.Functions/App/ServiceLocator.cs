@@ -7,9 +7,11 @@ using System.IO;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.App.SmtpClient;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
+using MentorBot.Functions.Connectors.Jenkins;
 using MentorBot.Functions.Connectors.Luis;
 using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Connectors.Wikipedia;
@@ -117,6 +119,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ILanguageUnderstandingConnector, AzureLuisConnector>();
             services.AddTransient<IHangoutsChatService, HangoutsChatService>();
             services.AddTransient<ICognitiveService, CognitiveService>();
+            services.AddTransient<ICommandProcessor, BuildInfoProcessor>();
             services.AddTransient<ICommandProcessor, LocalTimeProcessor>();
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
@@ -131,6 +134,9 @@ namespace MentorBot.Functions.App
             services.AddTransient<IAccessTokenService, GoogleAccessTokenService>();
             services.AddTransient<IWikiClient, WikiClient>();
             services.AddTransient<ILuisClient, LuisClient>();
+            services.AddTransient<IJenkinsClient, JenkinsClient>();
+
+            services.AddHttpClient(JenkinsClient.Name);
 
             services.AddTransient<GoogleServiceAccountCredential>();
 

@@ -64,6 +64,19 @@ namespace MentorBot.Functions.Processors
                                 }
                             }
                         }
+                    },
+                    new Section
+                    {
+                         Widgets = new[]
+                         {
+                             new WidgetMarkup
+                             {
+                                 Buttons = new[]
+                                 {
+                                     ChatEventFactory.CreateTextButton("Wikipedia", result.ContentUrls?.Desktop?.Page)
+                                 }
+                             }
+                         }
                     }
                 }
             };
