@@ -64,6 +64,7 @@ namespace MentorBot.Functions.Connectors
             // 3. Select timesheet
             var result = users
                 .Where(it => it.Email != senderEmail)
+                .Where(it => it.Manager != null)
                 .Where(it =>
                     (it.Department?.Owner?.Email.Equals(senderEmail, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
                     IsManager(it, senderEmail, users, new List<string>()))
@@ -161,7 +162,7 @@ namespace MentorBot.Functions.Connectors
         }
 
         private static User FindUser(UserReference userRef, IReadOnlyList<User> users) =>
-            users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
+            userRef == null ? null : users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
 
         private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
             customerNames == null ||
