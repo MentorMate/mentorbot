@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -17,9 +19,6 @@ namespace MentorBot.Functions.Processors
     /// <summary>A command that search for information in the wikipedia encyclopedia.</summary>
     public sealed class WikipediaProcessor : ICommandProcessor
     {
-        /// <summary>The comman name.</summary>
-        public const string CommandName = "Wikipedia Processor";
-
         private static readonly Regex Exp = new Regex("^(What +|Where +|Who +|Where +|are +|is +)+([\\w\\d\\s\\,\\.]+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
         private readonly IWikiClient _client;
 
@@ -30,13 +29,13 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public string Name => CommandName;
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
         public string Subject => "Encyclopedia";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var query = GetQueryText(info);
             if (string.IsNullOrEmpty(query))
@@ -55,7 +54,7 @@ namespace MentorBot.Functions.Processors
                         ImageUrl = result.Thumbnail?.Source,
                         Title = result.Displaytitle,
                     },
-                    Sections = new[]
+                    Sections = new List<Section>
                     {
                         new Section
                         {
@@ -70,8 +69,27 @@ namespace MentorBot.Functions.Processors
                                 }
                             }
                         }
-                    }
+                    },
                 };
+
+                var pagePath = result.ContentUrls?.Desktop?.Page;
+                if (!string.IsNullOrEmpty(pagePath))
+                {
+                    card.Sections.Add(
+                        new Section
+                        {
+                            Widgets = new[]
+                            {
+                                 new WidgetMarkup
+                                 {
+                                     Buttons = new[]
+                                     {
+                                         ChatEventFactory.CreateTextButton("Wikipedia", pagePath)
+                                     }
+                                 }
+                            }
+                        });
+                }
 
                 return new ChatEventResult(card);
             }

@@ -28,7 +28,7 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public void HelloProcessorNameShouldBeOk()
         {
-            Assert.AreEqual(_processor.Name, "Hello Processor");
+            Assert.AreEqual(_processor.Name, "MentorBot.Functions.Processors.HelloProcessor");
         }
 
         [DataRow("Hi", "Hello!", DisplayName = "Hi")]

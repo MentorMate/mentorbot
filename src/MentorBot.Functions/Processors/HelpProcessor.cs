@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,9 +16,6 @@ namespace MentorBot.Functions.Processors
     /// <seealso cref="ICommandProcessor" />
     public sealed class HelpProcessor : ICommandProcessor
     {
-        /// <summary>The comman processor name.</summary>
-        public const string CommandName = "Help Processor";
-
         private readonly ILuisClient _luisClient;
 
         /// <summary>Initializes a new instance of the <see cref="HelpProcessor"/> class.</summary>
@@ -29,13 +25,13 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public string Name => CommandName;
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
         public string Subject => "Help";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var examples = await _luisClient.GetExamplesAsync();
             var results = examples

@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
+using MentorBot.Functions.Models.Domains.Plugins;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,21 +49,21 @@ namespace MentorBot.Tests.AzureFunctions
         {
             var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
-            var settings = new MentorBotSettings
+            var plugins = new []
             {
-                Processors = new []
+                new Plugin
                 {
-                    new ProcessorSettings { Name = "P1" }
+                    Name = "P1"
                 }
             };
 
-            storageService.GetSettingsAsync().Returns(settings);
+            storageService.GetAllPluginsAsync().Returns(plugins);
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService),
                 GetAccessTokenServiceDescriptor(req, UserRoles.Administrator));
 
-            var result = await Queries.GetSettingsAsync(req);
+            var result = await Queries.GetPluginsAsync(req);
 
             Assert.AreEqual(result.First().Name, "P1");
         }
@@ -74,7 +77,7 @@ namespace MentorBot.Tests.AzureFunctions
                 GetAccessTokenServiceDescriptor(req, UserRoles.User));
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
-                () => Queries.GetSettingsAsync(req));
+                () => Queries.GetPluginsAsync(req));
         }
 
         [TestMethod]
@@ -127,6 +130,34 @@ namespace MentorBot.Tests.AzureFunctions
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
                 () => Queries.GetUsersAsync(request));
+        }
+
+        [TestMethod]
+        public async Task GetPluginsAsyncShouldErrorWhenRequestedFromUserRole()
+        {
+            var request = GetHttpRequest();
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                GetAccessTokenServiceDescriptor(request, UserRoles.User));
+
+            await Assert.ThrowsExceptionAsync<AccessViolationException>(
+                () => Queries.GetPluginsAsync(request));
+        }
+
+        [TestMethod]
+        public async Task GetPluginsAsyncShouldCreatePluginsWhenNonInStorage()
+        {
+            var storageService = Substitute.For<IStorageService>();
+            var request = GetHttpRequest();
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor(request, UserRoles.Administrator));
+
+            var result = await Queries.GetPluginsAsync(request);
+
+            Assert.AreEqual(9, result.Count());
+            storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 9));
         }
 
         private static ServiceDescriptor GetAccessTokenServiceDescriptor(HttpRequest req, UserRoles role)

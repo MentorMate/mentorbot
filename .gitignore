@@ -7,3 +7,4 @@ obj/
 *.csproj.user
 package-lock.json
 yarn.lock
+coverage.opencover.xml

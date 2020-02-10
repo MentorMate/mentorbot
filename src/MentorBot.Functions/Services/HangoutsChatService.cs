@@ -48,7 +48,7 @@ namespace MentorBot.Functions.Services
                     ? new ChatEventResult(Messages.UnknownCommandText)
                     : await command
                         .CommandProcessor
-                        .ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, _responder, command.Settings)
+                        .ProcessCommandAsync(command.TextDeconstructionInformation, chatEvent, _responder, command.PropertiesAccessor)
             };
 
             return result;

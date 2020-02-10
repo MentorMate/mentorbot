@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
     <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.40.2.1633" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup Label="Projects and Files Reference">
     <AdditionalFiles Include="..\..\tools\stylecop.json" />

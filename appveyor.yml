@@ -1,5 +1,7 @@
 version: '1.0.{build}'
 image: Visual Studio 2017
+environment:
+  nodejs_version: "12"
 
 pull_requests:
   # Do not increment build number when it is a pull request
@@ -15,6 +17,10 @@ dotnet_csproj:
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
+install:
+  # Install scripts. (runs after repo cloning)
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version

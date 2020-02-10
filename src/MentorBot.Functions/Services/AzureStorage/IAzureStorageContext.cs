@@ -32,6 +32,11 @@ namespace MentorBot.Functions.Services.AzureStorage
         Task MergeOrInsertAsync<T>(T model)
             where T : new();
 
+        /// <summary>Update or Insert a list of record in the database asynchronous.</summary>
+        /// <typeparam name="T">The table schema type.</typeparam>
+        Task MergeOrInsertAsync<T>(IEnumerable<T> models)
+            where T : new();
+
         /// <summary>Update records in the database asynchronous.</summary>
         /// <typeparam name="T">The table schema type.</typeparam>
         Task MergeAsync<T>(IEnumerable<T> models)

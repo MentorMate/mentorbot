@@ -1,10 +1,39 @@
-export interface ProcessorSettings {
+export interface Plugin {
+  id: string;
   name: string;
+  type: string;
   enabled: boolean;
-  data: Array<{ key: string; value: string; }> | null;
+  groups: PluginGroup[];
 }
 
-export interface Settings {
+export interface PluginGroup {
+  name: string;
   key: string;
-  processors: Array<ProcessorSettings>;
+  multi: boolean;
+  type: ObjectType;
+  properties: PluginProperty[];
+  values: PluginValue[][];
+}
+
+export interface PluginProperty {
+  name: string;
+  key: string;
+  valueType: ValueType;
+}
+
+export interface PluginValue {
+  key: string;
+  value: any;
+}
+
+export enum ObjectType {
+  None,
+  User,
+  Settings
+}
+
+export enum ValueType {
+  None,
+  String,
+  Boolean
 }

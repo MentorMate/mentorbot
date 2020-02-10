@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -14,9 +12,11 @@ using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
+using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
-using MentorBot.Functions.Processors;
+using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Processors.Timesheets;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -32,6 +32,7 @@ namespace MentorBot.Functions
     {
         /// <summary>A sync users command.</summary>
         [FunctionName("sync-users")]
+        [Disable]
         public static async Task SyncUsersAsync(
             [TimerTrigger("0 0 9 * * Fri")] TimerInfo myTimer)
         {
@@ -46,6 +47,7 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder")]
+        [Disable]
         public static async Task TimesheetsReminderAsync(
             [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer)
         {
@@ -53,68 +55,36 @@ namespace MentorBot.Functions
 
             ServiceLocator.EnsureServiceProvider();
 
-            var storage = ServiceLocator.Get<IStorageService>();
+            var cognitiveService = ServiceLocator.Get<ICognitiveService>();
             var connector = ServiceLocator.Get<IHangoutsChatConnector>();
             var processor = ServiceLocator.Get<ITimesheetProcessor>();
 
-            var settings = await storage.GetSettingsAsync();
-            var data = settings.Processors.FirstOrDefault(it => it.Name == nameof(OpenAirProcessor))?.DataAsDictionary();
+            var result = await cognitiveService.GetCognitiveTextAnalysisResultAsync(
+                new TextDeconstructionInformation(string.Empty, "Timesheets"), null);
 
-            await processor.NotifyAsync(
-                DateTime.Today,
-                TimesheetStates.Unsubmitted,
-                data?.GetValueOrDefault(Default.EmailKey),
-                data?.GetAsArray(Default.DefaultExcludedClientKey),
-                null,
-                true,
-                data?.GetValueOrDefault(Default.NotifyByEmailKey) == "true",
-                null,
-                connector);
+            var excludes = result.PropertiesAccessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
+            var groups = result.PropertiesAccessor.GetPluginPropertyGroup(TimesheetsProperties.NotificationsGroup);
+            foreach (var group in groups)
+            {
+                var email = group.GetValue<string>(TimesheetsProperties.Email);
+                var notify = group.GetValue<bool>(TimesheetsProperties.NotifyByEmail);
+
+                await processor.NotifyAsync(
+                    DateTime.Today,
+                    TimesheetStates.Unsubmitted,
+                    email,
+                    excludes,
+                    null,
+                    true,
+                    notify,
+                    null,
+                    connector);
+            }
         }
 
-        /// <summary>A sync users command.</summary>
-        [FunctionName("timesheets-reminder-last-week")]
-        public static async Task TimesheetsReminderLastWeekAsync(
-            [TimerTrigger("0 0 12 * * Mon")] TimerInfo myTimer)
-        {
-            Contract.Ensures(myTimer != null, "Timer is not instanciated");
-
-            ServiceLocator.EnsureServiceProvider();
-
-            var storage = ServiceLocator.Get<IStorageService>();
-            var connector = ServiceLocator.Get<IHangoutsChatConnector>();
-            var processor = ServiceLocator.Get<ITimesheetProcessor>();
-
-            var settings = await storage.GetSettingsAsync();
-            var data = settings.Processors.FirstOrDefault(it => it.Name == nameof(OpenAirProcessor))?.DataAsDictionary();
-            var lastWeekFriday = DateTime.Today.AddDays(-((int)DateTime.Today.DayOfWeek + 2));
-
-            await processor.NotifyAsync(
-                lastWeekFriday,
-                TimesheetStates.Unsubmitted,
-                data?.GetValueOrDefault(Default.EmailKey),
-                data?.GetAsArray(Default.DefaultExcludedClientKey),
-                null,
-                true,
-                data?.GetValueOrDefault(Default.NotifyByEmailKey) == "true",
-                null,
-                connector);
-
-            await processor.NotifyAsync(
-                lastWeekFriday,
-                TimesheetStates.Unapproved,
-                data?.GetValueOrDefault(Default.EmailKey),
-                data?.GetAsArray(Default.DefaultExcludedClientKey),
-                null,
-                true,
-                data?.GetValueOrDefault(Default.NotifyByEmailKey) == "true",
-                null,
-                connector);
-        }
-
-        /// <summary>Sets the MentorBot settings to storage.</summary>
-        [FunctionName("save-settings")]
-        public static async Task SaveSettingsAsync(
+        /// <summary>Sets the MentorBot plugins to storage.</summary>
+        [FunctionName("save-plugins")]
+        public static async Task SavePluginsAsync(
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Post), Route = null)] HttpRequest req)
         {
             ServiceLocator.EnsureServiceProvider();
@@ -123,24 +93,41 @@ namespace MentorBot.Functions
 
             var storageService = ServiceLocator.Get<IStorageService>();
 
-            ServiceLocator.Get<IMemoryCache>().Remove(Constants.SettingsCacheKey);
+            ServiceLocator.Get<IMemoryCache>().Remove(Constants.PluginsCacheKey);
 
-            var settings = new MentorBotSettings
-            {
-                Processors = await GetBodyAsync(req),
-            };
+            IReadOnlyList<Plugin> plugins = await GetBodyAsync<List<Plugin>>(req);
 
-            await storageService.SaveSettingsAsync(settings);
+            await storageService.AddOrUpdatePluginsAsync(plugins);
         }
 
-        private static async Task<IReadOnlyList<ProcessorSettings>> GetBodyAsync(HttpRequest req)
+        /// <summary>Sets the MentorBot plugins to storage.</summary>
+        [FunctionName("save-user-props")]
+        public static async Task SaveUserPropertiesAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Post), Route = null)] HttpRequest req)
+        {
+            ServiceLocator.EnsureServiceProvider();
+
+            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
+
+            var storageService = ServiceLocator.Get<IStorageService>();
+
+            var userInfo = await GetBodyAsync<UserInfo>(req);
+
+            var user = await storageService.GetUserByEmailAsync(userInfo.Email);
+
+            user.Properties = userInfo.Properties;
+
+            await storageService.AddOrUpdateUserAsync(user);
+        }
+
+        private static async Task<T> GetBodyAsync<T>(HttpRequest req)
         {
             var body = req.Body ?? throw new ArgumentNullException(nameof(req));
 
-            using (StreamReader reader = new StreamReader(body))
+            using (var reader = new StreamReader(body))
             {
                 var requestBody = await reader.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<List<ProcessorSettings>>(requestBody);
+                return JsonConvert.DeserializeObject<T>(requestBody);
             }
         }
     }

@@ -1,3 +1,5 @@
+import { PluginValue } from '../settings/settings.models';
+
 export interface UserInfo {
   id: string;
   email: string;
@@ -6,4 +8,5 @@ export interface UserInfo {
   manager: string;
   department: string;
   customers: string;
+  properties: Dictionary<PluginValue[][]>;
 }

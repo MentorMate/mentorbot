@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
+using MentorBot.Functions.Models.Domains.Plugins;
 
 namespace MentorBot.Functions.Services
 {
@@ -18,7 +18,7 @@ namespace MentorBot.Functions.Services
         private const string UserDocumentName = "users";
         private const string AddressDocumentName = "addresses";
         private const string MessagesDocumentName = "messages";
-        private const string SettingsDocumentName = "settings";
+        private const string PluginsDocumentName = "plugins";
 
         private readonly IDocumentClientService _documentClientService;
 
@@ -48,6 +48,11 @@ namespace MentorBot.Functions.Services
                 QueryWhenConnected<User>($"SELECT TOP 1 * FROM users u WHERE u.Email == '{email}'", UserDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
+        public Task<IReadOnlyList<Plugin>> GetAllPluginsAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<Plugin>("SELECT TOP 2000 * FROM " + PluginsDocumentName, PluginsDocumentName));
+
+        /// <inheritdoc/>
         public Task<bool> AddUsersAsync(IReadOnlyList<User> users) =>
             ExecuteIfConnectedAsync<User, bool>(doc => doc.AddManyAsync(users), UserDocumentName, false);
 
@@ -56,15 +61,13 @@ namespace MentorBot.Functions.Services
             ExecuteIfConnectedAsync<User, bool>(doc => doc.UpdateManyAsync(users), UserDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<MentorBotSettings> GetSettingsAsync() =>
-            Task.FromResult(
-                QueryWhenConnected<MentorBotSettings>(
-                    "SELECT TOP 2000 * FROM settings",
-                    SettingsDocumentName).FirstOrDefault());
-
-        /// <inheritdoc/>
-        public Task<bool> SaveSettingsAsync(MentorBotSettings settings) =>
-            ExecuteIfConnectedAsync<MentorBotSettings, bool>(doc => doc.AddOrUpdateAsync(settings), SettingsDocumentName, false);
+        public Task<bool> AddOrUpdatePluginsAsync(IReadOnlyList<Plugin> plugins) =>
+            ExecuteIfConnectedAsync<Plugin, bool>(
+                async doc =>
+                    await doc.AddManyAsync(plugins.Where(it => it.Id == null).ToList()) ||
+                    await doc.UpdateManyAsync(plugins.Where(it => it.Id != null).ToList()),
+                PluginsDocumentName,
+                false);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<GoogleAddress>> GetAddressesAsync() =>
@@ -83,6 +86,10 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<bool> SaveMessageAsync(Message message) =>
             ExecuteIfConnectedAsync<Message, bool>(doc => doc.AddOrUpdateAsync(message), MessagesDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateUserAsync(User user) =>
+            ExecuteIfConnectedAsync<User, bool>(doc => doc.AddOrUpdateAsync(user), UserDocumentName, false);
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

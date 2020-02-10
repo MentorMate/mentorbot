@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Google.Apis.HangoutsChat.v1.Data;
 
 using MentorBot.Functions.Abstract.Connectors;
+using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
+using MentorBot.Functions.Processors.Timesheets;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -49,9 +51,12 @@ namespace MentorBot.Tests.Business.Processors
         public async Task OpenAirProcessor_ShouldReturnNoState()
         {
             var info = new TextDeconstructionInformation("Get unsubmitted timesheets", null);
-            
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
+
+            accessor.GetAllPluginPropertyValues<string>(null).ReturnsForAnyArgs(new string[0]);
+
             // Act
-            var result = await _processor.ProcessCommandAsync(info, CreateEvent("a@b.c"), null, new Dictionary<string, string>()) as ChatEventResult;
+            var result = await _processor.ProcessCommandAsync(info, CreateEvent("a@b.c"), null, accessor) as ChatEventResult;
 
             Assert.AreEqual("Provide a state of the time sheets, like unsubmitted or unapproved!", result.Text);
         }
@@ -60,6 +65,7 @@ namespace MentorBot.Tests.Business.Processors
         public async Task WhenAskedItShouldGetTimesheets()
         {
             var chat = CreateEvent("a@b.c");
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var responder = Substitute.For<IHangoutsChatConnector>();
             var timesheet = new Timesheet
             {
@@ -76,10 +82,10 @@ namespace MentorBot.Tests.Business.Processors
                 null,
                 1.0);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null, null).ReturnsForAnyArgs(new[] { timesheet });
+            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null, new string[0]).ReturnsForAnyArgs(new[] { timesheet });
 
             // Act
-            var result = await _processor.ProcessCommandAsync(info, chat, responder, new Dictionary<string, string>());
+            var result = await _processor.ProcessCommandAsync(info, chat, responder, accessor);
 
             // Test
             System.Threading.Thread.Sleep(150);

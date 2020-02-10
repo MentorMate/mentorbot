@@ -1,5 +1,8 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System.Collections.Generic;
+using MentorBot.Functions.Models.Domains.Plugins;
+
 namespace MentorBot.Functions.Models.DataResultModels
 {
     /// <summary>A generic user information.</summary>
@@ -25,5 +28,8 @@ namespace MentorBot.Functions.Models.DataResultModels
 
         /// <summary>Gets or sets the customers.</summary>
         public string Customers { get; set; }
+
+        /// <summary>Gets or sets the properties.</summary>
+        public Dictionary<string, PluginPropertyValue[][]> Properties { get; set; }
     }
 }

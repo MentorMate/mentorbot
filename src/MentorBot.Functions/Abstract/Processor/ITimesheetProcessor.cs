@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Connectors;
@@ -23,7 +26,7 @@ namespace MentorBot.Functions.Abstract.Processor
             DateTime date,
             TimesheetStates state,
             string email,
-            string[] customersToExclude,
+            IReadOnlyList<string> customersToExclude,
             string department,
             bool notify,
             bool notifyByEmail,

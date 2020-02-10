@@ -1,0 +1,51 @@
+<h2>Users</h2>
+<table class="users">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th class="email">Email</th>
+      <th>Role</th>
+      <th>Department</th>
+      <th>Manager</th>
+      <th class="cust">Customers</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody *ngIf="properties$ | async as properties">
+    <ng-container *ngFor="let user of users$ | async">
+      <tr>
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.role}}</td>
+        <td>{{user.department}}</td>
+        <td>{{user.manager}}</td>
+        <td>{{user.customers}}</td>
+        <td>
+          <button type="button"
+                  class="btn btn-default"
+                  role="button"
+                  (click)="edit(user)">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="editingId === user.id">
+        <td colspan="7"
+            class="table-edit-row">
+          <h3>Properties</h3>
+          <div *ngFor="let group of properties">
+            <app-plugin-values class="values"
+                               [group]="group"
+                               [(values)]="user.properties[group.key]"></app-plugin-values>
+          </div>
+          <br />
+          <br />
+          <button type="button"
+                  role="button"
+                  class="btn btn-primary"
+                  (click)="save(user)">Save</button>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>

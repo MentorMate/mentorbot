@@ -1,9 +1,12 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
-using System;
-using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
-using MentorBot.Functions.Models.Domains.Base;
+using System.Collections;
+using System.Collections.Generic;
 
+using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+
+using MentorBot.Functions.Models.Domains.Base;
+using MentorBot.Functions.Models.Domains.Plugins;
 using Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains
@@ -50,5 +53,9 @@ namespace MentorBot.Functions.Models.Domains
         /// <summary>Gets or sets the customers.</summary>
         [StoreAsJsonObject]
         public Customer[] Customers { get; set; }
+
+        /// <summary>Gets or sets the user properties.</summary>
+        [StoreAsJsonObject]
+        public Dictionary<string, PluginPropertyValue[][]> Properties { get; set; }
     }
 }
