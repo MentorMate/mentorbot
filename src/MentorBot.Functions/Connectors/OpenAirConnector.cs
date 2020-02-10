@@ -65,6 +65,7 @@ namespace MentorBot.Functions.Connectors
             // 3. Select timesheet
             var result = users
                 .Where(it => it.Email != senderEmail)
+                .Where(it => it.Manager != null)
                 .Where(it =>
                 {
                     try

@@ -1,6 +1,9 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -40,47 +43,65 @@ namespace MentorBot.Functions.Processors
                 return new ChatEventResult("I do not know the answer to that!");
             }
 
-            var result = await _client.QueryAsync(query);
-
-            var card = new Card
+            try
             {
-                Header = new CardHeader
+                var result = await _client.QueryAsync(query);
+
+                var card = new Card
                 {
-                    ImageUrl = result.Thumbnail.Source,
-                    Title = result.Displaytitle,
-                },
-                Sections = new[]
-                {
-                    new Section
+                    Header = new CardHeader
                     {
-                        Widgets = new[]
+                        ImageUrl = result.Thumbnail?.Source,
+                        Title = result.Displaytitle,
+                    },
+                    Sections = new List<Section>
+                    {
+                        new Section
                         {
-                            new WidgetMarkup
+                            Widgets = new[]
                             {
-                                TextParagraph = new TextParagraph
+                                new WidgetMarkup
                                 {
-                                    Text = result.ExtractHtml,
+                                    TextParagraph = new TextParagraph
+                                    {
+                                        Text = result.ExtractHtml,
+                                    }
                                 }
                             }
                         }
                     },
-                    new Section
-                    {
-                         Widgets = new[]
-                         {
-                             new WidgetMarkup
-                             {
-                                 Buttons = new[]
-                                 {
-                                     ChatEventFactory.CreateTextButton("Wikipedia", result.ContentUrls?.Desktop?.Page)
-                                 }
-                             }
-                         }
-                    }
-                }
-            };
+                };
 
-            return new ChatEventResult(card);
+                var pagePath = result.ContentUrls?.Desktop?.Page;
+                if (!string.IsNullOrEmpty(pagePath))
+                {
+                    card.Sections.Add(
+                        new Section
+                        {
+                            Widgets = new[]
+                            {
+                                 new WidgetMarkup
+                                 {
+                                     Buttons = new[]
+                                     {
+                                         ChatEventFactory.CreateTextButton("Wikipedia", pagePath)
+                                     }
+                                 }
+                            }
+                        });
+                }
+
+                return new ChatEventResult(card);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.Write(ex.Message);
+                return new ChatEventResult("I do not know the answer to that!");
+            }
+            catch (Exception ex)
+            {
+                return new ChatEventResult("Unknown error occured:" + ex.Message);
+            }
         }
 
         private static string GetQueryText(TextDeconstructionInformation info)
