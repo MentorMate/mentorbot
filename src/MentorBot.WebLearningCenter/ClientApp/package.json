@@ -42,6 +42,7 @@
     "@angular/language-service": "~8.2.12",
     "@types/chart.js": "^2.7.31",
     "@types/node": "~10.9.4",
+    "codelyzer": "~5.1.2",
     "envsub": "~3.0.9",
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",

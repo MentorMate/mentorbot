@@ -16,7 +16,10 @@ export class PluginValuesComponent implements OnChanges {
   @Output() valuesChange = new EventEmitter<PluginValue[][]>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['group'] || changes['values']) && typeof this.group !== 'undefined' && this.group !== null && typeof this.values !== 'undefined') {
+    if ((changes['group'] || changes['values']) &&
+      typeof this.group !== 'undefined' &&
+      this.group !== null &&
+      typeof this.values !== 'undefined') {
       const properties = this.group.properties.toDictionary<PluginProperty>((obj, prop) => obj[prop.key] = prop);
       this.pluginsProperties = this.values === null ? [] : this.values.map(it => it.map(value => ({ value, prop: properties[value.key] })));
     }
@@ -35,10 +38,13 @@ export class PluginValuesComponent implements OnChanges {
 
   onChange(): void {
     if (this.valuesChange) {
-      const values = this.pluginsProperties.map(values => values.map(value => value.value));
+      const values = this.pluginsProperties.map(it => it.map(value => value.value));
       this.valuesChange.emit(values);
     }
   }
 }
 
-interface PropertyValue { prop: PluginProperty, value: PluginValue }
+interface PropertyValue {
+  prop: PluginProperty;
+  value: PluginValue;
+}

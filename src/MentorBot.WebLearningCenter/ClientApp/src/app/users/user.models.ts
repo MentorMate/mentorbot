@@ -8,5 +8,5 @@ export interface UserInfo {
   manager: string;
   department: string;
   customers: string;
-  properties: Dictionary<PluginValue[][]>
+  properties: Dictionary<PluginValue[][]>;
 }
