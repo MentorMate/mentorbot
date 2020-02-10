@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, string[] filterByCustomers)
+        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, IReadOnlyList<string> filterByCustomers)
         {
             var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
@@ -65,15 +66,47 @@ namespace MentorBot.Functions.Connectors
             var result = users
                 .Where(it => it.Email != senderEmail)
                 .Where(it =>
-                    (it.Department?.Owner?.Email.Equals(senderEmail, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
-                    IsManager(it, senderEmail, users, new List<string>()))
-                .Where(it => FiterCustomersByNames(it.Customers, normalizedCustomerNames))
-                .Select(user => new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user))
+                {
+                    try
+                    {
+                        return (it.Department?.Owner?.Email.Equals(senderEmail, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                            IsManager(it, senderEmail, users, new List<string>());
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Write(ex.Message);
+                        return false;
+                    }
+                })
+                .Where(it =>
+                {
+                    try
+                    {
+                        return FiterCustomersByNames(it.Customers, normalizedCustomerNames);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Write(ex.Message);
+                        return false;
+                    }
+                })
+                .Select(user =>
+                {
+                    try
+                    {
+                        return new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Write(ex.Message);
+                        return new TimesheetExtendedData(null, user);
+                    }
+                })
                 .Where(it => it.Timesheet.Total < requiredHours)
                 .Select(it => new Timesheet
                 {
                     Total = it.Timesheet.Total,
-                    UserName = FormatDisplayName(it.User.Name),
+                    UserName = FormatDisplayName(it.User?.Name ?? "Unknown User"),
                     UserEmail = it.User.Email,
                     DepartmentName = it.User.Department.Name,
                     ManagerName = FormatDisplayName(FindUser(it.User.Manager, users)?.Name)
@@ -161,7 +194,7 @@ namespace MentorBot.Functions.Connectors
         }
 
         private static User FindUser(UserReference userRef, IReadOnlyList<User> users) =>
-            users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
+            userRef == null ? null : users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
 
         private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
             customerNames == null ||

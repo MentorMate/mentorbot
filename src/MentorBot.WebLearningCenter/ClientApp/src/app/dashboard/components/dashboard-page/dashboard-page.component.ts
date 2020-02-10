@@ -21,7 +21,7 @@ const style = `
   styles: [style]
 })
 export class DashboardPageComponent implements AfterViewInit {
-  @ViewChild('pieAnsweredQuestions')
+  @ViewChild('pieAnsweredQuestions', { static: true })
   chartRef: ElementRef;
   chart: Chart;
 

@@ -36,19 +36,6 @@ namespace MentorBot.Functions.Connectors.Jenkins
             httpResponseMessage.EnsureSuccessStatusCode();
 
             return await httpResponseMessage.Content.ReadAsAsync<JobResponse>();
-            ////var encodedJobName = HttpUtility.UrlEncode(jobName);
-            ////var url = $"{_options.JenkinsAddress}/job/{encodedJobName}/lastBuild/api/json?tree=building,description,displayName,result,url,changeSet[items[comment]]";
-            ////using (var messageHandler = _messageHandlerFactory())
-            ////{
-            ////    using (var client = new HttpClient(messageHandler, false))
-            ////    {
-            ////        var response = await client.GetAsync(url);
-
-            ////        response.EnsureSuccessStatusCode();
-
-            ////        return await response.Content.ReadAsAsync<JobResponse>();
-            ////    }
-            ////}
         }
     }
 }

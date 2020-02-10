@@ -9,6 +9,6 @@ namespace MentorBot.Functions
     public static class Constants
     {
         /// <summary>Gets the settings cache key.</summary>
-        public static string SettingsCacheKey => "settings";
+        public static string PluginsCacheKey => "plugins";
     }
 }

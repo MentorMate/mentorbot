@@ -12,7 +12,7 @@ namespace MentorBot.Functions.Abstract.Connectors
     public interface IOpenAirConnector
     {
         /// <summary>Get unsubmitted timesheet to the peaople I have access to.</summary>
-        Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, string[] filterByCustomers);
+        Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, IReadOnlyList<string> filterByCustomers);
 
         /// <summary>Synchronizes the users from open air to store.</summary>
         Task SyncUsersAsync();

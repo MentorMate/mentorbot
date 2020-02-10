@@ -12,5 +12,8 @@ namespace MentorBot.Functions.Abstract.Services
     {
         /// <summary>Processes the chat event asynchronous.</summary>
         Task<CognitiveTextAnalysisResult> ProcessAsync(ChatEvent chatEvent);
+
+        /// <summary>Gets the cognitive text analysis result asynchronous.</summary>
+        Task<CognitiveTextAnalysisResult> GetCognitiveTextAnalysisResultAsync(TextDeconstructionInformation definition, string email);
     }
 }

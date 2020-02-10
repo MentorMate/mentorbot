@@ -6,7 +6,7 @@ using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
+using MentorBot.Functions.Models.Domains.Plugins;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,21 +46,21 @@ namespace MentorBot.Tests.AzureFunctions
         {
             var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
-            var settings = new MentorBotSettings
+            var plugins = new []
             {
-                Processors = new []
+                new Plugin
                 {
-                    new ProcessorSettings { Name = "P1" }
+                    Name = "P1"
                 }
             };
 
-            storageService.GetSettingsAsync().Returns(settings);
+            storageService.GetAllPluginsAsync().Returns(plugins);
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(IStorageService), storageService),
                 GetAccessTokenServiceDescriptor(req, UserRoles.Administrator));
 
-            var result = await Queries.GetSettingsAsync(req);
+            var result = await Queries.GetPluginsAsync(req);
 
             Assert.AreEqual(result.First().Name, "P1");
         }
@@ -74,7 +74,7 @@ namespace MentorBot.Tests.AzureFunctions
                 GetAccessTokenServiceDescriptor(req, UserRoles.User));
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
-                () => Queries.GetSettingsAsync(req));
+                () => Queries.GetPluginsAsync(req));
         }
 
         [TestMethod]

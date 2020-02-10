@@ -26,7 +26,7 @@ namespace MentorBot.Functions.Processors
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <inheritdoc/>
-        public string Name => nameof(RepeatProcessor);
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
         public string Subject => "Repeat";
@@ -53,7 +53,7 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var text = RegExp.Replace(info.TextSentanceChunk, string.Empty);
             var delayStr = info.Entities.GetValueOrDefault("Time")?.FirstOrDefault();

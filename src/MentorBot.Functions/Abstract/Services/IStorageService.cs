@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
+using MentorBot.Functions.Models.Domains.Plugins;
 
 namespace MentorBot.Functions.Abstract.Services
 {
@@ -26,11 +26,17 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets stored user by email.</summary>
         Task<User> GetUserByEmailAsync(string email);
 
+        /// <summary>Gets all plugins asynchronous.</summary>
+        Task<IReadOnlyList<Plugin>> GetAllPluginsAsync();
+
         /// <summary>Adds the users asynchronous.</summary>
         Task<bool> AddUsersAsync(IReadOnlyList<User> users);
 
         /// <summary>Update the users asynchronous.</summary>
         Task<bool> UpdateUsersAsync(IReadOnlyList<User> users);
+
+        /// <summary>Add or update the plugins asynchronous.</summary>
+        Task<bool> AddOrUpdatePluginsAsync(IReadOnlyList<Plugin> plugins);
 
         /// <summary>Gets the messages asynchronous.</summary>
         Task<IReadOnlyList<Message>> GetMessagesAsync();
@@ -38,11 +44,7 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Saves a message.</summary>
         Task<bool> SaveMessageAsync(Message message);
 
-        /// <summary>Reads the settings from the Table Storage.</summary>
-        Task<MentorBotSettings> GetSettingsAsync();
-
-        /// <summary>Saves the passed settings asynchronius.</summary>
-        /// <param name="settings">An object that contains the latest settings.</param>
-        Task<bool> SaveSettingsAsync(MentorBotSettings settings);
+        /// <summary>Add or update the user asynchronous.</summary>
+        Task<bool> AddOrUpdateUserAsync(User user);
     }
 }

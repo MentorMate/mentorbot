@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { SettingsService } from './settings.service';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -13,6 +14,7 @@ import { SettingsService } from './settings.service';
   imports: [
     CommonModule,
     FormsModule,
+    SharedModule,
     RouterModule.forChild([{ path: '', component: SettingsPageComponent }])
   ],
   providers: [SettingsService]

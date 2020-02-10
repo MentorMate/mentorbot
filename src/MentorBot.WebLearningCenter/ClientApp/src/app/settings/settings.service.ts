@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ProcessorSettings } from './settings.models';
+import { Plugin } from './settings.models';
 
 import { Observable } from 'rxjs';
 
 @Injectable()
 export class SettingsService {
-  static readonly getSettings = 'get-settings';
-  static readonly saveSettings = 'save-settings';
+  static readonly getPlugins = 'get-plugins';
+  static readonly savePlugins = 'save-plugins';
 
   constructor(private http: HttpClient) { }
 
-  public getSettings(): Observable<ProcessorSettings[]> {
-    return this.http.get<ProcessorSettings[]>(SettingsService.getSettings);
+  public getPlugins(): Observable<Plugin[]> {
+    return this.http.get<Plugin[]>(SettingsService.getPlugins);
   }
 
-  public saveSettings(settings: ProcessorSettings[]): Observable<Object> {
-    return this.http.post(SettingsService.saveSettings, settings);
+  public savePlugins(plugins: Plugin[]): Observable<Object> {
+    return this.http.post(SettingsService.savePlugins, plugins);
   }
 }

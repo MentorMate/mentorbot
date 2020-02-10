@@ -1,0 +1,43 @@
+<div class="row container">
+  <article class="col-md-6">
+    <header>
+      <h1>Plugins</h1>
+    </header>
+    <section>
+      <ul class="list">
+        <li *ngFor="let plugin of plugins">
+          <label class="switch">
+            <input type="checkbox"
+                   name="{{ plugin.name }}"
+                   [(ngModel)]="plugin.enabled">
+            <span class="slider round"></span>
+            <span class="text"
+                  title="{{plugin.type}}">{{ plugin.name }}</span>
+          </label>
+        </li>
+      </ul>
+      <br />
+      <br />
+      <button class="btn btn-default"
+              role="button"
+              (click)="save()">Save</button>
+    </section>
+  </article>
+  <article class="col-md-6">
+    <header>
+      <h1>Settings</h1>
+    </header>
+    <form class="form-horizontal"
+          *ngIf="pluginsGroups !== null && pluginsGroups.length > 0">
+      <ng-container *ngFor="let setting of pluginsGroups">
+        <div *ngIf="setting.plugin.enabled">
+          <h2>{{setting.plugin.name}}</h2>
+          <div *ngFor="let group of setting.groups">
+            <app-plugin-values [group]="group"
+                               [(values)]="group.values"></app-plugin-values>
+          </div>
+        </div>
+      </ng-container>
+    </form>
+  </article>
+</div>

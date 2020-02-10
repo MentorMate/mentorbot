@@ -36,6 +36,11 @@ namespace MentorBot.Functions.Services.AzureStorage
             ExecuteAsync<T>(ctx => ctx.MergeOrInsertAsync(model));
 
         /// <inheritdoc/>
+        public Task MergeOrInsertListAsync<T>(IEnumerable<T> models)
+            where T : new() =>
+            ExecuteAsync<T>(ctx => ctx.MergeOrInsertAsync(models));
+
+        /// <inheritdoc/>
         public Task<IQueryable<T>> QueryAsync<T>(int maxItems = 0)
             where T : new() =>
             QueryAsync(ctx => ctx.QueryAsync<T>(maxItems));
@@ -54,34 +59,32 @@ namespace MentorBot.Functions.Services.AzureStorage
             }
         }
 
-        private Task ExecuteAsync<T>(Func<IAzureStorageContext, Task> action)
+        private async Task ExecuteAsync<T>(Func<IAzureStorageContext, Task> action)
         {
             if (IsConnected)
             {
-                AddMapper(typeof(T));
-                return action(_storageContext);
+                await AddMapperAsync(typeof(T));
+                await action(_storageContext);
             }
-
-            return Task.CompletedTask;
         }
 
         private async Task<IQueryable<T>> QueryAsync<T>(Func<IAzureStorageContext, Task<IQueryable<T>>> action)
         {
             if (IsConnected)
             {
-                AddMapper(typeof(T));
+                await AddMapperAsync(typeof(T));
                 return await action(_storageContext);
             }
 
             return Enumerable.Empty<T>().AsQueryable();
         }
 
-        private void AddMapper(Type type)
+        private async Task AddMapperAsync(Type type)
         {
             if (!_mappedTypes.Contains(type.FullName))
             {
                 _storageContext.AddAttributeMapper(type);
-                _storageContext.CreateTableAsync(type, true);
+                await _storageContext.CreateTableAsync(type, true);
                 _mappedTypes.Add(type.FullName);
             }
         }

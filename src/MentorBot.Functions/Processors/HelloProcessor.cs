@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -13,17 +12,14 @@ namespace MentorBot.Functions.Processors
     /// <seealso cref="ICommandProcessor" />
     public sealed class HelloProcessor : ICommandProcessor
     {
-        /// <summary>The comman processor name.</summary>
-        public const string CommandName = "Hello Processor";
-
         /// <inheritdoc/>
-        public string Name => CommandName;
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
         public string Subject => "Hello";
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var response = GetAnswer(info.TextSentanceChunk.ToLowerInvariant());
             return new ValueTask<ChatEventResult>(

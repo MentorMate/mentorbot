@@ -1,18 +1,18 @@
-﻿using CoreHelpers.WindowsAzure.Storage.Table;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
-using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Services;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MentorBot.Tests.Business.Services
 {
@@ -25,7 +25,7 @@ namespace MentorBot.Tests.Business.Services
         private List<User> _users;
         private List<GoogleAddress> _addresses;
         private List<Message> _messages;
-        private MentorBotSettings _settings;
+        private List<Plugin> _plugins;
 
         [TestInitialize]
         public void TestInitialize()
@@ -56,13 +56,10 @@ namespace MentorBot.Tests.Business.Services
                 new Message{ Id = "F25E143F-67CD-40D4-A311-3A224E48A40C", PartitionKey = "5DF2E025-E886-43CE-A389-6A0DB9B74083", Input = "question 3", Output = new ChatEventResult("text 3"), ProbabilityPercentage = 98 }
             };
 
-            _settings = new MentorBotSettings
+            _plugins = new List<Plugin>
             {
-                Processors = new List<ProcessorSettings>
-                {
-                    new ProcessorSettings { Name = "Processor 1", Enabled = true},
-                    new ProcessorSettings { Name = "Processor 2", Enabled = false}
-                }
+                new Plugin { Name = "Processor 1", Enabled = true},
+                new Plugin { Name = "Processor 2", Enabled = false},
             };
         }
 
@@ -145,28 +142,26 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task GetSettingsAsync_NotConnected_returns_EmptySettings()
+        public async Task GetAllPluginsAsync_NotConnected_returns_EmptySettings()
         {
             ServiceLocator.EnsureServiceProvider();
 
             _tableClientService.IsConnected.Returns(false);
 
-            var processorsCount = ServiceLocator.GetServices<ICommandProcessor>().Count();
-            var result = await _storageService.GetSettingsAsync();
+            var result = await _storageService.GetAllPluginsAsync();
 
 
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(MentorBotSettings));
-            Assert.AreEqual(nameof(MentorBotSettings), result.Key);
-            Assert.AreEqual(processorsCount, result.Processors.Count);
+            Assert.IsInstanceOfType(result, typeof(IReadOnlyList<Plugin>));
+            Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public async Task SaveSettingsAsync_NotConnected_returns_False()
+        public async Task AddOrUpdatePluginsAsync_NotConnected_returns_False()
         {
             _tableClientService.IsConnected.Returns(false);
 
-            var result = await _storageService.SaveSettingsAsync(null);
+            var result = await _storageService.AddOrUpdatePluginsAsync(null);
 
             Assert.IsFalse(result);
         }
@@ -307,38 +302,32 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task GetSettingsAsync_Connected_returns_correct_settings()
+        public async Task GetAllPluginsAsync_Connected_returns_correct_settings()
         {
             ServiceLocator.EnsureServiceProvider();
 
-            _tableClientService.QueryAsync<MentorBotSettings>().Returns(new List<MentorBotSettings> { _settings }.AsQueryable());
+            _tableClientService.QueryAsync<Plugin>(1000).Returns(_plugins.AsQueryable());
 
-
-            var result = await _storageService.GetSettingsAsync();
-
+            var result = await _storageService.GetAllPluginsAsync();
 
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(MentorBotSettings));
-            Assert.AreEqual(nameof(MentorBotSettings), result.Key);
-            Assert.AreEqual(2, result.Processors.Count);
-            Assert.AreEqual("Processor 2", result.Processors[1].Name);
-            Assert.IsFalse(result.Processors[1].Enabled);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("Processor 2", result[1].Name);
+            Assert.IsFalse(result[1].Enabled);
         }
 
         [TestMethod]
-        public async Task SaveSettingsAsync_Connected_returns_true()
+        public async Task AddOrUpdatePluginsAsync_Connected_returns_true()
         {
-            var settings = new List<MentorBotSettings>();
+            var plugins = new List<Plugin>();
 
-            _tableClientService.MergeOrInsertAsync<MentorBotSettings>(Arg.Do<MentorBotSettings>(s => settings.Add(s)));
+            _tableClientService.MergeOrInsertListAsync(Arg.Do<IEnumerable<Plugin>>(s => plugins.AddRange(s)));
 
-            var result = await _storageService.SaveSettingsAsync(_settings);
+            var result = await _storageService.AddOrUpdatePluginsAsync(_plugins);
 
-            Assert.IsTrue(result);
-            Assert.AreEqual(1, settings.Count);
-            Assert.AreEqual("Processor 2", settings[0].Processors[1].Name);
-            Assert.IsFalse(settings[0].Processors[1].Enabled);
-
+            Assert.AreEqual(2, plugins.Count);
+            Assert.AreEqual("Processor 1", plugins[0].Name);
+            Assert.IsTrue(plugins[0].Enabled);
         }
 
         #endregion

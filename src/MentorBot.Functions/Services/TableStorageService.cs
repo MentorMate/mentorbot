@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,8 +7,7 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
-using Microsoft.WindowsAzure.Storage.Table;
+using MentorBot.Functions.Models.Domains.Plugins;
 
 namespace MentorBot.Functions.Services
 {
@@ -52,6 +52,23 @@ namespace MentorBot.Functions.Services
             foreach (var group in groups)
             {
                 await _tableClientService.MergeAsync(group.ToList());
+            }
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdatePluginsAsync(IReadOnlyList<Plugin> plugins)
+        {
+            if (!_tableClientService.IsConnected)
+            {
+                return false;
+            }
+
+            var groups = plugins.GroupBy(it => it.Key);
+            foreach (var group in groups)
+            {
+                await _tableClientService.MergeOrInsertListAsync(group.ToList());
             }
 
             return true;
@@ -105,27 +122,14 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public async Task<MentorBotSettings> GetSettingsAsync()
-        {
-            var result = (await _tableClientService.QueryAsync<MentorBotSettings>()).FirstOrDefault();
-
-            if (result == null)
-            {
-                result = Default.DefaultSettings;
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> SaveSettingsAsync(MentorBotSettings settings)
+        public async Task<bool> AddOrUpdateUserAsync(User user)
         {
             if (!_tableClientService.IsConnected)
             {
                 return false;
             }
 
-            await _tableClientService.MergeOrInsertAsync(settings);
+            await _tableClientService.MergeOrInsertAsync<User>(user);
 
             return true;
         }
@@ -133,16 +137,21 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllActiveUsersAsync() =>
             _tableClientService.QueryAsync<User>(2000)
-                .ContinueWith(task => (IReadOnlyList<User>)task.Result.Where(user => user.Active).ToList());
+                .ContinueWith(task => (IReadOnlyList<User>)task.Result.Where(user => user.Active).ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
             _tableClientService.QueryAsync<User>(2000)
-                .ContinueWith(task => (IReadOnlyList<User>)task.Result.ToList());
+                .ContinueWith(task => (IReadOnlyList<User>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
         public Task<User> GetUserByEmailAsync(string email) =>
             _tableClientService.QueryAsync<User>($"Email eq '{email}'", 1)
-                .ContinueWith(task => task.Result.FirstOrDefault());
+                .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<Plugin>> GetAllPluginsAsync() =>
+            _tableClientService.QueryAsync<Plugin>(1000)
+                .ContinueWith(task => (IReadOnlyList<Plugin>)task.Result.ToList(), TaskScheduler.Default);
     }
 }

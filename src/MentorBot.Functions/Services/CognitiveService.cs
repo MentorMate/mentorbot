@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
-using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Processors;
 
 using Microsoft.Extensions.Caching.Memory;
 
@@ -55,19 +56,25 @@ namespace MentorBot.Functions.Services
             var definition = await _connector.DeconstructAsync(query) ??
                 new TextDeconstructionInformation(query, string.Empty);
 
-            var settings = await GetSettingsAsync();
+            return await GetCognitiveTextAnalysisResultAsync(definition, chatEvent.Message.Sender.Email);
+        }
+
+        /// <inheritdoc/>
+        public async Task<CognitiveTextAnalysisResult> GetCognitiveTextAnalysisResultAsync(TextDeconstructionInformation definition, string email)
+        {
+            var plugins = await GetPluginsAsync();
             foreach (var processor in _commandProcessors)
             {
                 if (processor.Subject.Equals(definition.Subject, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var name = processor.Name;
-                    var configuration = settings.Processors.FirstOrDefault(it => it.Name == name);
-                    if (configuration.Enabled)
+                    var plugin = plugins.FirstOrDefault(it => it.ProcessorTypeName.Equals(processor.Name, StringComparison.InvariantCulture));
+                    if (plugin.Enabled)
                     {
+                        var accessor = PluginPropertiesAccessor.GetInstance(email, plugin, _storageService);
                         return new CognitiveTextAnalysisResult(
                             definition,
                             processor,
-                            configuration.Data == null ? null : new Dictionary<string, string>(configuration.Data));
+                            accessor);
                     }
                 }
             }
@@ -75,11 +82,11 @@ namespace MentorBot.Functions.Services
             return null;
         }
 
-        private Task<MentorBotSettings> GetSettingsAsync() =>
-            _cache.GetOrCreateAsync(Constants.SettingsCacheKey, entry =>
+        private Task<IReadOnlyList<Plugin>> GetPluginsAsync() =>
+            _cache.GetOrCreateAsync(Constants.PluginsCacheKey, entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-                return _storageService.GetSettingsAsync();
+                return _storageService.GetAllPluginsAsync();
             });
     }
 }

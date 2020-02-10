@@ -2,7 +2,7 @@
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
-using MentorBot.Functions.Models.Settings;
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Services;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -91,12 +91,12 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task StorageService_GetSettings()
+        public async Task StorageService_GetAllPlugins()
         {
-            var model = new MentorBotSettings();
-            SetDocumentQuery("mentorbot", "settings", "SELECT TOP 2000 * FROM settings", model);
+            var model = new Plugin[0];
+            SetDocumentQuery("mentorbot", "plugins", "SELECT TOP 2000 * FROM plugins", model);
 
-            var result = await _service.GetSettingsAsync();
+            var result = await _service.GetAllPluginsAsync();
 
             Assert.AreEqual(model, result);
         }

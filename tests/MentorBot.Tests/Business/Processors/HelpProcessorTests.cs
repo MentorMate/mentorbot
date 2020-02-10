@@ -31,7 +31,7 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public void HelpProcessorNameShouldBeOk()
         {
-            Assert.AreEqual(_processor.Name, "Help Processor");
+            Assert.AreEqual(_processor.Name, "MentorBot.Functions.Processors.HelpProcessor");
         }
 
         [TestMethod]

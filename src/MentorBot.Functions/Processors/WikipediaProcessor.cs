@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -14,9 +16,6 @@ namespace MentorBot.Functions.Processors
     /// <summary>A command that search for information in the wikipedia encyclopedia.</summary>
     public sealed class WikipediaProcessor : ICommandProcessor
     {
-        /// <summary>The comman name.</summary>
-        public const string CommandName = "Wikipedia Processor";
-
         private static readonly Regex Exp = new Regex("^(What +|Where +|Who +|Where +|are +|is +)+([\\w\\d\\s\\,\\.]+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
         private readonly IWikiClient _client;
 
@@ -27,13 +26,13 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public string Name => CommandName;
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
         public string Subject => "Encyclopedia";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var query = GetQueryText(info);
             if (string.IsNullOrEmpty(query))

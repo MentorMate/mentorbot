@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
 using MentorBot.Functions.Models.Domains.Base;
-
+using MentorBot.Functions.Models.Domains.Plugins;
 using Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains
@@ -56,6 +56,6 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary>Gets or sets the user properties.</summary>
         [StoreAsJsonObject]
-        public IReadOnlyDictionary<string, IReadOnlyList<object>> Properties { get; set; }
+        public Dictionary<string, PluginPropertyValue[][]> Properties { get; set; }
     }
 }

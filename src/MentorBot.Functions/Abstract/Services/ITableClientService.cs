@@ -18,6 +18,11 @@ namespace MentorBot.Functions.Abstract.Services
         Task MergeOrInsertAsync<T>(T model)
             where T : new();
 
+        /// <summary>Merges the or insert list asynchronous.</summary>
+        /// <typeparam name="T">The model type for the table.</typeparam>
+        Task MergeOrInsertListAsync<T>(IEnumerable<T> models)
+            where T : new();
+
         /// <summary>Updates existing records.</summary>
         /// <typeparam name="T">The model type for the table.</typeparam>
         /// <param name="models">A list of model instances to be updated.</param>

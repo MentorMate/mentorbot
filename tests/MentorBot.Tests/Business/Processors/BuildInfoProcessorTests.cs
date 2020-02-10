@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Connectors.Jenkins;
-using MentorBot.Functions.Models.Domains;
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
-using MentorBot.Functions.Processors;
+using MentorBot.Functions.Processors.BuildInfo;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,14 +18,12 @@ namespace MentorBot.Tests.Business.Processors
     {
         private BuildInfoProcessor _processor;
         private IJenkinsClient _jenkinsClient;
-        private IStorageService _storageService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _jenkinsClient = Substitute.For<IJenkinsClient>();
-            _storageService = Substitute.For<IStorageService>();
-            _processor = new BuildInfoProcessor(_jenkinsClient, _storageService);
+            _processor = new BuildInfoProcessor(_jenkinsClient);
         }
 
         [TestMethod]
@@ -38,43 +35,31 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public void BuildInfoProcessorNameCheck()
         {
-            Assert.AreEqual(_processor.Name, "Build Info Processor");
+            Assert.AreEqual(_processor.Name, "MentorBot.Functions.Processors.BuildInfo.BuildInfoProcessor");
         }
 
         [TestMethod]
-        public async Task BuildInfoProcessorShouldReturnMessageWhenNoUser()
+        public async Task BuildInfoProcessorShouldReturnMessageWhenNoHost()
         {
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var chatEvent = CreateEvent("jhon.doe.@mail.com");
-            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, null);
-            Assert.AreEqual("No jobs are assign to you!", info.Text);
-        }
+            
+            accessor.GetAllUserPropertyValuesAsync<string>(null).ReturnsForAnyArgs(new[] { "asdf" });
+            
+            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, accessor);
 
-        [TestMethod]
-        public async Task BuildInfoProcessorShouldReturnMessageWhenUserDoNotHaveProperties()
-        {
-            var chatEvent = CreateEvent("jhon.doe@mail.com");
-            _storageService.GetUserByEmailAsync("jhon.doe@mail.com").Returns(new User());
-
-            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, null);
-
-            Assert.AreEqual("No jobs are assign to you!", info.Text);
+            Assert.AreEqual("No jenkins hosts are configured!", info.Text);
         }
 
         [TestMethod]
         public async Task BuildInfoProcessorShouldReturnMessageWhenUserDoNotHaveJobs()
         {
-            var user = new User
-            {
-                Properties = new Dictionary<string, IReadOnlyList<object>>
-                {
-                    { "Test", new object[0] }
-                }
-            };
-
             var chatEvent = CreateEvent("jhon.doe@mail.com");
-            _storageService.GetUserByEmailAsync("jhon.doe@mail.com").Returns(user);
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
 
-            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, null);
+            //accessor.GetAllUserPropertyValuesAsync<string>(null).ReturnsForAnyArgs(new string[0]);
+
+            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, accessor);
 
             Assert.AreEqual("No jobs are assign to you!", info.Text);
         }
@@ -82,20 +67,32 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task BuildInfoProcessorShouldReturnJobInfo()
         {
-            var user = new User
-            {
-                Properties = new Dictionary<string, IReadOnlyList<object>>
-                {
-                    { "JenkinsJobs", new [] { "TestJob" } }
-                }
-            };
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
 
-            var settings = new Dictionary<string, string>
-            {
-                { "Host", "https://jenkins.com" },
-                { "Username", "Bill" },
-                { "Token", "ABC123" },
-            };
+            accessor.GetAllUserPropertyValuesAsync<string>(null).ReturnsForAnyArgs(new[] { "TestJob" });
+            accessor.GetPluginPropertyGroup("Jenkins.Hosts")
+                .Returns(
+                    new[]
+                    {
+                        new []
+                        {
+                            new PluginPropertyValue
+                            {
+                                Key = "Jenkins.Host",
+                                Value = "https://jenkins.com",
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "Jenkins.User",
+                                Value = "Bill",
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "Jenkins.Token",
+                                Value = "ABC123",
+                            },
+                        }
+                    });
 
             var result = new JenkinsClient.JobResponse
             {
@@ -118,9 +115,8 @@ namespace MentorBot.Tests.Business.Processors
 
             var chatEvent = CreateEvent("jhon.doe@mail.com");
             _jenkinsClient.QueryAsync("TestJob", "https://jenkins.com", "Bill", "ABC123").Returns(result);
-            _storageService.GetUserByEmailAsync("jhon.doe@mail.com").Returns(user);
 
-            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, settings);
+            var info = await _processor.ProcessCommandAsync(null, chatEvent, null, accessor);
             var widget = info.Cards[0].Sections[0].Widgets[0];
 
             Assert.AreEqual("Job 1", widget.KeyValue.TopLabel);

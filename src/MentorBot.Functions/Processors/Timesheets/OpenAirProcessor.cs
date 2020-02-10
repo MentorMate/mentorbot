@@ -15,11 +15,10 @@ using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
-using MentorBot.Functions.Models.Settings;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors.LanguageAnalysis;
 
-namespace MentorBot.Functions.Processors
+namespace MentorBot.Functions.Processors.Timesheets
 {
     /// <summary>The processor that handle timesheet operations.</summary>
     /// <seealso cref="ICommandProcessor" />
@@ -41,13 +40,13 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public string Name => nameof(OpenAirProcessor);
+        public string Name => GetType().FullName;
 
         /// <inheritdoc/>
-        public string Subject => "Timesheets";
+        public string Subject => nameof(Timesheets);
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IReadOnlyDictionary<string, string> settings)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
         {
             var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
             var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
@@ -57,42 +56,41 @@ namespace MentorBot.Functions.Processors
             var today = DateTime.Today;
             var date = period == OpenAirPeriodTypes.LastWeek ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
             var senderEmail = originalChatEvent.Message.Sender.Email;
-            var customersSetting = settings.GetAsArray(Default.DefaultExcludedClientKey);
+            var customersSetting = accessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
             var customersToExclude = customersValue.Concat(customersSetting ?? new string[0]).ToArray();
-            var notifyByEmail = settings.GetValueOrDefault(Default.NotifyByEmailKey)?.ToLowerInvariant() == "true";
             if (state == TimesheetStates.None)
             {
                 return new ValueTask<ChatEventResult>(
                     new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
             }
 
-            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, notifyByEmail, new GoogleChatAddress(originalChatEvent), responder as IHangoutsChatConnector);
+            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, new GoogleChatAddress(originalChatEvent), responder as IHangoutsChatConnector)
+                .ConfigureAwait(false);
 
             return new ValueTask<ChatEventResult>(
                 new ChatEventResult(text: null));
         }
 
         /// <summary>Get timesheets and notifies by message or email the users asynchronous.</summary>
-        public Task NotifyAsync(
+        public async Task NotifyAsync(
             DateTime date,
             TimesheetStates state,
             string email,
-            string[] customersToExclude,
+            IReadOnlyList<string> customersToExclude,
             string department,
             bool notify,
             bool notifyByEmail,
             GoogleChatAddress address,
             IHangoutsChatConnector connector) =>
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, email, customersToExclude)
-                .ContinueWith(task => ProcessNotifyAsync(
-                    task.Result,
-                    email,
-                    department,
-                    notify,
-                    notifyByEmail,
-                    state,
-                    address,
-                    connector));
+            await ProcessNotifyAsync(
+                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, email, customersToExclude),
+                email,
+                department,
+                notify,
+                notifyByEmail,
+                state,
+                address,
+                connector);
 
         private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
             string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))

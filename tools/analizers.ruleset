@@ -24,6 +24,6 @@
     <Rule Id="CC0022" Action="None" />
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-    <Rule Id="SA1413" Action="Info" />
+    <Rule Id="SA1413" Action="None" />
   </Rules>
 </RuleSet>
