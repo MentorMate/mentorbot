@@ -11,12 +11,14 @@ using MentorBot.Functions.App.SmtpClient;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Connectors.Jenkins;
+using MentorBot.Functions.Connectors.Jira;
 using MentorBot.Functions.Connectors.Luis;
 using MentorBot.Functions.Connectors.OpenAir;
 using MentorBot.Functions.Connectors.Wikipedia;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Functions.Processors;
 using MentorBot.Functions.Processors.BuildInfo;
+using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Timesheets;
 using MentorBot.Functions.Services;
 using MentorBot.Functions.Services.AzureStorage;
@@ -128,6 +130,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ICommandProcessor, WikipediaProcessor>();
             services.AddTransient<ICommandProcessor, HelpProcessor>();
             services.AddTransient<ICommandProcessor, HelloProcessor>();
+            services.AddTransient<ICommandProcessor, IssuesProcessor>();
             services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
@@ -136,8 +139,10 @@ namespace MentorBot.Functions.App
             services.AddTransient<IWikiClient, WikiClient>();
             services.AddTransient<ILuisClient, LuisClient>();
             services.AddTransient<IJenkinsClient, JenkinsClient>();
+            services.AddTransient<IJiraClient, JiraClient>();
 
             services.AddHttpClient(JenkinsClient.Name);
+            services.AddHttpClient(JiraClient.Name);
 
             services.AddTransient<GoogleServiceAccountCredential>();
 

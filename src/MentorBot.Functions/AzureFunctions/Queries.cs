@@ -12,6 +12,7 @@ using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Processors.BuildInfo;
+using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Timesheets;
 
 using Microsoft.AspNetCore.Http;
@@ -111,6 +112,44 @@ namespace MentorBot.Functions
                 // We need to dynamicly install new plugins on the fly.
                 plugins = new[]
                 {
+                    new Plugin
+                    {
+                        Id = "31235913-2cd7-4bb1-9af8-35efa521bb1d",
+                        Name = "Issues/Ticketing",
+                        ProcessorTypeName = "MentorBot.Functions.Processors.Issues.IssuesProcessor",
+                        Enabled = true,
+                        Groups = new[]
+                        {
+                            new PluginPropertyGroup
+                            {
+                                Name = "Jira Hosts",
+                                UniqueName = IssuesProperties.HostsGroup,
+                                Multi = false,
+                                ObjectType = PropertyObjectTypes.Settings,
+                                Properties = new[]
+                                {
+                                    new PluginProperty
+                                    {
+                                        Name = "Host",
+                                        UniqueName = IssuesProperties.Host,
+                                        ValueType = PropertyValueTypes.String,
+                                    },
+                                    new PluginProperty
+                                    {
+                                        Name = "Username",
+                                        UniqueName = IssuesProperties.User,
+                                        ValueType = PropertyValueTypes.String,
+                                    },
+                                    new PluginProperty
+                                    {
+                                        Name = "Token",
+                                        UniqueName = IssuesProperties.Token,
+                                        ValueType = PropertyValueTypes.String,
+                                    },
+                                },
+                            },
+                        },
+                    },
                     new Plugin
                     {
                         Id = "7239ed4d-5b95-4bdd-be2c-007c281e87e6",

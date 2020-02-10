@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
@@ -106,6 +107,45 @@ namespace MentorBot.Tests.Business.Services
         {
             _documentClientService.IsConnected.Returns(false);
             _documentClientService.DidNotReceive().Get<GoogleAddress>("mentorbot", "addresses");
+        }
+
+        [TestMethod]
+        public async Task StorageService_AddOrUpdatePluginsAsyncShouldCallAddOrupdate()
+        {
+            var document = GetDocument<Plugin>("mentorbot", "plugins");
+
+            await _service.AddOrUpdatePluginsAsync(
+                new[]
+                {
+                    new Plugin { Key = "K1" },
+                    new Plugin { Key = "K2" },
+                    new Plugin { Id = "3",  Key = "K3" },
+                });
+
+            document.Received().AddManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 2));
+            document.Received().UpdateManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 1));
+        }
+
+        [TestMethod]
+        public async Task StorageService_SaveMessageAsync()
+        {
+            var document = GetDocument<Message>("mentorbot", "messages");
+            var message = new Message { Input = "In" };
+
+            await _service.SaveMessageAsync(message);
+
+            document.Received().AddOrUpdateAsync(message);
+        }
+
+        [TestMethod]
+        public async Task StorageService_AddOrUpdateUserAsync()
+        {
+            var document = GetDocument<User>("mentorbot", "users");
+            var user = new User();
+
+            await _service.AddOrUpdateUserAsync(user);
+
+            document.Received().AddOrUpdateAsync(user);
         }
 
 #pragma warning disable CS4014

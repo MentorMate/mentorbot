@@ -142,6 +142,16 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
+        public async Task AddOrUpdateUserAsync_NotConnected()
+        {
+            _tableClientService.IsConnected.Returns(false);
+
+            var result = await _storageService.AddOrUpdateUserAsync(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
         public async Task GetAllPluginsAsync_NotConnected_returns_EmptySettings()
         {
             ServiceLocator.EnsureServiceProvider();
@@ -259,6 +269,18 @@ namespace MentorBot.Tests.Business.Services
 
             Assert.IsTrue(result);
             Assert.AreEqual(3, addresses.Count);
+        }
+
+        [TestMethod]
+        public async Task AddOrUpdateUserAsyncShouldMergeOrInsert()
+        {
+            User user = null;
+
+            _tableClientService.MergeOrInsertAsync(Arg.Do<User>(a => user = a));
+
+            var result = await _storageService.AddOrUpdateUserAsync(_users[0]);
+
+            Assert.AreEqual("3C039142-CF1A-42CC-87E8-893D8791D4A9", user?.Id);
         }
 
         [TestMethod]
