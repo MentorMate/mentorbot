@@ -59,8 +59,7 @@ namespace MentorBot.Functions.Processors.Issues
                 {
                     TopLabel = it.Key,
                     Content = it.Fields.Summary,
-                    BottomLabel = it.Fields.Assignee != null ? $"Assigned to {it.Fields.Assignee.DisplayName}" : null,
-                    Button = ChatEventFactory.CreateTextButton("Link", it.Self),
+                    BottomLabel = it.Fields.Assignee != null ? $"Assigned to {it.Fields.Assignee.DisplayName}" : null
                 },
             }).ToList();
 
