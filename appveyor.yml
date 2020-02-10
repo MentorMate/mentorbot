@@ -37,7 +37,7 @@ artifacts:
  - path: '\src\MentorBot.Functions\bin\Release\netcoreapp2.2\publish'
    name: MentorBotApi
    type: WebDeployPackage
- - path: '\src\MentorBot.WebLearningCenter\bin\Release\netcoreapp2.0\publish'
+ - path: '\src\MentorBot.WebLearningCenter\bin\Release\netcoreapp2.2\publish'
    name: MentorBotWebLearningCenter
    type: WebDeployPackage
 clone_depth: 1
