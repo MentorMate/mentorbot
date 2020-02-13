@@ -82,7 +82,7 @@ namespace MentorBot.Tests.Business.Processors
                 null,
                 1.0);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null, new string[0]).ReturnsForAnyArgs(new[] { timesheet });
+            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, TimesheetStates.Unsubmitted, null, true, "OpenAir.User.MaxHours", new string[0]).ReturnsForAnyArgs(new[] { timesheet });
 
             // Act
             var result = await _processor.ProcessCommandAsync(info, chat, responder, accessor);
@@ -125,7 +125,7 @@ namespace MentorBot.Tests.Business.Processors
             responder.GetPrivateAddress(Arg.Any<IReadOnlyList<string>>()).Returns(new[] { address });
 
             _storageService.GetAddressesAsync().Returns(new GoogleAddress[0]);
-            _connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "a@b.c", null)
+            _connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "a@b.c", true, "OpenAir.User.MaxHours", null)
                 .ReturnsForAnyArgs(new[] { timesheet, timesheet2 });
 
             // Act
@@ -135,6 +135,7 @@ namespace MentorBot.Tests.Business.Processors
                 "a@b.c",
                 new[] { "D" },
                 "F",
+                true,
                 true,
                 true,
                 null,

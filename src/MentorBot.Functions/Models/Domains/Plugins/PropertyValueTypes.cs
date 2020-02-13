@@ -11,5 +11,8 @@
 
         /// <summary>The 'bool' type.</summary>
         Boolean = 2,
+
+        /// <summary>The 'number' type</summary>
+        Number = 3,
     }
 }

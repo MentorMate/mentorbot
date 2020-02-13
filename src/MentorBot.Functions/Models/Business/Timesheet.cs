@@ -19,5 +19,8 @@ namespace MentorBot.Functions.Models.Business
 
         /// <summary>Gets or sets the total.</summary>
         public double Total { get; set; }
+
+        /// <summary>Gets or sets the utilization in hours.</summary>
+        public int UtilizationInHours { get; set; }
     }
 }

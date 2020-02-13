@@ -87,6 +87,11 @@ namespace MentorBot.Tests.AzureFunctions
                                 Key = "OpenAir.Notifications.NotifyByEmail",
                                 Value = false
                             },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.Notifications.DontNotifyManager",
+                                Value = false
+                            },
                         }
                     });
 
@@ -99,6 +104,7 @@ namespace MentorBot.Tests.AzureFunctions
                 Arg.Is<string[]>(data => data[0] == "A" && data[1] == "B"),
                 null,
                 true,
+                false,
                 false,
                 null,
                 hangoutsChatConnector);

@@ -260,6 +260,12 @@ namespace MentorBot.Functions
                                         UniqueName = TimesheetsProperties.NotifyByEmail,
                                         ValueType = PropertyValueTypes.Boolean,
                                     },
+                                    new PluginProperty
+                                    {
+                                        Name = "Don't Notify Manager",
+                                        UniqueName = TimesheetsProperties.DontNotifyManager,
+                                        ValueType = PropertyValueTypes.Boolean,
+                                    },
                                 },
                             },
                             new PluginPropertyGroup
@@ -275,6 +281,22 @@ namespace MentorBot.Functions
                                         Name = "Customer Name",
                                         UniqueName = TimesheetsProperties.FilterByCustomer,
                                         ValueType = PropertyValueTypes.String,
+                                    },
+                                },
+                            },
+                            new PluginPropertyGroup
+                            {
+                                Name = "OpenAir Properties",
+                                UniqueName = TimesheetsProperties.UserProperties,
+                                Multi = false,
+                                ObjectType = PropertyObjectTypes.User,
+                                Properties = new[]
+                                {
+                                    new PluginProperty
+                                    {
+                                        Name = "Max Hours Per Week",
+                                        UniqueName = TimesheetsProperties.UserMaxHours,
+                                        ValueType = PropertyValueTypes.Number,
                                     },
                                 },
                             },

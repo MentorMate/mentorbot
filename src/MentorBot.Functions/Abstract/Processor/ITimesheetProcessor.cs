@@ -20,6 +20,7 @@ namespace MentorBot.Functions.Abstract.Processor
         /// <param name="department">The department.</param>
         /// <param name="notify">if set to <c>true</c> [notify].</param>
         /// <param name="notifyByEmail">if set to <c>true</c> [notify by email].</param>
+        /// <param name="filterOutSender">if set to <c>true</c> [do not send norification to sender email].</param>
         /// <param name="address">The chat address.</param>
         /// <param name="connector">The chat connector.</param>
         Task NotifyAsync(
@@ -30,6 +31,7 @@ namespace MentorBot.Functions.Abstract.Processor
             string department,
             bool notify,
             bool notifyByEmail,
+            bool filterOutSender,
             GoogleChatAddress address,
             IHangoutsChatConnector connector);
     }

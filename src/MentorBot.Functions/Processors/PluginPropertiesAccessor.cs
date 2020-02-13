@@ -37,11 +37,11 @@ namespace MentorBot.Functions.Processors
 
         /// <inheritdoc />
         public IReadOnlyList<T> GetAllPluginPropertyValues<T>(string uniqueName) =>
-            _plugin.Groups.SelectMany(group => group.Values.SelectMany(values => values)).GetValues<T>(uniqueName);
+            _plugin.Groups?.Select(it => it.Values).GetGroupsValues<T>(uniqueName) ?? new T[0];
 
         /// <inheritdoc />
         public IReadOnlyList<IReadOnlyList<PluginPropertyValue>> GetPluginPropertyGroup(string groupName) =>
-            _plugin.Groups.FirstOrDefault(group => group.UniqueName.Equals(groupName, StringComparison.InvariantCulture))?.Values;
+            _plugin.Groups?.FirstOrDefault(group => groupName.Equals(group.UniqueName, StringComparison.InvariantCulture))?.Values ?? new PluginPropertyValue[0][];
 
         /// <inheritdoc />
         public async Task<IReadOnlyList<T>> GetAllUserPropertyValuesAsync<T>(string uniqueName)
@@ -56,7 +56,7 @@ namespace MentorBot.Functions.Processors
                 _user = await _storageService.GetUserByEmailAsync(_email);
             }
 
-            return _user.Properties.Values?.SelectMany(group => group.SelectMany(values => values)).GetValues<T>(uniqueName) ?? new T[0];
+            return _user.Properties.GetAllUserValues<T>(uniqueName);
         }
     }
 }

@@ -187,7 +187,7 @@ namespace MentorBot.Tests.Business.Processors
             storageService.GetAllActiveUsersAsync().ReturnsForAnyArgs(new[] { user });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
 
             Assert.AreEqual(1, timesheets.Count);
             Assert.AreEqual("Test", timesheets[0].UserName);
@@ -222,7 +222,7 @@ namespace MentorBot.Tests.Business.Processors
                 });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
 
             Assert.AreEqual(6, timesheets.Count);
         }

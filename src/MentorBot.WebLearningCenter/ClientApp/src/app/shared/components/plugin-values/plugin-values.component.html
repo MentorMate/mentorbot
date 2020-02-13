@@ -23,6 +23,10 @@
                type="checkbox"
                [name]="val.value.key"
                [(ngModel)]="val.value.value" />
+        <input *ngIf="val.prop.valueType === 3"
+               type="number"
+               [name]="val.value.key"
+               [(ngModel)]="val.value.value" />
       </div>
     </div>
     <div class="text-right">

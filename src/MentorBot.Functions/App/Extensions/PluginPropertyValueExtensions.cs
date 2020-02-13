@@ -19,6 +19,21 @@ namespace MentorBot.Functions.App.Extensions
         /// <summary>Gets all plugin property values filtered by unique name.</summary>
         /// <typeparam name="T">The type of property value.</typeparam>
         public static IReadOnlyList<T> GetValues<T>(this IEnumerable<PluginPropertyValue> values, string uniqueName) =>
-            values.Where(it => it.Key.Equals(uniqueName, StringComparison.InvariantCulture)).Select(it => (T)it.Value).ToArray();
+            values.Where(it => uniqueName.Equals(it.Key, StringComparison.InvariantCulture)).Select(it => CastValue<T>(it.Value)).ToArray();
+
+        /// <summary>Gets all user values.</summary>
+        /// <typeparam name="T">The type of property value.</typeparam>
+        public static IReadOnlyList<T> GetAllUserValues<T>(this IDictionary<string, PluginPropertyValue[][]> properties, string uniqueName) =>
+            properties?.Values.GetGroupsValues<T>(uniqueName) ?? new T[0];
+
+        /// <summary>Gets plugin groups values.</summary>
+        /// <typeparam name="T">The type of property value.</typeparam>
+        public static IReadOnlyList<T> GetGroupsValues<T>(this IEnumerable<PluginPropertyValue[][]> groups, string uniqueName) =>
+            groups?
+                .SelectMany(group => group?.Where(values => values != null).SelectMany(values => values) ?? new PluginPropertyValue[0])
+                .GetValues<T>(uniqueName) ?? new T[0];
+
+        private static T CastValue<T>(object value) =>
+            (T)Convert.ChangeType(value, typeof(T));
     }
 }

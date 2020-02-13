@@ -32,7 +32,6 @@ namespace MentorBot.Functions
     {
         /// <summary>A sync users command.</summary>
         [FunctionName("sync-users")]
-        [Disable]
         public static async Task SyncUsersAsync(
             [TimerTrigger("0 0 9 * * Fri")] TimerInfo myTimer)
         {
@@ -47,7 +46,6 @@ namespace MentorBot.Functions
 
         /// <summary>A sync users command.</summary>
         [FunctionName("timesheets-reminder")]
-        [Disable]
         public static async Task TimesheetsReminderAsync(
             [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer)
         {
@@ -68,6 +66,7 @@ namespace MentorBot.Functions
             {
                 var email = group.GetValue<string>(TimesheetsProperties.Email);
                 var notify = group.GetValue<bool>(TimesheetsProperties.NotifyByEmail);
+                var filterOutEmail = group.GetValue<bool>(TimesheetsProperties.DontNotifyManager);
 
                 await processor.NotifyAsync(
                     DateTime.Today,
@@ -77,6 +76,7 @@ namespace MentorBot.Functions
                     null,
                     true,
                     notify,
+                    filterOutEmail,
                     null,
                     connector);
             }

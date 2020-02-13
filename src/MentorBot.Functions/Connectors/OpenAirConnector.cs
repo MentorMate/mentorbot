@@ -33,9 +33,14 @@ namespace MentorBot.Functions.Connectors
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(DateTime date, TimesheetStates state, string senderEmail, IReadOnlyList<string> filterByCustomers)
+        public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(
+            DateTime date,
+            TimesheetStates state,
+            string senderEmail,
+            bool filterSender,
+            string userPropertyMaxHoursKey,
+            IReadOnlyList<string> filterByCustomers)
         {
-            var requiredHours = date.DayOfWeek == DayOfWeek.Saturday ? 40 : (int)date.DayOfWeek * 8;
             var toweek = date.AddDays(-(double)date.DayOfWeek);
             var lastWeek = toweek.AddDays(-7);
             var timesheets = new List<OpenAirClient.Timesheet>();
@@ -59,12 +64,13 @@ namespace MentorBot.Functions.Connectors
 
             var users = await _storageService.GetAllActiveUsersAsync();
 
-            // 0. Filter out the sender.
             // 1. Filter out only users where the sender is line manager.
             // 2. Filter out customers.
             // 3. Select timesheet
             var result = users
-                .Where(it => it.Email != senderEmail)
+                .Where(it =>
+                    !filterSender ||
+                    !senderEmail.Equals(it.Email, StringComparison.InvariantCultureIgnoreCase))
                 .Where(it => it.Manager != null)
                 .Where(it =>
                 {
@@ -95,18 +101,24 @@ namespace MentorBot.Functions.Connectors
                 {
                     try
                     {
-                        return new TimesheetExtendedData(timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId), user);
+                        return new TimesheetExtendedData(
+                            timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId),
+                            user,
+                            user.Properties
+                                .GetAllUserValues<int>(userPropertyMaxHoursKey)
+                                .DefaultIfEmpty(40).First());
                     }
                     catch (Exception ex)
                     {
                         Debug.Write(ex.Message);
-                        return new TimesheetExtendedData(null, user);
+                        return new TimesheetExtendedData(null, user, 40);
                     }
                 })
-                .Where(it => it.Timesheet.Total < requiredHours)
+                .Where(it => it.Timesheet.Total < it.HoursPerWeek)
                 .Select(it => new Timesheet
                 {
                     Total = it.Timesheet.Total,
+                    UtilizationInHours = it.HoursPerWeek,
                     UserName = FormatDisplayName(it.User?.Name ?? "Unknown User"),
                     UserEmail = it.User.Email,
                     DepartmentName = it.User.Department.Name,
@@ -234,15 +246,18 @@ namespace MentorBot.Functions.Connectors
         private class TimesheetExtendedData
         {
             /// <summary>Initializes a new instance of the <see cref="TimesheetExtendedData" /> class.</summary>
-            public TimesheetExtendedData(TimesheetBasicData timesheet, User user)
+            public TimesheetExtendedData(TimesheetBasicData timesheet, User user, int hoursPerWeek)
             {
                 Timesheet = timesheet ?? new TimesheetBasicData(user.OpenAirUserId, 0.0);
                 User = user;
+                HoursPerWeek = hoursPerWeek;
             }
 
             public TimesheetBasicData Timesheet { get; set; }
 
             public User User { get; set; }
+
+            public int HoursPerWeek { get; set; }
         }
     }
 }

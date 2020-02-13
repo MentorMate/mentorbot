@@ -64,7 +64,7 @@ namespace MentorBot.Functions.Processors.Timesheets
                     new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
             }
 
-            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, new GoogleChatAddress(originalChatEvent), responder as IHangoutsChatConnector)
+            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, true, new GoogleChatAddress(originalChatEvent), responder as IHangoutsChatConnector)
                 .ConfigureAwait(false);
 
             return new ValueTask<ChatEventResult>(
@@ -80,10 +80,11 @@ namespace MentorBot.Functions.Processors.Timesheets
             string department,
             bool notify,
             bool notifyByEmail,
+            bool filterOutSender,
             GoogleChatAddress address,
             IHangoutsChatConnector connector) =>
             await ProcessNotifyAsync(
-                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, email, customersToExclude),
+                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, email, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude),
                 email,
                 department,
                 notify,
@@ -94,7 +95,7 @@ namespace MentorBot.Functions.Processors.Timesheets
 
         private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
             string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))
-                .Select(it => $"<b>{it.UserName}:</b> {it.Total} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
+                .Select(it => $"<b>{it.UserName}:</b> {it.Total}/{it.UtilizationInHours} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
 
         /// <summary>Processes the specified timesheets.</summary>
         private async Task ProcessNotifyAsync(

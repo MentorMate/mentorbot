@@ -14,7 +14,16 @@ namespace MentorBot.Functions.Processors.Timesheets
         /// <summary>The notify by email key.</summary>
         public const string NotifyByEmail = "OpenAir.Notifications.NotifyByEmail";
 
+        /// <summary>Filter out the manager when sending notifications.</summary>
+        public const string DontNotifyManager = "OpenAir.Notifications.DontNotifyManager";
+
         /// <summary>The filter by customer key.</summary>
         public const string FilterByCustomer = "OpenAir.Filters.Customer";
+
+        /// <summary>The user properties key.</summary>
+        public const string UserProperties = "OpenAir.UserProperties";
+
+        /// <summary>The user maximum hours key.</summary>
+        public const string UserMaxHours = "OpenAir.User.MaxHours";
     }
 }
