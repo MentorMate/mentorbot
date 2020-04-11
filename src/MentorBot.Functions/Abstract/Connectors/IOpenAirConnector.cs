@@ -14,6 +14,7 @@ namespace MentorBot.Functions.Abstract.Connectors
         /// <summary>Get unsubmitted timesheet to the peaople I have access to.</summary>
         Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(
             DateTime date,
+            DateTime today,
             TimesheetStates state,
             string senderEmail,
             bool filterSender,

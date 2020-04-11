@@ -84,7 +84,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             GoogleChatAddress address,
             IHangoutsChatConnector connector) =>
             await ProcessNotifyAsync(
-                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, state, email, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude),
+                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, DateTime.Today, state, email, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude),
                 email,
                 department,
                 notify,
