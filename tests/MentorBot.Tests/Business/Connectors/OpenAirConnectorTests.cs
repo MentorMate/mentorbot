@@ -187,12 +187,51 @@ namespace MentorBot.Tests.Business.Processors
             storageService.GetAllActiveUsersAsync().ReturnsForAnyArgs(new[] { user });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
 
             Assert.AreEqual(1, timesheets.Count);
             Assert.AreEqual("Test", timesheets[0].UserName);
             Assert.AreEqual("Q", timesheets[0].DepartmentName);
             Assert.AreEqual(30, timesheets[0].Total);
+        }
+
+        [TestMethod]
+        public async Task OpenAirConnector_GetUnsubmittedTimesheetsForEndOfMonthAsync()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler()
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name></name><total>40.00</total><starts><Date><month>03</month><day>23</day><year>2020</year></Date></starts><notes></notes></Timesheet></Read ></response>")
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name>A</name><total>8.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>")
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>16.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>1</userid><name>A</name><total>40.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>4</userid><name>A</name><total>12.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
+
+            var client = new OpenAirClient(() => handler, options);
+            var storageService = Substitute.For<IStorageService>();
+            var connector = new OpenAirConnector(client, storageService);
+            var user1 = CreateUser(1, "Test 1", "Q", "d@e.f");
+            var user2 = CreateUser(2, "Test 2", "Q", "d@e.f");
+            var user3 = CreateUser(3, "Test 3", "Q", "d@e.f");
+            var user4 = CreateUser(4, "Test 4", "Q", "d@e.f");
+            var date = new DateTime(2020, 3, 31);
+
+            var user4HourValue = new Functions.Models.Domains.Plugins.PluginPropertyValue
+            {
+                Key = "Hour",
+                Value = 30
+            };
+
+            user4.Properties = new Dictionary<string, Functions.Models.Domains.Plugins.PluginPropertyValue[][]>
+            {
+                { "OpenAir", new [] { new[] { user4HourValue } } }
+            };
+
+            storageService.GetAllActiveUsersAsync().ReturnsForAnyArgs(new[] { user1, user2, user3, user4 });
+
+            // Act
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, date, TimesheetStates.Unsubmitted, "d@e.f", true, "Hour", null);
+
+            Assert.AreEqual(1, timesheets.Count);
+            Assert.AreEqual("Test 3", timesheets[0].UserName);
+            Assert.AreEqual(8, timesheets[0].Total);
         }
 
         [TestMethod]
@@ -222,7 +261,7 @@ namespace MentorBot.Tests.Business.Processors
                 });
 
             // Act
-            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, date, TimesheetStates.Unsubmitted, "d@e.f", true, string.Empty, null);
 
             Assert.AreEqual(6, timesheets.Count);
         }

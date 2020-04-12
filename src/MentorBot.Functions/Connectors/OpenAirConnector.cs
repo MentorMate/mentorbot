@@ -35,6 +35,7 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public async Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(
             DateTime date,
+            DateTime today,
             TimesheetStates state,
             string senderEmail,
             bool filterSender,
@@ -45,6 +46,8 @@ namespace MentorBot.Functions.Connectors
             var lastWeek = toweek.AddDays(-7);
             var timesheets = new List<OpenAirClient.Timesheet>();
             var normalizedCustomerNames = filterByCustomers?.Select(NormalizeValue).ToArray();
+            var isEndOfMonthReport = date.Date == today && today.AddDays(1).Day == 1;
+            var dayOfWeekMultiplier = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday ? 5 : (int)today.DayOfWeek;
 
             timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, lastWeek.AddDays(2), "A"));
             timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "S"));
@@ -104,9 +107,12 @@ namespace MentorBot.Functions.Connectors
                         return new TimesheetExtendedData(
                             timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId),
                             user,
-                            user.Properties
-                                .GetAllUserValues<int>(userPropertyMaxHoursKey)
-                                .DefaultIfEmpty(40).First());
+                            CalculateRequiredHours(
+                                user.Properties
+                                    .GetAllUserValues<int>(userPropertyMaxHoursKey)
+                                    .DefaultIfEmpty(40).First(),
+                                isEndOfMonthReport,
+                                dayOfWeekMultiplier));
                     }
                     catch (Exception ex)
                     {
@@ -114,11 +120,11 @@ namespace MentorBot.Functions.Connectors
                         return new TimesheetExtendedData(null, user, 40);
                     }
                 })
-                .Where(it => it.Timesheet.Total < it.HoursPerWeek)
+                .Where(it => it.Timesheet.Total < it.RequiredHours)
                 .Select(it => new Timesheet
                 {
                     Total = it.Timesheet.Total,
-                    UtilizationInHours = it.HoursPerWeek,
+                    UtilizationInHours = it.RequiredHours,
                     UserName = FormatDisplayName(it.User?.Name ?? "Unknown User"),
                     UserEmail = it.User.Email,
                     DepartmentName = it.User.Department.Name,
@@ -181,6 +187,11 @@ namespace MentorBot.Functions.Connectors
                 await _storageService.UpdateUsersAsync(usersListToUpdate);
             }
         }
+
+        private static int CalculateRequiredHours(int hoursPerWeek, bool isEndOfMonth, int dayOfWeekMultiplier) =>
+            isEndOfMonth ?
+            (hoursPerWeek / 5 * dayOfWeekMultiplier) :
+            hoursPerWeek;
 
         private static bool UserNeedUpdate(User storedUser, OpenAirClient.User openAirUser, UserReference manager, Department department, Customer[] openAirCustomers) =>
             storedUser.Active != openAirUser.Active ||
@@ -246,18 +257,18 @@ namespace MentorBot.Functions.Connectors
         private class TimesheetExtendedData
         {
             /// <summary>Initializes a new instance of the <see cref="TimesheetExtendedData" /> class.</summary>
-            public TimesheetExtendedData(TimesheetBasicData timesheet, User user, int hoursPerWeek)
+            public TimesheetExtendedData(TimesheetBasicData timesheet, User user, int requiredHours)
             {
                 Timesheet = timesheet ?? new TimesheetBasicData(user.OpenAirUserId, 0.0);
                 User = user;
-                HoursPerWeek = hoursPerWeek;
+                RequiredHours = requiredHours;
             }
 
             public TimesheetBasicData Timesheet { get; set; }
 
             public User User { get; set; }
 
-            public int HoursPerWeek { get; set; }
+            public int RequiredHours { get; set; }
         }
     }
 }
