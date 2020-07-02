@@ -140,6 +140,7 @@ namespace MentorBot.Functions.App
             services.AddTransient<ILuisClient, LuisClient>();
             services.AddTransient<IJenkinsClient, JenkinsClient>();
             services.AddTransient<IJiraClient, JiraClient>();
+            services.AddTransient<ITimesheetService, TimesheetService>();
 
             services.AddHttpClient(JenkinsClient.Name);
             services.AddHttpClient(JiraClient.Name);

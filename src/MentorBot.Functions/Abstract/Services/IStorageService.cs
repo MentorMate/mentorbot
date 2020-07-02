@@ -44,6 +44,10 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Saves a message.</summary>
         Task<bool> SaveMessageAsync(Message message);
 
+        /// <summary>Saves a report statistics data.</summary>
+        /// <typeparam name="T">The type of the statistic.</typeparam>
+        Task<bool> AddOrUpdateStatisticsAsync<T>(Statistics<T> data);
+
         /// <summary>Add or update the user asynchronous.</summary>
         Task<bool> AddOrUpdateUserAsync(User user);
     }

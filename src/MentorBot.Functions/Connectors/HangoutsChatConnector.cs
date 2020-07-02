@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Google;
 using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;
 using Google.Apis.Requests;
@@ -47,6 +48,9 @@ namespace MentorBot.Functions.Connectors
         /// <summary>Create a google API base request.</summary>
         public interface IRequestCreator
         {
+            /// <summary>Create a Spaces.GetRequest.</summary>
+            IClientServiceRequest<Space> SpacesGet(string name);
+
             /// <summary>Create a Spaces.ListRequest.</summary>
             IClientServiceRequest<ListSpacesResponse> SpacesList(int? pageSize);
 
@@ -101,34 +105,26 @@ namespace MentorBot.Functions.Connectors
         {
             var res = RequestCreator.SpacesList(1000).Execute();
             var spaces = res.Spaces.Where(it => it.Type == "DM" && !filterSpaces.Contains(it.Name));
-            var addresses = new List<GoogleChatAddress>();
-            foreach (var space in spaces)
-            {
-                User user = null;
-                try
-                {
-                    var response = RequestCreator.SpacesMembersList(space.Name, 2).Execute();
-
-                    user = response.Memberships.FirstOrDefault(it => it.Member.Type == "HUMAN")?.Member;
-                }
-                catch (Exception)
-                {
-                    // If there is request exception just provide empty user to be stored.
-                    user = new User();
-                }
-
-                if (user == null)
-                {
-                    continue;
-                }
-
-                var address = new GoogleChatAddress(space.Name, space.DisplayName, space.Type, user.Name, user.DisplayName);
-
-                addresses.Add(address);
-            }
-
+            var addresses = spaces.Select(CreateChatAddress).Where(address => address != null).ToArray();
             return addresses;
         }
+
+        /// <inheritdoc/>
+        public GoogleChatAddress GetAddressByName(string name)
+        {
+            try
+            {
+                return CreateChatAddress(RequestCreator.SpacesGet(name).Execute());
+            }
+            catch (GoogleApiException)
+            {
+                return null;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IClientServiceRequest<Space> SpacesGet(string name) =>
+            ServiceProviderFactory.Value.Spaces.Get(name);
 
         /// <inheritdoc/>
         public IClientServiceRequest<ListSpacesResponse> SpacesList(int? pageSize) =>
@@ -141,5 +137,35 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public IClientServiceRequest<Message> SpacesMessagesCreate(Message message, string spaceName) =>
             ServiceProviderFactory.Value.Spaces.Messages.Create(message, spaceName);
+
+        private GoogleChatAddress CreateChatAddress(Space space)
+        {
+            if (space == null)
+            {
+                return null;
+            }
+
+            User user = null;
+            try
+            {
+                var response = RequestCreator.SpacesMembersList(space.Name, 2).Execute();
+
+                user = response.Memberships.FirstOrDefault(it => it.Member.Type == "HUMAN")?.Member;
+            }
+            catch (Exception)
+            {
+                // If there is request exception just provide empty user to be stored.
+                user = new User();
+            }
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var address = new GoogleChatAddress(space.Name, space.DisplayName, space.Type, user.Name, user.DisplayName);
+
+            return address;
+        }
     }
 }

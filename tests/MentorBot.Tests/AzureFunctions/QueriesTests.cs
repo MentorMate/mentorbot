@@ -53,7 +53,8 @@ namespace MentorBot.Tests.AzureFunctions
             {
                 new Plugin
                 {
-                    Name = "P1"
+                    Id = "31235913-2cd7-4bb1-9af8-35efa521bb1d",
+                    Name = "Issues/Ticketing"
                 }
             };
 
@@ -65,7 +66,44 @@ namespace MentorBot.Tests.AzureFunctions
 
             var result = await Queries.GetPluginsAsync(req);
 
-            Assert.AreEqual(result.First().Name, "P1");
+            Assert.IsNotNull(result.FirstOrDefault(it => it.Name == "Issues/Ticketing"));
+        }
+
+        [TestMethod]
+        public async Task GetSettingsShouldUpdateGroups()
+        {
+            var req = GetHttpRequest();
+            var storageService = Substitute.For<IStorageService>();
+            var plugins = new[]
+            {
+                new Plugin
+                {
+                    Id = "7239ed4d-5b95-4bdd-be2c-007c281e87e6",
+                    Name = "Jenkins Build Info",
+                    Enabled = true,
+                        Groups = new[]
+                        {
+                            new PluginPropertyGroup
+                            {
+                                Name = "Jenkins Hosts",
+                                UniqueName = "Jenkins.Hosts",
+                            }
+                        }
+                }
+            };
+
+            storageService.GetAllPluginsAsync().Returns(plugins);
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor(req, UserRoles.Administrator));
+
+            var result = await Queries.GetPluginsAsync(req);
+
+            var p = result.FirstOrDefault(it => it.Name == "Jenkins Build Info");
+
+            Assert.AreEqual(2, p.Groups.Length);
+            storageService.Received().AddOrUpdatePluginsAsync((Plugin[])result);
         }
 
         [TestMethod]

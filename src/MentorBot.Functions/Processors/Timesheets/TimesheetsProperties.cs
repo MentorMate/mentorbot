@@ -5,8 +5,26 @@ namespace MentorBot.Functions.Processors.Timesheets
     /// <summary>The timesheets properties keys.</summary>
     public static class TimesheetsProperties
     {
+        /// <summary>The processor name.</summary>
+        public const string ProcessorSubjectName = nameof(Timesheets);
+
         /// <summary>The notifications group key.</summary>
         public const string NotificationsGroup = "OpenAir.Notifications";
+
+        /// <summary>The auto notifications group key.</summary>
+        public const string AutoNotificationsGroup = "OpenAir.AutoNotifications";
+
+        /// <summary>The automatic notifications cron.</summary>
+        public const string AutoNotificationsCron = "OpenAir.AutoNotifications.Cron";
+
+        /// <summary>The automatic notifications report name.</summary>
+        public const string AutoNotificationsReportName = "OpenAir.AutoNotifications.ReportName";
+
+        /// <summary>The automatic notifications spaces.</summary>
+        public const string AutoNotificationsSpaces = "OpenAir.AutoNotifications.Spaces";
+
+        /// <summary>The automatic notifications manager email.</summary>
+        public const string AutoNotificationsManagerEmail = "OpenAir.AutoNotifications.Email";
 
         /// <summary>The email key.</summary>
         public const string Email = "OpenAir.Notifications.Email";

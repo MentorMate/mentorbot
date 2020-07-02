@@ -16,6 +16,7 @@ namespace MentorBot.Functions.Services
     {
         private const string DatabaseName = "mentorbot";
         private const string UserDocumentName = "users";
+        private const string StatisticsDocumentName = "statistics";
         private const string AddressDocumentName = "addresses";
         private const string MessagesDocumentName = "messages";
         private const string PluginsDocumentName = "plugins";
@@ -86,6 +87,10 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<bool> SaveMessageAsync(Message message) =>
             ExecuteIfConnectedAsync<Message, bool>(doc => doc.AddOrUpdateAsync(message), MessagesDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateStatisticsAsync<T>(Statistics<T> data) =>
+            ExecuteIfConnectedAsync<Statistics<T>, bool>(doc => doc.AddOrUpdateAsync(data), StatisticsDocumentName, false);
 
         /// <inheritdoc/>
         public Task<bool> AddOrUpdateUserAsync(User user) =>
