@@ -73,6 +73,11 @@ namespace MentorBot.Tests.Business.Processors
                                 Key = "OpenAir.AutoNotifications.Cron",
                                 Value = DateTime.Now.ToString("h ddd")
                             },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.Notify",
+                                Value = false
+                            },
                         }
                     });
 

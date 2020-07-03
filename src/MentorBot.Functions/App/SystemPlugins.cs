@@ -232,6 +232,12 @@ namespace MentorBot.Functions.App
                                         UniqueName = TimesheetsProperties.AutoNotificationsManagerEmail,
                                         ValueType = PropertyValueTypes.String,
                                     },
+                                    new PluginProperty
+                                    {
+                                        Name = "Notify Users",
+                                        UniqueName = TimesheetsProperties.AutoNotificationsNotify,
+                                        ValueType = PropertyValueTypes.Boolean,
+                                    },
                                 },
                             },
                         },

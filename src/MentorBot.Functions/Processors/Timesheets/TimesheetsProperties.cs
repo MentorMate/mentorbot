@@ -26,6 +26,9 @@ namespace MentorBot.Functions.Processors.Timesheets
         /// <summary>The automatic notifications manager email.</summary>
         public const string AutoNotificationsManagerEmail = "OpenAir.AutoNotifications.Email";
 
+        /// <summary>The automatic notifications should notify users.</summary>
+        public const string AutoNotificationsNotify = "OpenAir.AutoNotifications.Notify";
+
         /// <summary>The email key.</summary>
         public const string Email = "OpenAir.Notifications.Email";
 

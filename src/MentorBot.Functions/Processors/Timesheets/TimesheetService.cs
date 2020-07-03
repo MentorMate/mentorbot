@@ -53,6 +53,7 @@ namespace MentorBot.Functions.Processors.Timesheets
                     var space = group.GetValue<string>(TimesheetsProperties.AutoNotificationsSpaces);
                     var email = group.GetValue<string>(TimesheetsProperties.AutoNotificationsManagerEmail);
                     var stateName = group.GetValue<string>(TimesheetsProperties.AutoNotificationsReportName);
+                    var notify = group.GetValue<bool>(TimesheetsProperties.AutoNotificationsNotify);
                     var state = Enum.Parse<TimesheetStates>(stateName, true);
                     if (string.IsNullOrEmpty(space) ||
                         string.IsNullOrEmpty(email) ||
@@ -100,7 +101,7 @@ namespace MentorBot.Functions.Processors.Timesheets
                             timesheetValues,
                             email,
                             department: null,
-                            notify: false,
+                            notify: notify,
                             notifyByEmail: false,
                             state,
                             address,
