@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors.Timesheets;
@@ -34,7 +37,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void SendScheduledTimesheetShoudSendToSpace()
+        public async Task SendScheduledTimesheetShoudSendToSpace()
         {
             var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
             var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
@@ -86,18 +89,22 @@ namespace MentorBot.Tests.Business.Processors
                 .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCusts)
                 .Returns(new[] { timesheet });
 
-            _timesheetService.SendScheduledTimesheetNotificationsAsync();
+            await _timesheetService.SendScheduledTimesheetNotificationsAsync();
 
-            _storageService.ReceivedWithAnyArgs().AddOrUpdateStatisticsAsync<TimesheetStatistics[]>(null);
-            timesheetProcessor.Received().SendTimesheetNotificationsToUsersAsync(
-                Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
-                "a@b.c",
-                null,
-                false,
-                false,
-                TimesheetStates.Unsubmitted,
-                address,
-                _hangoutsChatConnector);
+            await _storageService
+                .Received()
+                .AddOrUpdateStatisticsAsync<TimesheetStatistics[]>(Arg.Any<Statistics<TimesheetStatistics[]>>());
+            await timesheetProcessor
+                .Received()
+                .SendTimesheetNotificationsToUsersAsync(
+                    Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
+                    "a@b.c",
+                    null,
+                    false,
+                    false,
+                    TimesheetStates.Unsubmitted,
+                    address,
+                    _hangoutsChatConnector);
         }
 
         [TestMethod]
