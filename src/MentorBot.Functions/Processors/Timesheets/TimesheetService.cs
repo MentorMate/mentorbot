@@ -32,6 +32,20 @@ namespace MentorBot.Functions.Processors.Timesheets
             _hangoutsChatConnector = hangoutsChatConnector;
         }
 
+        /// <summary>Check a datetime against a basic cron pattern.</summary>
+        public static bool CronCheck(string cron, DateTime date)
+        {
+            var parts = cron.Trim().Split(' ').Where(part => part.Length > 0).ToArray();
+            var hourString = date.Hour.ToString(CultureInfo.InvariantCulture);
+            var hoursCron = parts[0].Split(',');
+            var hourValid = hoursCron.Any(hour => hour == "*" || hour.Equals(hourString, StringComparison.InvariantCulture));
+            var weekDayString = date.ToString("ddd", CultureInfo.InvariantCulture);
+            var weekDaysCron = parts[1].Split(',');
+            var weekDayValid = weekDaysCron.Any(day => day == "*" || day.Equals(weekDayString, StringComparison.InvariantCultureIgnoreCase));
+
+            return hourValid && weekDayValid;
+        }
+
         /// <summary>Sends the scheduled timesheet notifications asynchronous.</summary>
         public async Task SendScheduledTimesheetNotificationsAsync()
         {
@@ -109,24 +123,6 @@ namespace MentorBot.Functions.Processors.Timesheets
                     }
                 }
             }
-        }
-
-        private static bool CronCheck(string cron, DateTime date)
-        {
-            var parts = cron.Trim().Split(' ').Where(part => part.Length > 0).ToArray();
-            if (parts[1] != "*" &&
-                parts[1].ToUpperInvariant() != date.ToString("ddd", CultureInfo.InvariantCulture).ToUpperInvariant())
-            {
-                return false;
-            }
-
-            if (parts[0] != "*" &&
-                parts[0] != date.Hour.ToString(CultureInfo.InvariantCulture))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

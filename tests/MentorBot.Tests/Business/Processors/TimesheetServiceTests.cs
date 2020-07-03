@@ -99,5 +99,22 @@ namespace MentorBot.Tests.Business.Processors
                 address,
                 _hangoutsChatConnector);
         }
+
+        [TestMethod]
+        public void CronCheckShoudAllowManyValues()
+        {
+            var date = new DateTime(2020, 7, 1, 10, 30, 0, DateTimeKind.Local);
+
+            Assert.IsTrue(TimesheetService.CronCheck("10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed,Fri", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10,11 Wed", date));
+            Assert.IsFalse(TimesheetService.CronCheck("9 Wed,Fri", date));
+            Assert.IsFalse(TimesheetService.CronCheck("10 Fri", date));
+            Assert.IsTrue(TimesheetService.CronCheck("* Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("* *", date));
+            Assert.IsTrue(TimesheetService.CronCheck("10 *", date));
+            Assert.IsFalse(TimesheetService.CronCheck("* Fri", date));
+        }
     }
 }

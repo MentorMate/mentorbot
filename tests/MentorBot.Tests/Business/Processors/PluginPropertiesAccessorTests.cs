@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
@@ -52,6 +53,35 @@ namespace MentorBot.Tests.Business.Processors
 
             _accessor = PluginPropertiesAccessor.GetInstance(null, plugin, null);
             Assert.AreEqual(2, _accessor.GetAllPluginPropertyValues<string>("Test3").Count);
+        }
+
+        [TestMethod]
+        public void PluginAccessorShouldGetPluginValueIfNotCorrectType()
+        {
+            var plugin = new Plugin
+            {
+                Groups = new[]
+                {
+                    new PluginPropertyGroup
+                    {
+                        Values = GetGroup(
+                                new PluginPropertyValue
+                                {
+                                    Key = "TestBool",
+                                    Value = string.Empty
+                                },
+                                new PluginPropertyValue
+                                {
+                                    Key = "TestStrBool",
+                                    Value = "True"
+                                })
+                    }
+                }
+            };
+
+            _accessor = PluginPropertiesAccessor.GetInstance(null, plugin, null);
+            Assert.IsFalse(_accessor.GetAllPluginPropertyValues<bool>("TestBool").First());
+            Assert.IsTrue(_accessor.GetAllPluginPropertyValues<bool>("TestStrBool").First());
         }
 
         [TestMethod]
