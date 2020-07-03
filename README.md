@@ -1,5 +1,5 @@
 # MentorBot [![Build status](https://ci.appveyor.com/api/projects/status/0sjergot9u18yu4o/branch/master?svg=true)](https://ci.appveyor.com/project/rosenkolev/mentorbot/branch/master)
-[![codecov](https://codecov.io/gh/MentorSource/mentorbot/branch/master/graph/badge.svg)](https://codecov.io/gh/MentorSource/mentorbot)
+[![codecov](https://codecov.io/gh/MentorSource/mentorbot/branch/master/graph/badge.svg)](https://codecov.io/gh/MentorMate/mentorbot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 What is the idea behind MentorBot? MentorBot is a Google/Hangout Chat bot, that can be taught to perform different tasks.
