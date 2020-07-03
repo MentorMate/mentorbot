@@ -111,6 +111,19 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
+        public async Task ExecuteTimesheetsReminderAsyncShouldSendNotificaitions()
+        {
+            var timesheetService = Substitute.For<ITimesheetService>();
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(ITimesheetService), timesheetService));
+
+            await Commands.ExecuteTimesheetsReminderAsync(new TimerInfo(null, null, false));
+
+            timesheetService.Received().SendScheduledTimesheetNotificationsAsync();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AccessViolationException))]
         public async Task SavePluginsAsyncShouldAllowOnlyAdministrators()
         {

@@ -111,7 +111,7 @@ namespace MentorBot.Tests.Business.Services
                         UserId = "345",
                         Type = "online",
                         Email = "abc@def.go",
-                        DueDate = DateTime.Now.AddMinutes(1)
+                        DueDate = DateTime.UtcNow.AddMinutes(1)
                     };
 
                     return true;

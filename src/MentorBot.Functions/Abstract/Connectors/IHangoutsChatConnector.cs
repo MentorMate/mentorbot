@@ -12,5 +12,8 @@ namespace MentorBot.Functions.Abstract.Connectors
     {
         /// <summary>Gets the private chat channels addresses.</summary>
         IReadOnlyList<GoogleChatAddress> GetPrivateAddress(IReadOnlyList<string> filterSpaces);
+
+        /// <summary>Gets the rooms channels addresses.</summary>
+        GoogleChatAddress GetAddressByName(string name);
     }
 }

@@ -21,8 +21,7 @@ using MentorBot.Functions.Processors.LanguageAnalysis;
 namespace MentorBot.Functions.Processors.Timesheets
 {
     /// <summary>The processor that handle timesheet operations.</summary>
-    /// <seealso cref="ICommandProcessor" />
-    public sealed class OpenAirProcessor : ICommandProcessor, ITimesheetProcessor
+    public sealed class OpenAirProcessor : ITimesheetProcessor
     {
         private readonly IOpenAirConnector _openAirConnector;
         private readonly IStorageService _storageService;
@@ -43,7 +42,7 @@ namespace MentorBot.Functions.Processors.Timesheets
         public string Name => GetType().FullName;
 
         /// <inheritdoc/>
-        public string Subject => nameof(Timesheets);
+        public string Subject => TimesheetsProperties.ProcessorSubjectName;
 
         /// <inheritdoc/>
         public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
@@ -83,7 +82,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             bool filterOutSender,
             GoogleChatAddress address,
             IHangoutsChatConnector connector) =>
-            await ProcessNotifyAsync(
+            await SendTimesheetNotificationsToUsersAsync(
                 await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, DateTime.Today, state, email, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude),
                 email,
                 department,
@@ -93,12 +92,12 @@ namespace MentorBot.Functions.Processors.Timesheets
                 address,
                 connector);
 
-        private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
-            string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))
-                .Select(it => $"<b>{it.UserName}:</b> {it.Total}/{it.UtilizationInHours} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(DateTime dateTime, TimesheetStates state, string senderEmail, bool filterOutSender, IReadOnlyList<string> customersToExclude) =>
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(dateTime, DateTime.Today, state, senderEmail, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude);
 
         /// <summary>Processes the specified timesheets.</summary>
-        private async Task ProcessNotifyAsync(
+        public async Task SendTimesheetNotificationsToUsersAsync(
             IReadOnlyList<Timesheet> timesheets,
             string email,
             string department,
@@ -160,6 +159,10 @@ namespace MentorBot.Functions.Processors.Timesheets
                 await _mailService.SendMailAsync("Users not notified", emailText, email);
             }
         }
+
+        private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
+            string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))
+                .Select(it => $"<b>{it.UserName}:</b> {it.Total}/{it.UtilizationInHours} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
 
         private async Task<IReadOnlyList<string>> NotifyUsersOverChatAsync(
             IHangoutsChatConnector connector,

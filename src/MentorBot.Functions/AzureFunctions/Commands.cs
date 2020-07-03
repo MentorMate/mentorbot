@@ -82,6 +82,20 @@ namespace MentorBot.Functions
             }
         }
 
+        /// <summary>Execute a timesheet reminder.</summary>
+        [FunctionName("timesheets-reminder-configurable")]
+        public static async Task ExecuteTimesheetsReminderAsync(
+            [TimerTrigger("0 0 * * * 1-5")] TimerInfo myTimer)
+        {
+            Contract.Ensures(myTimer != null, "Timer is not instanciated");
+
+            ServiceLocator.EnsureServiceProvider();
+
+            var timesheetService = ServiceLocator.Get<ITimesheetService>();
+
+            await timesheetService.SendScheduledTimesheetNotificationsAsync();
+        }
+
         /// <summary>Sets the MentorBot plugins to storage.</summary>
         [FunctionName("save-plugins")]
         public static async Task SavePluginsAsync(

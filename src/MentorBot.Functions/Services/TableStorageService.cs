@@ -122,6 +122,19 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateStatisticsAsync<T>(Statistics<T> data)
+        {
+            if (!_tableClientService.IsConnected)
+            {
+                return false;
+            }
+
+            await _tableClientService.MergeOrInsertAsync<Statistics<T>>(data);
+
+            return true;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> AddOrUpdateUserAsync(User user)
         {
             if (!_tableClientService.IsConnected)
