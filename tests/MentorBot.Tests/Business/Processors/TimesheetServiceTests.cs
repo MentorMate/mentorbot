@@ -36,6 +36,8 @@ namespace MentorBot.Tests.Business.Processors
             _timesheetService = new TimesheetService(_storageService, _cognitiveService, _hangoutsChatConnector);
         }
 
+#pragma warning disable CS4014
+
         [TestMethod]
         public async Task SendScheduledTimesheetShoudSendToSpace()
         {
@@ -91,10 +93,10 @@ namespace MentorBot.Tests.Business.Processors
 
             await _timesheetService.SendScheduledTimesheetNotificationsAsync();
 
-            await _storageService
+            _storageService
                 .Received()
-                .AddOrUpdateStatisticsAsync<TimesheetStatistics[]>(Arg.Any<Statistics<TimesheetStatistics[]>>());
-            await timesheetProcessor
+                .AddOrUpdateStatisticsAsync(Arg.Any<Statistics<TimesheetStatistics[]>>());
+            timesheetProcessor
                 .Received()
                 .SendTimesheetNotificationsToUsersAsync(
                     Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
@@ -106,6 +108,8 @@ namespace MentorBot.Tests.Business.Processors
                     address,
                     _hangoutsChatConnector);
         }
+
+#pragma warning restore CS4014
 
         [TestMethod]
         public void CronCheckShoudAllowManyValues()
