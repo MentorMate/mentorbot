@@ -33,7 +33,23 @@ namespace MentorBot.Functions.App.Extensions
                 .SelectMany(group => group?.Where(values => values != null).SelectMany(values => values) ?? new PluginPropertyValue[0])
                 .GetValues<T>(uniqueName) ?? new T[0];
 
-        private static T CastValue<T>(object value) =>
-            (T)Convert.ChangeType(value, typeof(T));
+        private static T CastValue<T>(object value)
+        {
+            var typeOfT = typeof(T);
+            if (value is string stringValue)
+            {
+                if (string.IsNullOrEmpty(stringValue))
+                {
+                    return default;
+                }
+
+                if (typeOfT == typeof(bool))
+                {
+                    return (T)(object)(stringValue.ToLowerInvariant() == "true");
+                }
+            }
+
+            return (T)Convert.ChangeType(value, typeof(T));
+        }
     }
 }

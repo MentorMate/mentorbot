@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors.Timesheets;
@@ -33,8 +36,10 @@ namespace MentorBot.Tests.Business.Processors
             _timesheetService = new TimesheetService(_storageService, _cognitiveService, _hangoutsChatConnector);
         }
 
+#pragma warning disable CS4014
+
         [TestMethod]
-        public void SendScheduledTimesheetShoudSendToSpace()
+        public async Task SendScheduledTimesheetShoudSendToSpace()
         {
             var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
             var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
@@ -86,18 +91,41 @@ namespace MentorBot.Tests.Business.Processors
                 .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCusts)
                 .Returns(new[] { timesheet });
 
-            _timesheetService.SendScheduledTimesheetNotificationsAsync();
+            await _timesheetService.SendScheduledTimesheetNotificationsAsync();
 
-            _storageService.ReceivedWithAnyArgs().AddOrUpdateStatisticsAsync<TimesheetStatistics[]>(null);
-            timesheetProcessor.Received().SendTimesheetNotificationsToUsersAsync(
-                Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
-                "a@b.c",
-                null,
-                false,
-                false,
-                TimesheetStates.Unsubmitted,
-                address,
-                _hangoutsChatConnector);
+            _storageService
+                .Received()
+                .AddOrUpdateStatisticsAsync(Arg.Any<Statistics<TimesheetStatistics[]>>());
+            timesheetProcessor
+                .Received()
+                .SendTimesheetNotificationsToUsersAsync(
+                    Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
+                    "a@b.c",
+                    null,
+                    false,
+                    false,
+                    TimesheetStates.Unsubmitted,
+                    address,
+                    _hangoutsChatConnector);
+        }
+
+#pragma warning restore CS4014
+
+        [TestMethod]
+        public void CronCheckShoudAllowManyValues()
+        {
+            var date = new DateTime(2020, 7, 1, 10, 30, 0, DateTimeKind.Local);
+
+            Assert.IsTrue(TimesheetService.CronCheck("10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed,Fri", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,10,11 Wed", date));
+            Assert.IsFalse(TimesheetService.CronCheck("9 Wed,Fri", date));
+            Assert.IsFalse(TimesheetService.CronCheck("10 Fri", date));
+            Assert.IsTrue(TimesheetService.CronCheck("* Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("* *", date));
+            Assert.IsTrue(TimesheetService.CronCheck("10 *", date));
+            Assert.IsFalse(TimesheetService.CronCheck("* Fri", date));
         }
     }
 }
