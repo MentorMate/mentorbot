@@ -148,6 +148,14 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
+        public async Task<IReadOnlyList<Statistics<T>>> GetStatisticsAsync<T>(string date, string time)
+        {
+            var stats = await _tableClientService.QueryAsync<Statistics<T>>($"Date eq '{date}' AND Time eq '{time}'", 1000);
+
+            return stats.ToArray();
+        }
+
+        /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllActiveUsersAsync() =>
             _tableClientService.QueryAsync<User>(2000)
                 .ContinueWith(task => (IReadOnlyList<User>)task.Result.Where(user => user.Active).ToList(), TaskScheduler.Default);

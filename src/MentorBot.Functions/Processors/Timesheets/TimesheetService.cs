@@ -36,8 +36,24 @@ namespace MentorBot.Functions.Processors.Timesheets
         public static bool CronCheck(string cron, DateTime date)
         {
             var parts = cron.Trim().Split(' ').Where(part => part.Length > 0).ToArray();
-            var hourString = date.Hour.ToString(CultureInfo.InvariantCulture);
-            var hoursCron = parts[0].Split(',');
+            var hourString = date.ToString("HH:mm", CultureInfo.InvariantCulture);
+            var hoursCron = parts[0]
+                .Split(',')
+                .Where(part => part.Length > 0)
+                .Select(part =>
+                {
+                    if (part == "*" ||
+                        part == "?")
+                    {
+                        return "*";
+                    }
+
+                    var idx = part.IndexOf(':', StringComparison.InvariantCulture);
+                    var timeStr = idx == 1 || part.Length == 1 ? ("0" + part) : part;
+                    return idx == -1 ? (timeStr + ":00") : timeStr;
+                })
+                .ToArray();
+
             var hourValid = hoursCron.Any(hour => hour == "*" || hour.Equals(hourString, StringComparison.InvariantCulture));
             var weekDayString = date.ToString("ddd", CultureInfo.InvariantCulture);
             var weekDaysCron = parts[1].Split(',');
@@ -47,11 +63,10 @@ namespace MentorBot.Functions.Processors.Timesheets
         }
 
         /// <summary>Sends the scheduled timesheet notifications asynchronous.</summary>
-        public async Task SendScheduledTimesheetNotificationsAsync()
+        public async Task SendScheduledTimesheetNotificationsAsync(DateTime scheduleDate)
         {
-            var now = DateTime.Now;
-            var dateValue = now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var timeValue = now.ToString("HH:00", CultureInfo.InvariantCulture);
+            var dateValue = scheduleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var timeValue = scheduleDate.ToString("HH:00", CultureInfo.InvariantCulture);
             var result = await _cognitiveService.GetCognitiveTextAnalysisResultAsync(
                 new TextDeconstructionInformation(null, TimesheetsProperties.ProcessorSubjectName), null);
 
@@ -62,7 +77,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             foreach (var group in notificationsGroups)
             {
                 var cron = group.GetValue<string>(TimesheetsProperties.AutoNotificationsCron);
-                if (CronCheck(cron, now))
+                if (CronCheck(cron, scheduleDate))
                 {
                     var space = group.GetValue<string>(TimesheetsProperties.AutoNotificationsSpaces);
                     var email = group.GetValue<string>(TimesheetsProperties.AutoNotificationsManagerEmail);
@@ -76,7 +91,11 @@ namespace MentorBot.Functions.Processors.Timesheets
                         continue;
                     }
 
-                    var spaces = space.Split(',');
+                    var spaces = space.Split(',').Select(sp =>
+                        sp.StartsWith("spaces/", StringComparison.InvariantCultureIgnoreCase)
+                        ? sp
+                        : ("spaces/" + sp));
+
                     var key = string.Concat(stateName, "_", email);
                     foreach (var spaceName in spaces)
                     {
@@ -88,7 +107,7 @@ namespace MentorBot.Functions.Processors.Timesheets
 
                         if (!timesheets.TryGetValue(key, out var timesheetValues))
                         {
-                            timesheetValues = await processor.GetTimesheetsAsync(now, state, email, true, customerToExcludes);
+                            timesheetValues = await processor.GetTimesheetsAsync(scheduleDate, state, email, true, customerToExcludes);
                             timesheets.Add(key, timesheetValues);
 
                             var statistics = new Statistics<TimesheetStatistics[]>
@@ -96,6 +115,7 @@ namespace MentorBot.Functions.Processors.Timesheets
                                 Id = Guid.NewGuid().ToString(),
                                 Date = dateValue,
                                 Time = timeValue,
+                                Type = nameof(TimesheetStatistics),
                                 Data = timesheetValues
                                     .Select(it =>
                                         new TimesheetStatistics

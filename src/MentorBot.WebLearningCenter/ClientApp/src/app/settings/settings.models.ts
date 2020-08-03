@@ -18,6 +18,7 @@ export interface PluginGroup {
 export interface PluginProperty {
   name: string;
   key: string;
+  desc: string;
   valueType: ValueType;
 }
 

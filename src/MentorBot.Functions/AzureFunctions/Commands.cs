@@ -85,7 +85,7 @@ namespace MentorBot.Functions
         /// <summary>Execute a timesheet reminder.</summary>
         [FunctionName("timesheets-reminder-configurable")]
         public static async Task ExecuteTimesheetsReminderAsync(
-            [TimerTrigger("0 0 * * * 1-5")] TimerInfo myTimer)
+            [TimerTrigger("0 */30 * * * 1-5")] TimerInfo myTimer)
         {
             Contract.Ensures(myTimer != null, "Timer is not instanciated");
 
@@ -93,7 +93,7 @@ namespace MentorBot.Functions
 
             var timesheetService = ServiceLocator.Get<ITimesheetService>();
 
-            await timesheetService.SendScheduledTimesheetNotificationsAsync();
+            await timesheetService.SendScheduledTimesheetNotificationsAsync(myTimer.ScheduleStatus.Last);
         }
 
         /// <summary>Sets the MentorBot plugins to storage.</summary>

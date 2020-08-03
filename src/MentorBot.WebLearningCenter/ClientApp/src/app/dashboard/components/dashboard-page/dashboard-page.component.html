@@ -1,0 +1,19 @@
+<header>
+  <h1>Dashboard</h1>
+</header>
+<article>
+  <h3>Answered/Unanswered chat bot requests</h3>
+  <section *ngIf="answeredData$ | async as datasets">
+    <canvas chart="pie" [chart-labels]="answeredLabels" [chart-datasets]="datasets"></canvas>
+  </section>
+</article>
+<br />
+<br />
+<article>
+  <h3>Unsubmitted timesheets in 20:00 o'clock Friday</h3>
+  <section *ngIf="timesheet$ | async as timesheet">
+    <canvas chart="line" [chart-labels]="timesheet.labels" [chart-datasets]="timesheet.datasets"></canvas>
+  </section>
+</article>
+<br />
+<br />

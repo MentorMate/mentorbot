@@ -11,6 +11,10 @@ namespace MentorBot.Functions.Models.Domains.Plugins
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        /// <summary>Gets or sets the description.</summary>
+        [JsonProperty("desc")]
+        public string DescriptionHtml { get; set; }
+
         /// <summary>Gets or sets the unique property name.</summary>
         [JsonProperty("key")]
         public string UniqueName { get; set; }

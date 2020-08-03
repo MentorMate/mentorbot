@@ -2,12 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.App.Extensions;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
@@ -147,6 +149,62 @@ namespace MentorBot.Functions
             }
 
             return combinedPlugins;
+        }
+
+        /// <summary>Gets users info asynchronous.</summary>
+        [FunctionName("get-timesheet-stats")]
+        public static async Task<IEnumerable<TimesheetChartStatistic>> GetTimesheetStatisticsAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+        {
+            Contract.Ensures(req != null, "Request is not instanciated");
+
+            ServiceLocator.EnsureServiceProvider();
+
+            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
+
+            var storageService = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+
+            const int hour = 20;
+            const DayOfWeek reportDayOfWeek = DayOfWeek.Friday;
+            var dataCount = 10;
+            var startDate = GetLastDateTime(DateTime.Now, reportDayOfWeek, hour);
+            var data = new List<TimesheetChartStatistic>();
+
+            while (dataCount-- > 0)
+            {
+                var dateValue = startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                var timeValue = startDate.ToString("HH:00", CultureInfo.InvariantCulture);
+                var stats = await storageService.GetStatisticsAsync<TimesheetStatistics[]>(dateValue, timeValue);
+                var chartStats = stats
+                    .SelectMany(it => it.Data)
+                    .Where(it => it.State == TimesheetStates.Unsubmitted)
+                    .GroupBy(it => it.DepartmentName)
+                    .Select(group => new TimesheetChartStatistic
+                    {
+                        Date = dateValue,
+                        Department = group.Key,
+                        Count = group.Count(),
+                    });
+
+                data.AddRange(chartStats);
+                startDate = startDate.AddDays(-7);
+            }
+
+            data.Reverse();
+
+            return data;
+        }
+
+        private static DateTime GetLastDateTime(DateTime now, DayOfWeek dayOfWeek, int hour)
+        {
+            var startDateTime = now.Hour < hour ? now.AddDays(-1) : now;
+            var lastDayOfWeek = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, hour, 0, 0, 0, now.Kind);
+            while (lastDayOfWeek.DayOfWeek != dayOfWeek)
+            {
+                lastDayOfWeek = lastDayOfWeek.AddDays(-1);
+            }
+
+            return lastDayOfWeek;
         }
     }
 }

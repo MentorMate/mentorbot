@@ -50,5 +50,9 @@ namespace MentorBot.Functions.Abstract.Services
 
         /// <summary>Add or update the user asynchronous.</summary>
         Task<bool> AddOrUpdateUserAsync(User user);
+
+        /// <summary>Gets all statistics asynchronous.</summary>
+        /// <typeparam name="T">Statistic type.</typeparam>
+        Task<IReadOnlyList<Statistics<T>>> GetStatisticsAsync<T>(string date, string time);
     }
 }

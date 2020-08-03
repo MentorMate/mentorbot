@@ -41,6 +41,7 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task SendScheduledTimesheetShoudSendToSpace()
         {
+            var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
             var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
             var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
             var deconstructionInformation = new TextDeconstructionInformation(null, null);
@@ -76,7 +77,7 @@ namespace MentorBot.Tests.Business.Processors
                             new PluginPropertyValue
                             {
                                 Key = "OpenAir.AutoNotifications.Cron",
-                                Value = DateTime.Now.ToString("h ddd")
+                                Value = "20 Wed"
                             },
                             new PluginPropertyValue
                             {
@@ -86,12 +87,12 @@ namespace MentorBot.Tests.Business.Processors
                         }
                     });
 
-            _hangoutsChatConnector.GetAddressByName("S1").Returns(address);
+            _hangoutsChatConnector.GetAddressByName("spaces/S1").Returns(address);
             timesheetProcessor
                 .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCusts)
                 .Returns(new[] { timesheet });
 
-            await _timesheetService.SendScheduledTimesheetNotificationsAsync();
+            await _timesheetService.SendScheduledTimesheetNotificationsAsync(date);
 
             _storageService
                 .Received()
@@ -114,10 +115,12 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public void CronCheckShoudAllowManyValues()
         {
-            var date = new DateTime(2020, 7, 1, 10, 30, 0, DateTimeKind.Local);
+            var date = new DateTime(2020, 7, 1, 10, 0, 0, DateTimeKind.Local);
 
             Assert.IsTrue(TimesheetService.CronCheck("10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("10:00 Wed", date));
             Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("10:00,9 Wed", date));
             Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed,Fri", date));
             Assert.IsTrue(TimesheetService.CronCheck("9,10,11 Wed", date));
             Assert.IsFalse(TimesheetService.CronCheck("9 Wed,Fri", date));
@@ -126,6 +129,18 @@ namespace MentorBot.Tests.Business.Processors
             Assert.IsTrue(TimesheetService.CronCheck("* *", date));
             Assert.IsTrue(TimesheetService.CronCheck("10 *", date));
             Assert.IsFalse(TimesheetService.CronCheck("* Fri", date));
+        }
+
+        [TestMethod]
+        public void CronCheckShoudAllowMinutesValues()
+        {
+            var date = new DateTime(2020, 7, 1, 9, 30, 5, DateTimeKind.Local);
+
+            Assert.IsFalse(TimesheetService.CronCheck("9 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9:30 Wed", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9,9:30 *", date));
+            Assert.IsTrue(TimesheetService.CronCheck("9:00,9:30 *", date));
+            Assert.IsFalse(TimesheetService.CronCheck("9:15 *", date));
         }
     }
 }

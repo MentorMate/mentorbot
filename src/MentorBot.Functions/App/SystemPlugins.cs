@@ -142,7 +142,7 @@ namespace MentorBot.Functions.App
                         {
                             new PluginPropertyGroup
                             {
-                                Name = "OpenAir Timesheets Scheduled Notifications",
+                                Name = "Timesheets direct message notifications at 18 and 19 o'clock",
                                 UniqueName = TimesheetsProperties.NotificationsGroup,
                                 Multi = true,
                                 ObjectType = PropertyObjectTypes.Settings,
@@ -202,7 +202,7 @@ namespace MentorBot.Functions.App
                             },
                             new PluginPropertyGroup
                             {
-                                Name = "Timesheets Auto Scheduling",
+                                Name = "Timesheets chat room report",
                                 UniqueName = TimesheetsProperties.AutoNotificationsGroup,
                                 Multi = true,
                                 ObjectType = PropertyObjectTypes.Settings,
@@ -210,19 +210,22 @@ namespace MentorBot.Functions.App
                                 {
                                     new PluginProperty
                                     {
-                                        Name = "Start Hour (ex: '16 Fri' or '18 *' for every day at 18:00)",
+                                        Name = "Start Hour",
+                                        DescriptionHtml = "Job run every <b>30 min</b>. '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18, '1,2 MON,THU' etc.",
                                         UniqueName = TimesheetsProperties.AutoNotificationsCron,
                                         ValueType = PropertyValueTypes.String,
                                     },
                                     new PluginProperty
                                     {
-                                        Name = "Report Name (unsubmitted, unapproved, etc)",
+                                        Name = "Report Name",
+                                        DescriptionHtml = "unsubmitted, unapproved",
                                         UniqueName = TimesheetsProperties.AutoNotificationsReportName,
                                         ValueType = PropertyValueTypes.String,
                                     },
                                     new PluginProperty
                                     {
                                         Name = "Space (comma separated list)",
+                                        DescriptionHtml = "room ids taken from google chat url, only id, ex: AAAAB4BP1EQ",
                                         UniqueName = TimesheetsProperties.AutoNotificationsSpaces,
                                         ValueType = PropertyValueTypes.String,
                                     },
@@ -235,6 +238,7 @@ namespace MentorBot.Functions.App
                                     new PluginProperty
                                     {
                                         Name = "Notify Users",
+                                        DescriptionHtml = "Also, notify unsubmitted users with direct message",
                                         UniqueName = TimesheetsProperties.AutoNotificationsNotify,
                                         ValueType = PropertyValueTypes.Boolean,
                                     },

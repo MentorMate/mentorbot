@@ -20,6 +20,9 @@ namespace MentorBot.Functions.Models.Domains
         /// <summary>Gets or sets the time.</summary>
         public string Time { get; set; }
 
+        /// <summary>Gets or sets the type.</summary>
+        public string Type { get; set; }
+
         /// <summary>Gets or sets the data.</summary>
         [StoreAsJsonObject]
         public T Data { get; set; }
