@@ -27,7 +27,7 @@ export class DashboardPageComponent implements OnInit {
 }
 
 function mapAnswersToDataset(stats: MessagesStatistic[]): ChartDataSets[] {
-  var data = stats.reduce((obj, it) => {
+  const data = stats.reduce((obj, it) => {
     obj[it.probabilityPercentage > 60 ? 'answered' : 'unanswered'] += it.count;
     return obj;
   }, { answered: 0, unanswered: 0 });
@@ -69,14 +69,14 @@ function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): ChartData {
     if (!departments.includes(it.department)) {
       departments.push(it.department);
     }
-  });  
+  });
 
   departments.forEach((label: string, index: number) => {
     const color = colors.length > index ? colors[index] : null;
     const set: ChartDataSets = { label, data: [], fill: false, backgroundColor: color, borderColor: color };
     labels.forEach(dateVal => {
-      const it = stats.find(it => it.department == label && it.date == dateVal);
-      const val = it !== null && typeof it !== 'undefined' ? it.count : 0;
+      const stat = stats.find(it => it.department === label && it.date === dateVal);
+      const val = stat !== null && typeof stat !== 'undefined' ? stat.count : 0;
       set.data.push(val);
     });
 

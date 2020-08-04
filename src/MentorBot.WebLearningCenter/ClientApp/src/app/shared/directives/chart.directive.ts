@@ -1,13 +1,13 @@
-import { AfterContentInit, Directive, ElementRef, Input, NgZone, OnChanges, SimpleChanges } from "@angular/core";
+import { AfterContentInit, Directive, ElementRef, Input, NgZone, OnChanges, SimpleChanges } from '@angular/core';
 import { Chart, ChartDataSets } from 'chart.js';
 
 @Directive({
-  selector: 'canvas[chart][chart-datasets]'
+  selector: 'canvas[appChart][appChartDatasets]'
 })
 export class ChartDirective implements AfterContentInit, OnChanges {
-  @Input('chart') chartType: 'pie' | 'line' | 'bar' | 'radar' | 'polarArea' | 'bubble';
-  @Input('chart-labels') labels: string[];
-  @Input('chart-datasets') datasets: ChartDataSets[];
+  @Input() appChart: 'pie' | 'line' | 'bar' | 'radar' | 'polarArea' | 'bubble';
+  @Input() appChartLabels: string[];
+  @Input() appChartDatasets: ChartDataSets[];
 
   private _chart: Chart = null;
 
@@ -20,20 +20,20 @@ export class ChartDirective implements AfterContentInit, OnChanges {
     }
 
     this._chart = new Chart(this._element.nativeElement, {
-      type: this.chartType,
+      type: this.appChart,
       data: {
-        labels: this.labels || [],
-        datasets: !this.datasets || !Array.isArray(this.datasets) ? [] : this.datasets
+        labels: this.appChartLabels || [],
+        datasets: !this.appChartDatasets || !Array.isArray(this.appChartDatasets) ? [] : this.appChartDatasets
       }
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.datasets &&
-      !changes.datasets.isFirstChange &&
+    if (changes.appChartDatasets &&
+      !changes.appChartDatasets.isFirstChange &&
       this._chart !== null &&
-      changes.datasets.currentValue !== null) {
-      this._chart.data.datasets = changes.datasets.currentValue;
+      changes.appChartDatasets.currentValue !== null) {
+      this._chart.data.datasets = changes.appChartDatasets.currentValue;
       this._chart.update({
         duration: 800,
         easing: 'easeOutBounce'

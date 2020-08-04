@@ -4,7 +4,7 @@
 <article>
   <h3>Answered/Unanswered chat bot requests</h3>
   <section *ngIf="answeredData$ | async as datasets">
-    <canvas chart="pie" [chart-labels]="answeredLabels" [chart-datasets]="datasets"></canvas>
+    <canvas appChart="pie" [appChartLabels]="answeredLabels" [appChartDatasets]="datasets"></canvas>
   </section>
 </article>
 <br />
@@ -12,7 +12,7 @@
 <article>
   <h3>Unsubmitted timesheets in 20:00 o'clock Friday</h3>
   <section *ngIf="timesheet$ | async as timesheet">
-    <canvas chart="line" [chart-labels]="timesheet.labels" [chart-datasets]="timesheet.datasets"></canvas>
+    <canvas appChart="line" [appChartLabels]="timesheet.labels" [appChartDatasets]="timesheet.datasets"></canvas>
   </section>
 </article>
 <br />
