@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
@@ -350,6 +351,18 @@ namespace MentorBot.Tests.Business.Services
             Assert.AreEqual(2, plugins.Count);
             Assert.AreEqual("Processor 1", plugins[0].Name);
             Assert.IsTrue(plugins[0].Enabled);
+        }
+
+        [TestMethod]
+        public async Task StorageService_GetStatistics()
+        {
+            var data = new Statistics<TimesheetStatistics> { Id = "AA" };
+
+            _tableClientService.QueryAsync<Statistics<TimesheetStatistics>>("Date eq '2020-10-01' AND Time eq '20:00'", 1000).Returns(new[] { data }.AsQueryable());
+
+            var result = await _storageService.GetStatisticsAsync<TimesheetStatistics>("2020-10-01", "20:00");
+
+            Assert.AreEqual(result.First().Id, "AA");
         }
 
         #endregion

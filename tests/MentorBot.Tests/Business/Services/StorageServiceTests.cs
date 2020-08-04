@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Services;
@@ -146,6 +147,17 @@ namespace MentorBot.Tests.Business.Services
             await _service.AddOrUpdateUserAsync(user);
 
             document.Received().AddOrUpdateAsync(user);
+        }
+
+        [TestMethod]
+        public async Task StorageService_GetStatistics()
+        {
+            var model = new Statistics<TimesheetStatistics> { Id = "TestId" };
+            SetDocumentQuery("mentorbot", "statistics", "SELECT TOP 1000 * FROM statistics s WHERE s.Data == '2020-10-01' AND s.Time == '20:00'", model);
+
+            var result = await _service.GetStatisticsAsync<TimesheetStatistics>("2020-10-01", "20:00");
+
+            Assert.AreEqual("TestId", result[0].Id);
         }
 
 #pragma warning disable CS4014

@@ -46,9 +46,12 @@ namespace MentorBot.Functions.Services.AzureStorage
             QueryAsync(ctx => ctx.QueryAsync<T>(maxItems));
 
         /// <inheritdoc/>
-        public Task<IQueryable<T>> QueryAsync<T>(string query, int maxItems = 0)
-            where T : new() =>
-            QueryAsync(ctx => ctx.QueryAsync<T>(null, AzureQuery.CreateQueryFilters(query), maxItems));
+        public async Task<IQueryable<T>> QueryAsync<T>(string query, int maxItems = 0)
+            where T : new()
+        {
+            var filters = AzureQuery.CreateQueryFilters(query).ToArray();
+            return await QueryAsync(ctx => ctx.QueryAsync<T>(null, filters, maxItems));
+        }
 
         /// <inheritdoc/>
         public void Dispose()

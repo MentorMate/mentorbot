@@ -18,6 +18,7 @@ using MentorBot.Functions.Models.TextAnalytics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Timers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -114,13 +115,20 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task ExecuteTimesheetsReminderAsyncShouldSendNotificaitions()
         {
             var timesheetService = Substitute.For<ITimesheetService>();
+            var timeInfo = new TimerInfo(
+                null,
+                new ScheduleStatus
+                {
+                    Last = new DateTime(2020, 2, 20)
+                },
+                false);
 
             ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
                 new ServiceDescriptor(typeof(ITimesheetService), timesheetService));
 
-            await Commands.ExecuteTimesheetsReminderAsync(new TimerInfo(null, null, false));
+            await Commands.ExecuteTimesheetsReminderAsync(timeInfo);
 
-            timesheetService.Received().SendScheduledTimesheetNotificationsAsync();
+            timesheetService.Received().SendScheduledTimesheetNotificationsAsync(timeInfo.ScheduleStatus.Last);
         }
 
         [TestMethod]

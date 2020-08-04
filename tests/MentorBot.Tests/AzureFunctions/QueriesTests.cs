@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
+using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
@@ -196,6 +197,76 @@ namespace MentorBot.Tests.AzureFunctions
 
             Assert.AreEqual(9, result.Count());
             storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 9));
+        }
+
+        [TestMethod]
+        public async Task GetTimesheettatisticsAsyncShouldQueryDocument()
+        {
+            var req = GetHttpRequest();
+            var storageService = Substitute.For<IStorageService>();
+            var stat1 = new Statistics<TimesheetStatistics[]>
+            {
+                Date = "2020-08-14",
+                Time = "20:00",
+                Data = new TimesheetStatistics[]
+                {
+                    new TimesheetStatistics
+                    {
+                        DepartmentName = ".NET",
+                        State = TimesheetStates.Unsubmitted,
+                    },
+                    new TimesheetStatistics
+                    {
+                        DepartmentName = ".NET",
+                        State = TimesheetStates.Unsubmitted,
+                    },
+                    new TimesheetStatistics
+                    {
+                        DepartmentName = "QA",
+                        State = TimesheetStates.Unsubmitted,
+                    },
+                }
+            };
+            var stat2 = new Statistics<TimesheetStatistics[]>
+            {
+                Date = "2020-08-07",
+                Time = "20:00",
+                Data = new TimesheetStatistics[]
+                {
+                    new TimesheetStatistics
+                    {
+                        DepartmentName = ".NET",
+                        State = TimesheetStates.Unsubmitted,
+                    },
+                    new TimesheetStatistics
+                    {
+                        DepartmentName = "QA",
+                        State = TimesheetStates.Unsubmitted,
+                    },
+                }
+            };
+
+            var stats3 = new Statistics<TimesheetStatistics[]>[0];
+
+            storageService.GetStatisticsAsync<TimesheetStatistics[]>(null, null)
+                .ReturnsForAnyArgs(new[] { stat1 }, new[] { stat2 }, stats3);
+
+            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor(req, UserRoles.User));
+
+            var result = await Queries.GetTimesheetStatisticsAsync(req);
+            var array = result.ToArray();
+
+            Assert.AreEqual(4, array.Length);
+            Assert.AreEqual("QA", array[0].Department);
+            Assert.AreEqual(1, array[0].Count);
+            Assert.AreEqual(".NET", array[1].Department);
+            Assert.AreEqual(1, array[1].Count);
+            Assert.AreEqual("QA", array[2].Department);
+            Assert.AreEqual(1, array[2].Count);
+            Assert.AreEqual(".NET", array[3].Department);
+            Assert.AreEqual(2, array[3].Count);
         }
 
         private static ServiceDescriptor GetAccessTokenServiceDescriptor(HttpRequest req, UserRoles role)

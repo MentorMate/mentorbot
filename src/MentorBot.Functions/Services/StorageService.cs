@@ -96,6 +96,11 @@ namespace MentorBot.Functions.Services
         public Task<bool> AddOrUpdateUserAsync(User user) =>
             ExecuteIfConnectedAsync<User, bool>(doc => doc.AddOrUpdateAsync(user), UserDocumentName, false);
 
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<Statistics<T>>> GetStatisticsAsync<T>(string date, string time) =>
+            Task.FromResult(QueryWhenConnected<Statistics<T>>(
+                $"SELECT TOP 1000 * FROM {StatisticsDocumentName} s WHERE s.Data == '{date}' AND s.Time == '{time}'", StatisticsDocumentName));
+
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {
             if (_documentClientService.IsConnected)

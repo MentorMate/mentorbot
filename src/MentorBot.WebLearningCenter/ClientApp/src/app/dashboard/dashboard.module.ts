@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 
 import { DashboardPageComponent } from './components/dashboard-page/dashboard-page.component';
 import { DashboardService } from './dashboard.service';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -11,6 +12,7 @@ import { DashboardService } from './dashboard.service';
   ],
   imports: [
     CommonModule,
+    SharedModule,
     RouterModule.forChild([{ path: '', component: DashboardPageComponent }])
   ],
   providers: [DashboardService]
