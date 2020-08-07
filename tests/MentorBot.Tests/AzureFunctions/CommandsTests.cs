@@ -115,11 +115,14 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task ExecuteTimesheetsReminderAsyncShouldSendNotificaitions()
         {
             var timesheetService = Substitute.For<ITimesheetService>();
+            var now = DateTime.Now;
+            var dateTimeMinutes = (now.Minute / 10) * 10;
+            var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
             var timeInfo = new TimerInfo(
                 null,
                 new ScheduleStatus
                 {
-                    Last = new DateTime(2020, 2, 20)
+                    Last = dateTime
                 },
                 false);
 
@@ -128,7 +131,7 @@ namespace MentorBot.Tests.AzureFunctions
 
             await Commands.ExecuteTimesheetsReminderAsync(timeInfo);
 
-            timesheetService.Received().SendScheduledTimesheetNotificationsAsync(timeInfo.ScheduleStatus.Last);
+            timesheetService.Received().SendScheduledTimesheetNotificationsAsync(dateTime);
         }
 
         [TestMethod]

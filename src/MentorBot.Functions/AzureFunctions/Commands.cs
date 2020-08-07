@@ -92,8 +92,11 @@ namespace MentorBot.Functions
             ServiceLocator.EnsureServiceProvider();
 
             var timesheetService = ServiceLocator.Get<ITimesheetService>();
+            var now = DateTime.Now;
+            var dateTimeMinutes = (now.Minute / 10) * 10;
+            var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
 
-            await timesheetService.SendScheduledTimesheetNotificationsAsync(myTimer.ScheduleStatus.Last);
+            await timesheetService.SendScheduledTimesheetNotificationsAsync(dateTime);
         }
 
         /// <summary>Sets the MentorBot plugins to storage.</summary>
