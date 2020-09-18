@@ -49,9 +49,15 @@ namespace MentorBot.Functions.Connectors
             var isEndOfMonthReport = date.Date == today && today.AddDays(1).Day == 1;
             var dayOfWeekMultiplier = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday ? 5 : (int)today.DayOfWeek;
 
-            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, lastWeek.AddDays(2), "A"));
-            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "S"));
-            timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "A"));
+            if (state == TimesheetStates.Unsubmitted)
+            {
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "S"));
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "A"));
+            }
+            else if (state == TimesheetStates.Unapproved)
+            {
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, toweek, "A"));
+            }
 
             var timesheetsData = timesheets
                 .GroupBy(it => it.UserId)

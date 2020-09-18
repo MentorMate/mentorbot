@@ -130,7 +130,7 @@ namespace MentorBot.Functions
 
             var userInfo = await GetBodyAsync<UserInfo>(req);
 
-            var user = await storageService.GetUserByEmailAsync(userInfo.Email);
+            var user = await storageService.GetUserByIdAsync(userInfo.Id);
 
             user.Properties = userInfo.Properties;
 

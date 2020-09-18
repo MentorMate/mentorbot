@@ -14,6 +14,15 @@ namespace MentorBot.Functions.Processors.Timesheets
         /// <summary>The auto notifications group key.</summary>
         public const string AutoNotificationsGroup = "OpenAir.AutoNotifications";
 
+        /// <summary>The global statistics group key.</summary>
+        public const string GlobalStatisticsGroup = "OpenAir.GlobalReport";
+
+        /// <summary>The global statistics email.</summary>
+        public const string GlobalStatisticsEmail = "OpenAir.GlobalReport.Email";
+
+        /// <summary>The global statistics cron.</summary>
+        public const string GlobalStatisticsCron = "OpenAir.GlobalReport.Cron";
+
         /// <summary>The automatic notifications cron.</summary>
         public const string AutoNotificationsCron = "OpenAir.AutoNotifications.Cron";
 

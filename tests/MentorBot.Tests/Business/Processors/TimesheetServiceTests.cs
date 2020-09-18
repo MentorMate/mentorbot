@@ -94,9 +94,6 @@ namespace MentorBot.Tests.Business.Processors
 
             await _timesheetService.SendScheduledTimesheetNotificationsAsync(date);
 
-            _storageService
-                .Received()
-                .AddOrUpdateStatisticsAsync(Arg.Any<Statistics<TimesheetStatistics[]>>());
             timesheetProcessor
                 .Received()
                 .SendTimesheetNotificationsToUsersAsync(
@@ -108,6 +105,56 @@ namespace MentorBot.Tests.Business.Processors
                     TimesheetStates.Unsubmitted,
                     address,
                     _hangoutsChatConnector);
+        }
+
+        [TestMethod]
+        public async Task SendScheduledTimesheetShoudeStoreStatistics()
+        {
+            var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
+            var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
+            var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
+            var deconstructionInformation = new TextDeconstructionInformation(null, null);
+            var analysisResult = new CognitiveTextAnalysisResult(deconstructionInformation, timesheetProcessor, propertiesAccessor);
+            _cognitiveService.GetCognitiveTextAnalysisResultAsync(null, null).ReturnsForAnyArgs(analysisResult);
+            propertiesAccessor
+                .GetPluginPropertyGroup("OpenAir.GlobalReport")
+                .Returns(
+                    new[]
+                    {
+                        new []
+                        {
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.GlobalReport.Cron",
+                                Value = "20 Wed"
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.GlobalReport.Email",
+                                Value = "d@e.f"
+                            },
+                        }
+                    });
+
+            timesheetProcessor
+                .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "d@e.f", true, null)
+                .Returns(new[] {
+                    new Timesheet
+                    {
+                        UserEmail = "u@e.c",
+                        UserName = "Jhon Doe",
+                        DepartmentName = "Account",
+                        ManagerName = "ben@ten.com",
+                        Total = 5,
+                        UtilizationInHours = 10
+                    }
+                });
+
+            await _timesheetService.SendScheduledTimesheetNotificationsAsync(date);
+
+            _storageService
+                .Received()
+                .AddOrUpdateStatisticsAsync(Arg.Any<Statistics<TimesheetStatistics[]>>());
         }
 
 #pragma warning restore CS4014

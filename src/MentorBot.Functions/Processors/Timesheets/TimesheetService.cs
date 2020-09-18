@@ -65,8 +65,6 @@ namespace MentorBot.Functions.Processors.Timesheets
         /// <summary>Sends the scheduled timesheet notifications asynchronous.</summary>
         public async Task SendScheduledTimesheetNotificationsAsync(DateTime scheduleDate)
         {
-            var dateValue = scheduleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var timeValue = scheduleDate.ToString("HH:00", CultureInfo.InvariantCulture);
             var result = await _cognitiveService.GetCognitiveTextAnalysisResultAsync(
                 new TextDeconstructionInformation(null, TimesheetsProperties.ProcessorSubjectName), null);
 
@@ -109,26 +107,6 @@ namespace MentorBot.Functions.Processors.Timesheets
                         {
                             timesheetValues = await processor.GetTimesheetsAsync(scheduleDate, state, email, true, customerToExcludes);
                             timesheets.Add(key, timesheetValues);
-
-                            var statistics = new Statistics<TimesheetStatistics[]>
-                            {
-                                Id = Guid.NewGuid().ToString(),
-                                Date = dateValue,
-                                Time = timeValue,
-                                Type = nameof(TimesheetStatistics),
-                                Data = timesheetValues
-                                    .Select(it =>
-                                        new TimesheetStatistics
-                                        {
-                                            UserName = it.UserName,
-                                            ManagerName = it.ManagerName,
-                                            DepartmentName = it.DepartmentName,
-                                            State = state,
-                                        })
-                                    .ToArray()
-                            };
-
-                            await _storageService.AddOrUpdateStatisticsAsync(statistics);
                         }
 
                         await processor.SendTimesheetNotificationsToUsersAsync(
@@ -143,6 +121,53 @@ namespace MentorBot.Functions.Processors.Timesheets
                     }
                 }
             }
+
+            await SaveGlobalStatisticsAsync(scheduleDate, customerToExcludes, result.PropertiesAccessor, processor);
+        }
+
+        private async Task SaveGlobalStatisticsAsync(
+            DateTime scheduleDate,
+            IReadOnlyList<string> customerToExcludes,
+            IPluginPropertiesAccessor accessor,
+            ITimesheetProcessor processor)
+        {
+            var group = accessor.GetPluginPropertyGroup(TimesheetsProperties.GlobalStatisticsGroup).FirstOrDefault();
+            if (group == null)
+            {
+                return;
+            }
+
+            var cron = group.GetValue<string>(TimesheetsProperties.GlobalStatisticsCron);
+            if (string.IsNullOrEmpty(cron) ||
+                !CronCheck(cron, scheduleDate))
+            {
+                return;
+            }
+
+            const TimesheetStates state = TimesheetStates.Unsubmitted;
+            var dateValue = scheduleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var timeValue = scheduleDate.ToString("HH:00", CultureInfo.InvariantCulture);
+            var email = group.GetValue<string>(TimesheetsProperties.GlobalStatisticsEmail);
+            var timesheets = await processor.GetTimesheetsAsync(scheduleDate, state, email, true, customerToExcludes);
+            var statistics = new Statistics<TimesheetStatistics[]>
+            {
+                Id = Guid.NewGuid().ToString(),
+                Date = dateValue,
+                Time = timeValue,
+                Type = nameof(TimesheetStatistics),
+                Data = timesheets
+                    .Select(it =>
+                        new TimesheetStatistics
+                        {
+                            UserName = it.UserName,
+                            ManagerName = it.ManagerName,
+                            DepartmentName = it.DepartmentName,
+                            State = state,
+                        })
+                    .ToArray()
+            };
+
+            await _storageService.AddOrUpdateStatisticsAsync(statistics);
         }
     }
 }
