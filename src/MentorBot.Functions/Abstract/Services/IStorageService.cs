@@ -26,6 +26,9 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets stored user by email.</summary>
         Task<User> GetUserByEmailAsync(string email);
 
+        /// <summary>Gets stored user by id.</summary>
+        Task<User> GetUserByIdAsync(string userId);
+
         /// <summary>Gets all plugins asynchronous.</summary>
         Task<IReadOnlyList<Plugin>> GetAllPluginsAsync();
 

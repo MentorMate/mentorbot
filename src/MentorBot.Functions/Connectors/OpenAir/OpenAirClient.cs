@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -32,155 +33,157 @@ namespace MentorBot.Functions.Connectors.OpenAir
         }
 
         /// <summary>Gets the timesheets asynchronous.</summary>
-        public Task<Timesheet[]> GetTimesheetsAsync(DateTime startDate, DateTime endDate) =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.Timesheet,
-                    Filter = "newer-than,older-than",
-                    Field = "starts,starts",
-                    Date = new[]
+        public Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(DateTime startDate, DateTime endDate) =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        Date.Create(startDate),
-                        Date.Create(endDate)
+                        Type = DateType.Timesheet,
+                        Filter = "newer-than,older-than",
+                        Field = "starts,starts",
+                        Limit = $"{skip},{take}",
+                        Date = new[]
+                        {
+                            Date.Create(startDate),
+                            Date.Create(endDate)
+                        },
+                        Return = new RaedReturn
+                        {
+                            Content = "<status/><name /><total/><notes /><userid /><starts />"
+                        }
                     },
-                    Return = new RaedReturn
-                    {
-                        Content = "<status/><name /><total/><notes /><userid /><starts />"
-                    }
-                },
-                result => result.Timesheet ?? new Timesheet[0]);
+                    result => result.Timesheet ?? new Timesheet[0]));
 
         /// <summary>Gets the timesheets by status asynchronous.</summary>
-        public Task<Timesheet[]> GetTimesheetsByStatusAsync(DateTime startDate, DateTime endDate, string status) =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.Timesheet,
-                    Filter = "newer-than,older-than",
-                    Field = "starts,starts",
-                    Method = "equal to",
-                    Date = new[]
+        public Task<IReadOnlyList<Timesheet>> GetTimesheetsByStatusAsync(DateTime startDate, DateTime endDate, string status) =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        Date.Create(startDate),
-                        Date.Create(endDate),
+                        Type = DateType.Timesheet,
+                        Filter = "newer-than,older-than",
+                        Field = "starts,starts",
+                        Method = "equal to",
+                        Limit = $"{skip},{take}",
+                        Date = new[]
+                        {
+                            Date.Create(startDate),
+                            Date.Create(endDate),
+                        },
+                        Timesheet = new[]
+                        {
+                            new Timesheet { Status = status },
+                        },
+                        Return = new RaedReturn
+                        {
+                            Content = "<status/><name /><total/><notes /><userid /><starts />",
+                        },
                     },
-                    Timesheet = new[]
-                    {
-                        new Timesheet { Status = status },
-                    },
-                    Return = new RaedReturn
-                    {
-                        Content = "<status/><name /><total/><notes /><userid /><starts />",
-                    },
-                },
-                result => result.Timesheet ?? new Timesheet[0]);
+                    result => result.Timesheet ?? new Timesheet[0]));
 
         /// <summary>Gets all users asynchronous.</summary>
-        public Task<User[]> GetAllUsersAsync() =>
-            Task.WhenAll(GetUsersByActiveAsync(true), GetUsersByActiveAsync(false))
-                .ContinueWith(task => task.Result.SelectMany(it => it).ToArray());
-
-        /// <summary>Gets all users by active flag asynchronous.</summary>
-        public Task<User[]> GetUsersByActiveAsync(bool active) =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.User,
-                    Method = "equal to",
-                    Limit = 1000,
-                    User = new[]
+        public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        new User
+                        Type = DateType.User,
+                        Limit = $"{skip},{take}",
+                        Return = new RaedReturn
                         {
-                            Active = active
+                            Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid />"
                         }
                     },
-                    Return = new RaedReturn
-                    {
-                        Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid />"
-                    }
-                },
-                result => result.User);
+                    result => result.User));
 
         /// <summary>Gets all departments asynchronous.</summary>
-        public Task<Department[]> GetAllDepartmentsAsync() =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.Department,
-                    Method = "all",
-                    Limit = 1000,
-                    Return = new RaedReturn
+        public Task<IReadOnlyList<Department>> GetAllDepartmentsAsync() =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        Content = "<id /><name /><userid />"
-                    }
-                },
-                result => result.Department);
-
-        /// <summary>Gets all active customers asynchronous.</summary>
-        /// TODO: Try to remove the static dates.
-        public Task<Customer[]> GetAllActiveCustomersAsync() =>
-            Task.WhenAll(
-                    GetAllActiveCustomersByCreaetedDateAsync(null, new DateTime(2016, 10, 1)),
-                    GetAllActiveCustomersByCreaetedDateAsync(new DateTime(2016, 10, 1), null))
-                .ContinueWith(task => task.Result.SelectMany(it => it).ToArray());
-
-        /// <summary>Gets all active customers asynchronous.</summary>
-        public Task<Customer[]> GetAllActiveCustomersByCreaetedDateAsync(DateTime? from, DateTime? to) =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.Customer,
-                    Method = "equal to",
-                    Limit = 1000,
-                    Filter = NotNullOf(from.HasValue ? "newer-than" : null, to.HasValue ? "older-than" : null).First(),
-                    Field = "createtime",
-                    Date = NotNullOf(
-                        from.HasValue ? Date.Create(from.Value) : null,
-                        to.HasValue ? Date.Create(to.Value) : null),
-                    Customer = new[]
-                    {
-                        new Customer
+                        Type = DateType.Department,
+                        Limit = $"{skip},{take}",
+                        Return = new RaedReturn
                         {
-                            Active = true
+                            Content = "<id /><name /><userid />"
                         }
                     },
-                    Return = new RaedReturn
+                    result => result.Department));
+
+        /// <summary>Gets all active customers asynchronous.</summary>
+        public Task<IReadOnlyList<Customer>> GetAllActiveCustomersAsync() =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        Content = "<id/><name />"
-                    }
-                },
-                result => result.Customer);
+                        Type = DateType.Customer,
+                        Method = "equal to",
+                        Limit = $"{skip},{take}",
+                        Customer = new[]
+                        {
+                            new Customer
+                            {
+                                Active = true
+                            }
+                        },
+                        Return = new RaedReturn
+                        {
+                            Content = "<id/><name />"
+                        }
+                    },
+                    result => result.Customer));
 
         /// <summary>Gets all active bookings asynchronous.</summary>
-        public Task<Booking[]> GetAllActiveBookingsAsync(DateTime today) =>
-            ReadAsync(
-                new Read
-                {
-                    Type = DateType.Booking,
-                    Limit = 1000,
-                    Method = "equal to",
-                    Filter = "newer-than,older-than",
-                    Field = "enddate,startdate",
-                    Date = new[]
+        public Task<IReadOnlyList<Booking>> GetAllActiveBookingsAsync(DateTime today) =>
+            GetInBatchesAsync((skip, take) =>
+                ReadAsync(
+                    new Read
                     {
-                        Date.Create(today.AddDays(-1)),
-                        Date.Create(today.AddDays(1))
-                    },
-                    Booking = new[]
-                    {
-                        new Booking
+                        Type = DateType.Booking,
+                        Method = "equal to",
+                        Filter = "newer-than,older-than",
+                        Field = "enddate,startdate",
+                        Limit = $"{skip},{take}",
+                        Date = new[]
                         {
-                            ApprovalStatus = "A"
+                            Date.Create(today.AddDays(-1)),
+                            Date.Create(today.AddDays(1))
+                        },
+                        Booking = new[]
+                        {
+                            new Booking
+                            {
+                                ApprovalStatus = "A"
+                            }
+                        },
+                        Return = new RaedReturn
+                        {
+                            Content = "<id/><userid/><ownerid /><projectid /><customerid /><booking_typeid />"
                         }
                     },
-                    Return = new RaedReturn
-                    {
-                        Content = "<id/><userid/><ownerid /><projectid /><customerid /><booking_typeid />"
-                    }
-                },
-                result => result.Booking);
+                    result => result.Booking));
+
+        private static async Task<IReadOnlyList<T>> GetInBatchesAsync<T>(Func<int, int, Task<T[]>> func)
+        {
+            const int take = 1000;
+            var collection = new List<T>();
+            var skip = 0;
+            int count;
+
+            do
+            {
+                var executeTask = func(skip, take);
+                var batch = await executeTask;
+                collection.AddRange(batch);
+
+                count = batch.Length;
+                skip += take;
+            }
+            while (count == take);
+
+            return collection;
+        }
 
         /// <summary>Creates the request body.</summary>
         private static Request CreateRequest(OpenAirOptions options, string username, string password) =>
@@ -221,10 +224,6 @@ namespace MentorBot.Functions.Connectors.OpenAir
                 return sb.ToString();
             }
         }
-
-        private static T[] NotNullOf<T>(params T[] values)
-            where T : class =>
-            values.Where(it => it != null).ToArray();
 
         /// <summary>Executes the request asynchronous.</summary>
         /// <typeparam name="T">The type of the request result.</typeparam>

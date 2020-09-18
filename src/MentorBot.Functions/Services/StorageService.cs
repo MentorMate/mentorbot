@@ -49,6 +49,11 @@ namespace MentorBot.Functions.Services
                 QueryWhenConnected<User>($"SELECT TOP 1 * FROM users u WHERE u.Email == '{email}'", UserDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
+        public Task<User> GetUserByIdAsync(string userId) =>
+            Task.FromResult(
+                QueryWhenConnected<User>($"SELECT TOP 1 * FROM users u WHERE u.id == '{userId}'", UserDocumentName).FirstOrDefault());
+
+        /// <inheritdoc/>
         public Task<IReadOnlyList<Plugin>> GetAllPluginsAsync() =>
             Task.FromResult(
                 QueryWhenConnected<Plugin>("SELECT TOP 2000 * FROM " + PluginsDocumentName, PluginsDocumentName));

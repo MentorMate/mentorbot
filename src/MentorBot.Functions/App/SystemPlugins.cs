@@ -244,6 +244,30 @@ namespace MentorBot.Functions.App
                                     },
                                 },
                             },
+                            new PluginPropertyGroup
+                            {
+                                Name = "Unsubmitted timesheets global statistics report",
+                                UniqueName = TimesheetsProperties.GlobalStatisticsGroup,
+                                Multi = false,
+                                ObjectType = PropertyObjectTypes.Settings,
+                                Properties = new[]
+                                {
+                                    new PluginProperty
+                                    {
+                                        Name = "Log Cron",
+                                        UniqueName = TimesheetsProperties.GlobalStatisticsCron,
+                                        DescriptionHtml = "A cron to log the unsubmitted timesheet global statistics",
+                                        ValueType = PropertyValueTypes.String,
+                                    },
+                                    new PluginProperty
+                                    {
+                                        Name = "Top manager email",
+                                        UniqueName = TimesheetsProperties.GlobalStatisticsEmail,
+                                        DescriptionHtml = "The top level manager email to use in OpenAir as top level",
+                                        ValueType = PropertyValueTypes.String,
+                                    },
+                                },
+                            },
                         },
                     },
                     new Plugin

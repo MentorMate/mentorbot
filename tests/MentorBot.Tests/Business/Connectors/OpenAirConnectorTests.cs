@@ -80,8 +80,8 @@ namespace MentorBot.Tests.Business.Processors
             var results = await client.GetTimesheetsAsync(date, date);
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"all\" limit=\"1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
-            Assert.AreEqual(1, results.Length);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"all\" limit=\"0,1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
+            Assert.AreEqual(1, results.Count);
 
             var first = results.First();
             Assert.AreEqual(722, first.UserId);
@@ -102,7 +102,7 @@ namespace MentorBot.Tests.Business.Processors
             var results = await client.GetTimesheetsByStatusAsync(date, date, "A");
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"equal to\" limit=\"1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><Timesheet><status>A</status></Timesheet><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"equal to\" limit=\"0,1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><Timesheet><status>A</status></Timesheet><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -114,11 +114,11 @@ namespace MentorBot.Tests.Business.Processors
             
             var client = new OpenAirClient(() => handler, options);
             var date = new DateTime(2000, 10, 10);
-            var results = await client.GetAllActiveCustomersByCreaetedDateAsync(date, null);
+            var results = await client.GetAllActiveCustomersAsync();
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Customer\" filter=\"newer-than\" field=\"createtime\" method=\"equal to\" limit=\"1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Customer><active>1</active></Customer><_Return><id/><name /></_Return></Read></request>", content);
-            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Customer\" method=\"equal to\" limit=\"0,1000\"><Customer><active>1</active></Customer><_Return><id/><name /></_Return></Read></request>", content);
+            Assert.AreEqual(2, results.Count);
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace MentorBot.Tests.Business.Processors
             var bookings = await client.GetAllActiveBookingsAsync(new DateTime(2019, 1, 1));
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"1000\"><Date><month>12</month><day>31</day><year>2018</year></Date><Date><month>1</month><day>2</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"0,1000\"><Date><month>12</month><day>31</day><year>2018</year></Date><Date><month>1</month><day>2</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
             Assert.AreEqual(257, bookings[0].UserId);
             Assert.AreEqual(10, bookings[0].CustomerId);
         }
@@ -145,10 +145,10 @@ namespace MentorBot.Tests.Business.Processors
                 .Set("<response><Auth status=\"0\"></Auth ><Read status=\"0\"><User></User></Read ></response>");
 
             var client = new OpenAirClient(() => handler, options);
-            var user = await client.GetUsersByActiveAsync(true);
+            var user = await client.GetAllUsersAsync();
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"equal to\" limit=\"1000\"><User><active>1</active></User><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@ namespace MentorBot.Tests.Business.Processors
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
             var department = departments.First();
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"all\" limit=\"1000\"><_Return><id /><name /><userid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><userid /></_Return></Read></request>", content);
             Assert.AreEqual(101, department.Id);
             Assert.AreEqual(".NET", department.Name);
             Assert.AreEqual(1, department.UserId);
@@ -175,8 +175,7 @@ namespace MentorBot.Tests.Business.Processors
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
                 .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name></name><total>40.00</total><starts><Date><month>01</month><day>28</day><year>2019</year></Date></starts><notes></notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name>A</name><total>40.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>30.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>30.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>3</userid><name>A</name><total>40.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
 
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
@@ -201,8 +200,7 @@ namespace MentorBot.Tests.Business.Processors
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
                 .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name></name><total>40.00</total><starts><Date><month>03</month><day>23</day><year>2020</year></Date></starts><notes></notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name>A</name><total>8.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>16.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>1</userid><name>A</name><total>40.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>4</userid><name>A</name><total>12.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
+                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>16.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>1</userid><name>A</name><total>40.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>4</userid><name>A</name><total>12.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>3</userid><name>A</name><total>8.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
 
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();

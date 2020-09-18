@@ -130,7 +130,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             /// <summary>Gets or sets the limit.</summary>
             [XmlAttribute("limit")]
-            public int Limit { get; set; } = 1000;
+            public string Limit { get; set; } = "1000";
 
             /// <summary>Gets or sets the dates.</summary>
             [XmlElement("Date", Order = 1)]

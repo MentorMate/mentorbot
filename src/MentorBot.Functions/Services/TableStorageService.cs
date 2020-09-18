@@ -171,6 +171,11 @@ namespace MentorBot.Functions.Services
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>
+        public Task<User> GetUserByIdAsync(string userId) =>
+            _tableClientService.QueryAsync<User>($"RowKey eq '{userId}'", 1)
+                .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
         public Task<IReadOnlyList<Plugin>> GetAllPluginsAsync() =>
             _tableClientService.QueryAsync<Plugin>(1000)
                 .ContinueWith(task => (IReadOnlyList<Plugin>)task.Result.ToList(), TaskScheduler.Default);
