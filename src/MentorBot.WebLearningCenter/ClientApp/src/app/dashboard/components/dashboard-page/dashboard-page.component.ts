@@ -43,8 +43,8 @@ function mapAnswersToDataset(stats: MessagesStatistic[]): ChartDataSets[] {
 }
 
 const colors = [
-  'rgb(85, 239, 196)', 
-  'rgb(0, 184, 148)', 
+  'rgb(85, 239, 196)',
+  'rgb(0, 184, 148)',
   'rgb(255, 234, 167)',
   'rgb(253, 203, 110)',
   'rgb(129, 236, 236)',
@@ -60,8 +60,8 @@ const colors = [
   'rgb(253, 121, 168)',
   'rgb(232, 67, 147)',
   'rgb(223, 230, 233)',
-  'rgb(178, 190, 195)', 
-  'rgb(99, 110, 114)', 
+  'rgb(178, 190, 195)',
+  'rgb(99, 110, 114)',
   'rgb(45, 52, 54)'
 ];
 
