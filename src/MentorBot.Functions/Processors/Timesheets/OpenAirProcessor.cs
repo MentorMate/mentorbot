@@ -112,6 +112,8 @@ namespace MentorBot.Functions.Processors.Timesheets
                 .Where(it =>
                     department == null ||
                     department.Equals(it.DepartmentName, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(it => it.ManagerName)
+                    .ThenBy(it => it.UserName)
                 .ToArray();
 
             var notifiedUserList = new List<string>();

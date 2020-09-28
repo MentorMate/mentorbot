@@ -43,18 +43,27 @@ function mapAnswersToDataset(stats: MessagesStatistic[]): ChartDataSets[] {
 }
 
 const colors = [
-  'rgb(255, 99, 132)', // red
-  'rgb(54, 162, 235)', // blue
-  'rgb(255, 159, 64)', // orange
-  'rgb(75, 192, 192)', // green
-  'rgb(153, 102, 255)', // purple
-  'rgb(255, 205, 86)', // yellow
-  'rgb(201, 203, 207)', // gray
-  'rgb(255, 20, 147)', // pink
-  'rgb(128, 0, 0)', // maroon
-  'rgb(0, 0, 128)' // navy
+  'rgb(85, 239, 196)',
+  'rgb(0, 184, 148)',
+  'rgb(255, 234, 167)',
+  'rgb(253, 203, 110)',
+  'rgb(129, 236, 236)',
+  'rgb(0, 206, 201)',
+  'rgb(250, 177, 160)',
+  'rgb(225, 112, 85)',
+  'rgb(116, 185, 255)',
+  'rgb(9, 132, 227)',
+  'rgb(255, 118, 117)',
+  'rgb(214, 48, 49)',
+  'rgb(162, 155, 254)',
+  'rgb(108, 92, 231)',
+  'rgb(253, 121, 168)',
+  'rgb(232, 67, 147)',
+  'rgb(223, 230, 233)',
+  'rgb(178, 190, 195)',
+  'rgb(99, 110, 114)',
+  'rgb(45, 52, 54)'
 ];
-
 
 function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): ChartData {
   const labels = [];
