@@ -176,7 +176,17 @@ namespace MentorBot.Functions.Connectors
                     var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), user, manager, department, customers);
                     usersListToAdd.Add(createUser);
                 }
-                else if (storedUser != null && UserNeedUpdate(storedUser, user, manager, department, customers))
+                else if (
+                    storedUser != null &&
+                    UserNeedUpdate(
+                        storedUser,
+                        storedUser.Manager,
+                        storedUser.Department,
+                        storedUser.Customers ?? new Customer[0],
+                        user,
+                        manager,
+                        department,
+                        customers))
                 {
                     var updateUser = CreateUser(storedUser.Id, user, manager, department, customers);
                     usersListToUpdate.Add(updateUser);
@@ -199,13 +209,22 @@ namespace MentorBot.Functions.Connectors
             (hoursPerWeek / 5 * dayOfWeekMultiplier) :
             hoursPerWeek;
 
-        private static bool UserNeedUpdate(User storedUser, OpenAirClient.User openAirUser, UserReference manager, Department department, Customer[] openAirCustomers) =>
+        private static bool UserNeedUpdate(
+            User storedUser,
+            UserReference storedManager,
+            Department storedDep,
+            Customer[] storedCustomers,
+            OpenAirClient.User openAirUser,
+            UserReference manager,
+            Department department,
+            Customer[] openAirCustomers) =>
             storedUser.Active != openAirUser.Active ||
-            storedUser.Department?.OpenAirDepartmentId != openAirUser.DepartmentId ||
-            storedUser.Department?.Owner?.OpenAirUserId != department?.Owner?.OpenAirUserId ||
-            storedUser.Manager?.OpenAirUserId != manager?.OpenAirUserId ||
-            storedUser.Customers?.Length != openAirCustomers.Length ||
-            openAirCustomers.Any(it => !storedUser.Customers.Contains(it));
+            storedDep?.OpenAirDepartmentId != openAirUser.DepartmentId ||
+            storedDep?.Name != department?.Name ||
+            storedDep?.Owner?.OpenAirUserId != department?.Owner?.OpenAirUserId ||
+            storedManager?.OpenAirUserId != manager?.OpenAirUserId ||
+            storedCustomers.Length != openAirCustomers.Length ||
+            openAirCustomers.Any(it => !storedCustomers.Contains(it));
 
         private static bool IsManager(User user, string email, IReadOnlyList<User> users, List<string> emails) =>
             user != null && IsUserRefManager(user.Manager, email, users, emails);

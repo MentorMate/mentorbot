@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Castle.Components.DictionaryAdapter;
+
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.OpenAir;
@@ -267,7 +269,7 @@ namespace MentorBot.Tests.Business.Processors
         #pragma warning disable CS4014
 
         [TestMethod]
-        public async Task OpenAirConnector_SyncUsers()
+        public async Task OpenAirShouldSyncUsers()
         {
             var user1 = new OpenAirClient.User
             {
@@ -343,14 +345,76 @@ namespace MentorBot.Tests.Business.Processors
                     && it.First().Department.Owner.Email == "bill.manager@mentormate.com"));
         }
 
+        [TestMethod]
+        public async Task OpenAirShouldSyncUsersAndUpdateDepartmentName()
+        {
+            var client = Substitute.For<IOpenAirClient>();
+            var storageService = Substitute.For<IStorageService>();
+            var connector = new OpenAirConnector(client, storageService);
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var user = new OpenAirClient.User
+            {
+                Id = 1000,
+                Name = "A",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "jhon.doe@mentormate.com" }
+                },
+                ManagerId = 1010
+            };
+            var userManager = new OpenAirClient.User
+            {
+                Id = 1010,
+                Name = "B",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "bill.manager@mentormate.com" }
+                }
+            };
+
+            var dep = new OpenAirClient.Department
+            {
+                Id = 2000,
+                Name = "Test",
+                UserId = 1010
+            };
+
+            client.GetAllUsersAsync().Returns(new[] { user, userManager });
+            client.GetAllDepartmentsAsync().Returns(new[] { dep });
+            client.GetAllActiveCustomersAsync().Returns(new OpenAirClient.Customer[0]);
+            client.GetAllActiveBookingsAsync(DateTime.MinValue).ReturnsForAnyArgs(new OpenAirClient.Booking[0]);
+            storageService
+                .GetAllUsersAsync()
+                .ReturnsForAnyArgs(new[]
+                {
+                    CreateUser(1000, "A", "OldDep", "bill.manager@mentormate.com", 2000, 1010, 1010),
+                    CreateUser(1010, "B", "Test", null, 2000, 0, 1010)
+                });
+
+            // Act
+            await connector.SyncUsersAsync();
+
+            storageService.Received().UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(list =>
+                list.Any(u => u.OpenAirUserId == 1000 && u.Department.Name == "Test")));
+        }
+
         #pragma warning restore CS4014
 
-        private static User CreateUser(long id, string name, string departmentName, string managerEmail, long departmentId = 1, long managerId = 100) =>
+        private static User CreateUser(long id, string name, string departmentName, string managerEmail, long departmentId = 1, long managerId = 100, long? departmentOwner = null) =>
             new User
             {
                 Name = name,
-                Department = new Department { Name = departmentName, OpenAirDepartmentId = departmentId },
-                Manager = new UserReference { Email = managerEmail, OpenAirUserId = managerId },
+                Department = new Department
+                {
+                    Name = departmentName,
+                    OpenAirDepartmentId = departmentId,
+                    Owner = departmentOwner.HasValue ? new UserReference { OpenAirUserId = departmentOwner.Value } : null,
+                },
+                Manager = string.IsNullOrEmpty(managerEmail) ? null : new UserReference { Email = managerEmail, OpenAirUserId = managerId },
                 OpenAirUserId = id,
                 Active = true
             };
