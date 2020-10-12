@@ -85,14 +85,19 @@ namespace MentorBot.Functions.Processors.UserInfo
                     name);
         }
 
-        private static bool MatchNamesByName(string[] names, string name) =>
-            names.Length switch
+        private static bool MatchNamesByName(string[] names, string name)
+        {
+            switch (names.Length)
             {
-                1 => names[0].Equals(name, StringComparison.InvariantCultureIgnoreCase),
-                2 => name.Equals(string.Concat(names[0], " ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
-                     name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
-                     name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase),
-                _ => false,
-            };
+                case 1:
+                    return names[0].Equals(name, StringComparison.InvariantCultureIgnoreCase);
+                case 2:
+                    return name.Equals(string.Concat(names[0], " ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
+                           name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
+                           name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase);
+                default:
+                    return false;
+            }
+        }
     }
 }
