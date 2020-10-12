@@ -36,7 +36,7 @@ namespace MentorBot.Functions.Processors
             var examples = await _luisClient.GetExamplesAsync();
             var results = examples
                 .GroupBy(it => it.IntentLabel)
-                .SelectMany(group => group.Take(2).Select(it => it.Text));
+                .SelectMany(group => group.Take(4).Select(it => it.Text));
 
             return new ChatEventResult(
                 ChatEventFactory.CreateCard(

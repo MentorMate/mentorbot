@@ -189,5 +189,19 @@ namespace MentorBot.Tests.Business.Processors
             Assert.IsTrue(TimesheetService.CronCheck("9:00,9:30 *", date));
             Assert.IsFalse(TimesheetService.CronCheck("9:15 *", date));
         }
+
+        [TestMethod]
+        public void CronCheckShoudAllowEom()
+        {
+            var date1 = new DateTime(2020, 10, 30, 9, 0, 0, DateTimeKind.Local);
+            var date2 = new DateTime(2020, 10, 31, 9, 0, 0, DateTimeKind.Local);
+
+            Assert.IsFalse(TimesheetService.CronCheck("9 EOM", date1));
+            Assert.IsTrue(TimesheetService.CronCheck("9 EOM", date2));
+            Assert.IsTrue(TimesheetService.CronCheck("9 Fri,EOM", date1));
+            Assert.IsFalse(TimesheetService.CronCheck("9,9:30 Wed,EOM", date1));
+            Assert.IsTrue(TimesheetService.CronCheck("9:00 Wed,EOM", date2));
+            Assert.IsFalse(TimesheetService.CronCheck("9:30 EOM", date2));
+        }
     }
 }

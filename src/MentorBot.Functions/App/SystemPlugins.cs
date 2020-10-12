@@ -211,7 +211,7 @@ namespace MentorBot.Functions.App
                                     new PluginProperty
                                     {
                                         Name = "Start Hour",
-                                        DescriptionHtml = "Job run every <b>30 min</b>. '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18, '1,2 MON,THU' etc.",
+                                        DescriptionHtml = "Job run every <b>30 min</b>. '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18, '1,2 MON,THU,EOM' etc.",
                                         UniqueName = TimesheetsProperties.AutoNotificationsCron,
                                         ValueType = PropertyValueTypes.String,
                                     },
@@ -282,6 +282,13 @@ namespace MentorBot.Functions.App
                         Id = "bb1c66bf-6627-4498-9118-1ac6f46ee22d",
                         Name = "Wikipedia",
                         ProcessorTypeName = "MentorBot.Functions.Processors.WikipediaProcessor",
+                        Enabled = true,
+                    },
+                    new Plugin
+                    {
+                        Id = "52103ec6-5592-4526-af1d-f93132f72d51",
+                        Name = "User Info",
+                        ProcessorTypeName = "MentorBot.Functions.Processors.UserInfo.UserInfoProcessor",
                         Enabled = true,
                     },
                 };

@@ -86,7 +86,7 @@ namespace MentorBot.Functions.Connectors
                     try
                     {
                         return (it.Department?.Owner?.Email.Equals(senderEmail, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
-                            IsManager(it, senderEmail, users, new List<string>());
+                            users.IsRequestorManager(it, senderEmail);
                     }
                     catch (Exception ex)
                     {
@@ -134,7 +134,7 @@ namespace MentorBot.Functions.Connectors
                     UserName = FormatDisplayName(it.User?.Name ?? "Unknown User"),
                     UserEmail = it.User.Email,
                     DepartmentName = it.User.Department.Name,
-                    ManagerName = FormatDisplayName(FindUser(it.User.Manager, users)?.Name)
+                    ManagerName = FormatDisplayName(users.FindUserByRef(it.User.Manager)?.Name)
                 })
                 .ToArray();
 
@@ -225,25 +225,6 @@ namespace MentorBot.Functions.Connectors
             storedManager?.OpenAirUserId != manager?.OpenAirUserId ||
             storedCustomers.Length != openAirCustomers.Length ||
             openAirCustomers.Any(it => !storedCustomers.Contains(it));
-
-        private static bool IsManager(User user, string email, IReadOnlyList<User> users, List<string> emails) =>
-            user != null && IsUserRefManager(user.Manager, email, users, emails);
-
-        private static bool IsUserRefManager(UserReference userRef, string email, IReadOnlyList<User> users, List<string> emails)
-        {
-            if (userRef == null || emails.Contains(userRef.Email))
-            {
-                return false;
-            }
-
-            emails.Add(userRef.Email);
-
-            return userRef.Email.Equals(email, StringComparison.InvariantCultureIgnoreCase) ||
-                   IsManager(FindUser(userRef, users), email, users, emails);
-        }
-
-        private static User FindUser(UserReference userRef, IReadOnlyList<User> users) =>
-            userRef == null ? null : users.FirstOrDefault(it => it.OpenAirUserId == userRef.OpenAirUserId);
 
         private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
             customerNames == null ||
