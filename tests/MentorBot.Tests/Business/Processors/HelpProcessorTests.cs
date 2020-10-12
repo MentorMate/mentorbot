@@ -59,12 +59,22 @@ namespace MentorBot.Tests.Business.Processors
                     {
                         Text = "3",
                         IntentLabel = "A"
+                    },
+                    new LuisClient.Utterance
+                    {
+                        Text = "4",
+                        IntentLabel = "A"
+                    },
+                    new LuisClient.Utterance
+                    {
+                        Text = "5",
+                        IntentLabel = "A"
                     }
                 });
 
             var result = await _processor.ProcessCommandAsync(new TextDeconstructionInformation(null, null), null, null, null);
 
-            Assert.AreEqual(result.Cards[0].Sections[0].Widgets[0].TextParagraph.Text, "1<br />2<br />10");
+            Assert.AreEqual(result.Cards[0].Sections[0].Widgets[0].TextParagraph.Text, "1<br />2<br />3<br />4<br />10");
         }
     }
 }

@@ -55,9 +55,13 @@ namespace MentorBot.Functions.Processors.Timesheets
                 .ToArray();
 
             var hourValid = hoursCron.Any(hour => hour == "*" || hour.Equals(hourString, StringComparison.InvariantCulture));
+            var daysInCurrentMonth = DateTime.DaysInMonth(date.Year, date.Month);
+            var isEom = daysInCurrentMonth == date.Day;
             var weekDayString = date.ToString("ddd", CultureInfo.InvariantCulture);
             var weekDaysCron = parts[1].Split(',');
-            var weekDayValid = weekDaysCron.Any(day => day == "*" || day.Equals(weekDayString, StringComparison.InvariantCultureIgnoreCase));
+            var weekDayValid = weekDaysCron.Any(day => day == "*" ||
+                (day == "EOM" && isEom) ||
+                day.Equals(weekDayString, StringComparison.InvariantCultureIgnoreCase));
 
             return hourValid && weekDayValid;
         }
