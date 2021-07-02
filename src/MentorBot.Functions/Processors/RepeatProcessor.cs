@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -53,7 +51,11 @@ namespace MentorBot.Functions.Processors
         }
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var text = RegExp.Replace(info.TextSentanceChunk, string.Empty);
             var delayStr = info.Entities.GetValueOrDefault("Time")?.FirstOrDefault();

@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Options;
 
 namespace MentorBot.Functions.Connectors.Luis
@@ -32,36 +31,40 @@ namespace MentorBot.Functions.Connectors.Luis
         public async Task<QueryResponse> QueryAsync(string query)
         {
             var queryData = HttpUtility.UrlEncode(query);
-            var url = $"https://{_options.LuisApiHostName}/luis/v2.0/apps/{_options.LuisApiAppId}?timezoneOffset=-360&subscription-key={_options.LuisApiAppKey}&q=" + queryData;
-            using (var messageHandler = _messageHandlerFactory())
-            {
-                using (var client = new HttpClient(messageHandler, false))
+            var url = $"apps/{_options.LuisApiAppId}?timezoneOffset=-360&subscription-key={_options.LuisApiAppKey}&q=" + queryData;
+
+            using var messageHandler = _messageHandlerFactory();
+            using var client =
+                new HttpClient(messageHandler, false)
                 {
-                    var response = await client.GetAsync(url);
+                    BaseAddress = new Uri($"https://{_options.LuisApiHostName}/luis/v2.0")
+                };
 
-                    response.EnsureSuccessStatusCode();
+            var response = await client.GetAsync(url);
 
-                    return await response.Content.ReadAsAsync<QueryResponse>();
-                }
-            }
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsAsync<QueryResponse>();
         }
 
         /// <inheritdoc/>
         public async Task<Utterance[]> GetExamplesAsync()
         {
-            var take = 100;
-            var url = $"https://{_options.LuisApiHostName}/luis/api/v2.0/apps/{_options.LuisApiAppId}/versions/0.1/examples?skip=0&take={take}&subscription-key={_options.LuisApiAppKey}";
-            using (var messageHandler = _messageHandlerFactory())
-            {
-                using (var client = new HttpClient(messageHandler, false))
+            const int take = 100;
+            var url = $"apps/{_options.LuisApiAppId}/versions/0.1/examples?skip=0&take={take}&subscription-key={_options.LuisApiAppKey}";
+
+            using var messageHandler = _messageHandlerFactory();
+            using var client =
+                new HttpClient(messageHandler, false)
                 {
-                    var response = await client.GetAsync(url);
+                    BaseAddress = new Uri($"https://{_options.LuisApiHostName}/luis/api/v2.0")
+                };
 
-                    response.EnsureSuccessStatusCode();
+            var response = await client.GetAsync(url);
 
-                    return await response.Content.ReadAsAsync<Utterance[]>();
-                }
-            }
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsAsync<Utterance[]>();
         }
     }
 }

@@ -9,7 +9,9 @@ namespace MentorBot.Functions.Services.AzureStorage
     /// <summary>A helper to convert azure query filters.</summary>
     public static class AzureQuery
     {
-        private static readonly Regex ParseExp = new Regex("((AND|OR)?\\s*([A-Za-z0-9_\\-]+) (eq|<|>|>=|<=|ne|noeq) '?([A-Za-z0-9_\\-@\\.:]+)'?)+", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex ParseExp = new Regex(
+            "((AND|OR)?\\s*([A-Za-z0-9_\\-]+) (eq|<|>|>=|<=|ne|noeq) '?([A-Za-z0-9_\\-@\\.:]+)'?)+",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <summary>Create a query filter out of a query text.</summary>
         public static IEnumerable<QueryFilter> CreateQueryFilters(string query)

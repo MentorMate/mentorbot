@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.App;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
@@ -155,12 +153,9 @@ namespace MentorBot.Tests.Business.Services
         [TestMethod]
         public async Task GetAllPluginsAsync_NotConnected_returns_EmptySettings()
         {
-            ServiceLocator.EnsureServiceProvider();
-
             _tableClientService.IsConnected.Returns(false);
 
             var result = await _storageService.GetAllPluginsAsync();
-
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(IReadOnlyList<Plugin>));
@@ -194,7 +189,6 @@ namespace MentorBot.Tests.Business.Services
             Assert.AreEqual(1, users[0].OpenAirUserId);
             Assert.AreEqual(2, users[1].OpenAirUserId);
             Assert.AreEqual(3, users[2].OpenAirUserId);
-
         }
 
         [TestMethod]
@@ -321,14 +315,11 @@ namespace MentorBot.Tests.Business.Services
             Assert.AreEqual(1, messages.Count);
             Assert.AreEqual("question 1", messages[0].PartitionKey);
             Assert.AreEqual("question 1", messages[0].Input);
-
         }
 
         [TestMethod]
         public async Task GetAllPluginsAsync_Connected_returns_correct_settings()
         {
-            ServiceLocator.EnsureServiceProvider();
-
             _tableClientService.QueryAsync<Plugin>(1000).Returns(_plugins.AsQueryable());
 
             var result = await _storageService.GetAllPluginsAsync();

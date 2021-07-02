@@ -40,8 +40,7 @@ namespace MentorBot.Functions.Connectors
         /// <inheritdoc/>
         public async Task<Event> GetNextMeetingAsync(string calendarId)
         {
-            var now = DateTime.Now;
-
+            var now = Contract.LocalDateTime;
             var request = ServiceProvider.Events.List(calendarId);
 
             request.MaxResults = 5;

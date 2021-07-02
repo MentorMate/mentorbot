@@ -4,13 +4,13 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Net.Http.Headers;
 
 namespace MentorBot.Functions.Services
 {
@@ -19,6 +19,7 @@ namespace MentorBot.Functions.Services
     {
         private const string DefaultGoogleAuthTokenInfoApi = "https://www.googleapis.com/oauth2/v1/tokeninfo";
         private const string DefaultAuthenticationSchema = "Bearer";
+        private const string AuthorizationHeaderName = "Authorization";
 
         #pragma warning disable CA2213
         private readonly IMemoryCache _cache;
@@ -42,7 +43,7 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public async Task<AccessTokenUserInfo> ValidateTokenAsync(HttpRequest request)
+        public async Task<AccessTokenUserInfo> ValidateTokenAsync(HttpRequestData request)
         {
             var accessTokenInfo = await GetValidAccessTokenInfoAsync(request);
             if (accessTokenInfo == null)
@@ -76,9 +77,9 @@ namespace MentorBot.Functions.Services
             };
         }
 
-        private async Task<GoogleAccessTokenInfo> GetValidAccessTokenInfoAsync(HttpRequest request)
+        private async Task<GoogleAccessTokenInfo> GetValidAccessTokenInfoAsync(HttpRequestData request)
         {
-            var authorizationHeader = AuthenticationHeaderValue.Parse(request.Headers[HeaderNames.Authorization]);
+            var authorizationHeader = AuthenticationHeaderValue.Parse(request.Headers.GetValue(AuthorizationHeaderName));
             if (!authorizationHeader.Scheme.Equals(DefaultAuthenticationSchema, StringComparison.InvariantCultureIgnoreCase))
             {
                 return null;
@@ -108,15 +109,13 @@ namespace MentorBot.Functions.Services
 
         private async Task<GoogleAccessTokenInfo> ExecuteRequestAsync(string accessToken, Func<HttpMessageHandler> httpMessageHandlerFactory)
         {
-            using (var messageHandler = httpMessageHandlerFactory())
-            using (var client = new HttpClient(messageHandler, false))
-            {
-                var response = await client.GetAsync(DefaultGoogleAuthTokenInfoApi + "?access_token=" + accessToken);
+            using var messageHandler = httpMessageHandlerFactory();
+            using var client = new HttpClient(messageHandler, false);
+            var response = await client.GetAsync(DefaultGoogleAuthTokenInfoApi + "?access_token=" + accessToken);
 
-                response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadAsAsync<GoogleAccessTokenInfo>();
-            }
+            return await response.Content.ReadAsAsync<GoogleAccessTokenInfo>();
         }
     }
 }

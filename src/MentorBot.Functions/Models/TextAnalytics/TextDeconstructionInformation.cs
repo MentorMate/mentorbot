@@ -15,7 +15,13 @@ namespace MentorBot.Functions.Models.TextAnalytics
         }
 
         /// <summary>Initializes a new instance of the <see cref="TextDeconstructionInformation"/> class.</summary>
-        public TextDeconstructionInformation(string textSentanceChunk, string subject, SentenceTypes sentenceType, IReadOnlyDictionary<string, string[]> entities, string[] phrases, double confidenceRating)
+        public TextDeconstructionInformation(
+            string textSentanceChunk,
+            string subject,
+            SentenceTypes sentenceType,
+            IReadOnlyDictionary<string, string[]> entities,
+            string[] phrases,
+            double confidenceRating)
         {
             TextSentanceChunk = textSentanceChunk;
             Subject = subject;

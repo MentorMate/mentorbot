@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Services;
+using MentorBot.Tests._Base;
 using MentorBot.Tests.Base;
-using Microsoft.AspNetCore.Http;
+
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using NSubstitute;
 
 namespace MentorBot.Tests.Business.Services
@@ -36,11 +39,9 @@ namespace MentorBot.Tests.Business.Services
         [TestMethod]
         public async Task ValidateTokenShouldCheckTokenSchema()
         {
-            var ctx = new DefaultHttpContext();
+            var req = GetRequestWithAuthHeader("Basic ABC123");
 
-            ctx.Request.Headers.Add("Authorization", "Basic ABC123");
-
-            var result = await _service.ValidateTokenAsync(ctx.Request);
+            var result = await _service.ValidateTokenAsync(req);
 
             Assert.IsFalse(result.IsValid);
         }
@@ -49,16 +50,14 @@ namespace MentorBot.Tests.Business.Services
         public async Task ValidateTokenShouldGetUserFromStore()
         {
             var usr = new User { GoogleUserId = "123", Role = 2 };
-            var ctx = new DefaultHttpContext();
-
-            ctx.Request.Headers.Add("Authorization", "Bearer ABC123");
+            var req = GetRequestWithAuthHeader("Bearer ABC123");
 
             _messageHandler.Set("{ \"user_id\": \"123\", \"expires_in\":60, \"access_type\":\"online\", \"email\":\"test@domain.com\" }", "application/json");
             _storageService.GetUserByEmailAsync("test@domain.com").Returns(usr);
 
-            var result = await _service.ValidateTokenAsync(ctx.Request);
+            var result = await _service.ValidateTokenAsync(req);
 
-            Assert.AreEqual(result.Role, "administrator");
+            Assert.AreEqual("administrator", result.Role);
             Assert.IsTrue(result.IsValid);
         }
 
@@ -66,14 +65,12 @@ namespace MentorBot.Tests.Business.Services
         public async Task ValidateTokenShouldSaveUserWithouGoogleId()
         {
             var usr = new User { Id = "U1", Role = 1 };
-            var ctx = new DefaultHttpContext();
-
-            ctx.Request.Headers.Add("Authorization", "Bearer ABC123");
+            var req = GetRequestWithAuthHeader("Bearer ABC123");
 
             _messageHandler.Set("{ \"user_id\": \"123\", \"expires_in\":60, \"access_type\":\"online\", \"email\":\"test@domain.com\" }", "application/json");
             _storageService.GetUserByEmailAsync("test@domain.com").Returns(usr);
 
-            var result = await _service.ValidateTokenAsync(ctx.Request);
+            var result = await _service.ValidateTokenAsync(req);
 
             await _storageService.Received()
                 .UpdateUsersAsync(
@@ -85,13 +82,11 @@ namespace MentorBot.Tests.Business.Services
         [TestMethod]
         public async Task ValidateTokenShouldInvalidateBasedOnTokenInfo()
         {
-            var ctx = new DefaultHttpContext();
-
-            ctx.Request.Headers.Add("Authorization", "Bearer ABC123");
+            var req = GetRequestWithAuthHeader("Bearer ABC123");
 
             _messageHandler.Set("{ \"user_id\": \"123\", \"expires_in\":60, \"access_type\":\"offline\", \"email\":\"test@domain.com\" }", "application/json");
 
-            var result = await _service.ValidateTokenAsync(ctx.Request);
+            var result = await _service.ValidateTokenAsync(req);
 
             Assert.IsFalse(result.IsValid);
         }
@@ -99,9 +94,7 @@ namespace MentorBot.Tests.Business.Services
         [TestMethod]
         public async Task ValidateTokenShouldGetFromCache()
         {
-            var ctx = new DefaultHttpContext();
-
-            ctx.Request.Headers.Add("Authorization", "Bearer ABC123");
+            var req = GetRequestWithAuthHeader("Bearer ABC123");
 
             _cache.TryGetValue("UserAccessToken_ABC123", out Arg.Any<object>())
                 .Returns(x =>
@@ -125,10 +118,20 @@ namespace MentorBot.Tests.Business.Services
                 });
 
 
-            var result = await _service.ValidateTokenAsync(ctx.Request);
+            var result = await _service.ValidateTokenAsync(req);
 
             Assert.AreEqual(result.Role, "user");
             Assert.IsTrue(result.IsValid);
+        }
+
+        private static HttpRequestData GetRequestWithAuthHeader(string value)
+        {
+            var ctx = MockFunction.GetContext();
+            var req = MockFunction.GetRequest(null, ctx);
+            var headers = new HttpHeadersCollection();
+            headers.Add("Authorization", value);
+            req.Headers.Returns(headers);
+            return req;
         }
     }
 }

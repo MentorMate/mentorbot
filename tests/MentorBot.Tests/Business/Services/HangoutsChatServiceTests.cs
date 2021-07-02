@@ -7,6 +7,7 @@ using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Services;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;
@@ -20,13 +21,15 @@ namespace MentorBot.Tests.Business.Services
         private HangoutsChatService _service;
         private ICognitiveService _cognitiveService;
         private IAsyncResponder _asyncResponder;
+        private ILogger _logger;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _cognitiveService = Substitute.For<ICognitiveService>();
             _asyncResponder = Substitute.For<IAsyncResponder>();
-            _service = new HangoutsChatService(_cognitiveService, _asyncResponder);
+            _logger = Substitute.For<ILogger>();
+            _service = new HangoutsChatService(_cognitiveService, _asyncResponder, _logger);
         }
 
         [TestMethod]

@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
-using Microsoft.AspNetCore.Http;
+
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace MentorBot.Functions.App.Extensions
 {
@@ -11,7 +12,7 @@ namespace MentorBot.Functions.App.Extensions
     public static class AccessTokenServiceExtensions
     {
         /// <summary>Ensure the user is in a specific role.</summary>
-        public static Task EnsureRole(this IAccessTokenService accessTokenService, HttpRequest req, UserRoles role) =>
+        public static Task EnsureRole(this IAccessTokenService accessTokenService, HttpRequestData req, UserRoles role) =>
             accessTokenService
                 .ValidateTokenAsync(req)
                 .ContinueWith(task =>

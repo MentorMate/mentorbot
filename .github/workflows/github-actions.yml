@@ -1,0 +1,34 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK 5
+        uses: actions/setup-dotnet@v1.8.0
+        with:
+          dotnet-version: 5.0.x
+      - name: Install dependencies
+        run: dotnet restore src/
+      - name: Build with dotnet
+        run: dotnet build --no-restore -c Release src/MentorBot.Functions/MentorBot.Functions.csproj
+      - name: Test with dotnet
+        run: dotnet test --no-restore -c Debug -l trx ./tests/MentorBot.Tests/MentorBot.Tests.csproj  -l Appveyor /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="../../TestResults/" /p:ExcludeByFile=\"../../src/MentorBot.Functions/Models/**/*.cs\"
+      - name: Upload dotnet test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: dotnet-results
+          path: TestResults
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+      - name: Run front end lint
+        run: npm run lint --prefix ./src/MentorBot.WebLearningCenter/ClientApp
+      - name: Run front end tests
+        run: npm run test:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
+      - name: Upload test coverage
+        run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f TestResults/coverage.opencover.xml -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov

@@ -1,5 +1,3 @@
-// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +17,10 @@ namespace MentorBot.Functions.Processors
     /// <summary>A command that search for information in the wikipedia encyclopedia.</summary>
     public sealed class WikipediaProcessor : ICommandProcessor
     {
-        private static readonly Regex Exp = new Regex("^(What +|Where +|Who +|Where +|are +|is +)+([\\w\\d\\s\\,\\.]+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        private static readonly Regex Exp = new (
+            "^(What +|Where +|Who +|Where +|are +|is +)+([\\w\\d\\s\\,\\.]+)$",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
         private readonly IWikiClient _client;
 
         /// <summary>Initializes a new instance of the <see cref="WikipediaProcessor"/> class.</summary>
@@ -35,7 +36,11 @@ namespace MentorBot.Functions.Processors
         public string Subject => "Encyclopedia";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var query = GetQueryText(info);
             if (string.IsNullOrEmpty(query))

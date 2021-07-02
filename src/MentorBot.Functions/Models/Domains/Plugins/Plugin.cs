@@ -1,6 +1,8 @@
-﻿using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+﻿using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
+using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains.Plugins
 {
@@ -10,29 +12,35 @@ namespace MentorBot.Functions.Models.Domains.Plugins
     {
         /// <summary>Gets or sets the identifier.</summary>
         [RowKey]
-        [JsonProperty("id")]
+        [NS.JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>Gets or sets the partition key.</summary>
         [PartitionKey]
-        [JsonProperty("key")]
+        [NS.JsonProperty("key")]
+        [JsonPropertyName("key")]
         public string Key { get; set; } = "System";
 
         /// <summary>Gets or sets the name.</summary>
-        [JsonProperty("name")]
+        [NS.JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>Gets or sets the name of the processor type.</summary>
-        [JsonProperty("type")]
+        [NS.JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string ProcessorTypeName { get; set; }
 
         /// <summary>Gets or sets a value indicating whether this <see cref="Plugin"/> is enabled.</summary>
-        [JsonProperty("enabled")]
+        [NS.JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
 
         /// <summary>Gets or sets the properties.</summary>
         [StoreAsJsonObject]
-        [JsonProperty("groups")]
+        [NS.JsonProperty("groups")]
+        [JsonPropertyName("groups")]
         public PluginPropertyGroup[] Groups { get; set; }
     }
 }

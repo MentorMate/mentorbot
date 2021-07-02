@@ -1,10 +1,8 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using MentorBot.Functions.Models.DataResultModels;
 
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace MentorBot.Functions.Abstract.Services
 {
@@ -12,6 +10,6 @@ namespace MentorBot.Functions.Abstract.Services
     public interface IAccessTokenService
     {
         /// <summary>Validate the access token in the request and return user info.</summary>
-        Task<AccessTokenUserInfo> ValidateTokenAsync(HttpRequest request);
+        Task<AccessTokenUserInfo> ValidateTokenAsync(HttpRequestData request);
     }
 }

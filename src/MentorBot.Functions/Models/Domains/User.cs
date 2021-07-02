@@ -1,13 +1,12 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
 using MentorBot.Functions.Models.Domains.Base;
 using MentorBot.Functions.Models.Domains.Plugins;
-using Newtonsoft.Json;
+
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains
 {
@@ -17,7 +16,8 @@ namespace MentorBot.Functions.Models.Domains
     {
         /// <summary>Gets or sets the identifier.</summary>
         [RowKey]
-        [JsonProperty("id")]
+        [NS.JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>Gets the partition key for this record.</summary>

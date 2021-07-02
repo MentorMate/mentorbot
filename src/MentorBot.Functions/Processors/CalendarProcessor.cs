@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,7 +33,11 @@ namespace MentorBot.Functions.Processors
         public string Subject => "Meetings";
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             Contract.Ensures(info != null, "Text deconstruction information is required!");
 

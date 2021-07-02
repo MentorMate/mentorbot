@@ -34,7 +34,11 @@ namespace MentorBot.Functions.Processors.UserInfo
         #pragma warning restore CC0021
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var userName = info.Entities.GetValueOrDefault("Text")?.FirstOrDefault();
             var senderEmail = originalChatEvent?.Message?.Sender.Email;

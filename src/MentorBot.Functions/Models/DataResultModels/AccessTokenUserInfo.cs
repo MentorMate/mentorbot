@@ -1,6 +1,8 @@
-﻿using MentorBot.Functions.Models.Domains;
+﻿using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
+using MentorBot.Functions.Models.Domains;
+
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.DataResultModels
 {
@@ -8,6 +10,7 @@ namespace MentorBot.Functions.Models.DataResultModels
     public sealed class AccessTokenUserInfo
     {
         /// <summary>Gets or sets the user role.</summary>
+        [NS.JsonIgnore]
         [JsonIgnore]
         public UserRoles UserRole { get; set; }
 

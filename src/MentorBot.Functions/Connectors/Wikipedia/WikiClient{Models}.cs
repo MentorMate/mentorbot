@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
+
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Connectors.Wikipedia
 {
@@ -36,11 +38,13 @@ namespace MentorBot.Functions.Connectors.Wikipedia
             public string Extract { get; set; }
 
             /// <summary>Gets or sets the extract HTML.</summary>
-            [JsonProperty("extract_html")]
+            [NS.JsonProperty("extract_html")]
+            [JsonPropertyName("extract_html")]
             public string ExtractHtml { get; set; }
 
             /// <summary>Gets or sets the content urls.</summary>
-            [JsonProperty("content_urls")]
+            [NS.JsonProperty("content_urls")]
+            [JsonPropertyName("content_urls")]
             public Content ContentUrls { get; set; }
         }
 

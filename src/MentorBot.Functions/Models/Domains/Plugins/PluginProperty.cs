@@ -1,6 +1,6 @@
-﻿using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+﻿using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains.Plugins
 {
@@ -8,19 +8,23 @@ namespace MentorBot.Functions.Models.Domains.Plugins
     public sealed class PluginProperty
     {
         /// <summary>Gets or sets the name.</summary>
-        [JsonProperty("name")]
+        [NS.JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>Gets or sets the description.</summary>
-        [JsonProperty("desc")]
+        [NS.JsonProperty("desc")]
+        [JsonPropertyName("desc")]
         public string DescriptionHtml { get; set; }
 
         /// <summary>Gets or sets the unique property name.</summary>
-        [JsonProperty("key")]
+        [NS.JsonProperty("key")]
+        [JsonPropertyName("key")]
         public string UniqueName { get; set; }
 
         /// <summary>Gets or sets the property type.</summary>
-        [JsonProperty("valueType")]
+        [NS.JsonProperty("valueType")]
+        [JsonPropertyName("valueType")]
         public PropertyValueTypes ValueType { get; set; }
     }
 }

@@ -1,8 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System;
 
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
@@ -25,21 +21,15 @@ using MentorBot.Functions.Services;
 using MentorBot.Functions.Services.AzureStorage;
 using MentorBot.Localize;
 
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MentorBot.Functions.App
+namespace MentorBot.Functions.App.Extensions
 {
-#pragma warning disable S1200 // Classes should not be coupled to too many other classes (Single Responsibility Principle)
     /// <summary>Service locator is normally bad practice, but other methods are not realiable in Azure Functions.</summary>
-    public sealed class ServiceLocator
+    public static class ServiceCollectionExtensions
     {
-        /// <summary>Gets the default service locator instance.</summary>
-        public static ServiceLocator DefaultInstance { get; } = new ServiceLocator();
-
-        /// <summary>Gets the service provider.</summary>
-        public IServiceProvider ServiceProvider { get; private set; }
-
         /// <summary>Tries to create a type or return default value.</summary>
         /// <typeparam name="T">The type to be created.</typeparam>
         public static T Try<T>(Func<T> creator, T defaultValue = default)
@@ -54,48 +44,14 @@ namespace MentorBot.Functions.App
             }
         }
 
-        /// <summary>Configure the service provider if not configured.</summary>
-        public static void EnsureServiceProvider()
-        {
-            if (DefaultInstance.ServiceProvider == null)
-            {
-                DefaultInstance.BuildServiceProviderWithDescriptors();
-            }
-        }
-
         /// <summary>Get a service.</summary>
         /// <typeparam name="T">The type of the service.</typeparam>
-        public static T Get<T>() =>
-            DefaultInstance.ServiceProvider.GetService<T>();
-
-        /// <summary>Get a service.</summary>
-        /// <typeparam name="T">The type of the service.</typeparam>
-        public static IEnumerable<T> GetServices<T>() =>
-            DefaultInstance.ServiceProvider.GetServices<T>();
-
-        /// <summary>Build the service provider with additional descriptors.</summary>
-        public void BuildServiceProviderWithDescriptors(params ServiceDescriptor[] descriptors)
-        {
-            var services = ConfigureServices();
-            foreach (var descriptor in descriptors)
-            {
-                services.Insert(services.Count, descriptor);
-            }
-
-            ServiceProvider = services.BuildServiceProvider(false);
-        }
+        public static T Get<T>(this FunctionContext context) =>
+            context.InstanceServices.GetRequiredService<T>();
 
         /// <summary>Configures the services.</summary>
-        private static IServiceCollection ConfigureServices()
+        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration config)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("local.settings.json", true, false)
-                .AddEnvironmentVariables()
-                .Build();
-
-            var services = new ServiceCollection();
-
             services.AddMemoryCache();
             services.AddSingleton<IConfiguration>(config);
             services.AddSingleton(new AzureCloudOptions(config));
@@ -108,7 +64,7 @@ namespace MentorBot.Functions.App
             services.AddSingleton<Func<TimeZoneInfo>>(
                 () => TimeZoneInfo.FindSystemTimeZoneById(config["DefaultTimeZoneName"]));
             services.AddSingleton<Func<DateTime>>(
-                () => DateTime.Now);
+                () => Contract.LocalDateTime);
             services.AddTransient<IAzureStorageContext, AzureStorageContext>(x =>
                 Try(() => new AzureStorageContext(x.GetService<AzureCloudOptions>()?.AzureStorageAccountConnectionString)));
 
@@ -152,5 +108,4 @@ namespace MentorBot.Functions.App
             return services;
         }
     }
-#pragma warning restore S120
 }

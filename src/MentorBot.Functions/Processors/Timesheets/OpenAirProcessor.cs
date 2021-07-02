@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -45,14 +43,18 @@ namespace MentorBot.Functions.Processors.Timesheets
         public string Subject => TimesheetsProperties.ProcessorSubjectName;
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
             var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer), new string[0]);
             var period = OpenAirText.GetPeriod(info.Entities.GetValueOrDefault("Period")?.FirstOrDefault());
             var state = OpenAirText.GetTimesheetState(info.Entities.GetValueOrDefault("State")?.FirstOrDefault());
-            var today = DateTime.Today;
+            var today = Contract.LocalDateTime.Date;
             var date = period == OpenAirPeriodTypes.LastWeek ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
             var senderEmail = originalChatEvent.Message.Sender.Email;
             var customersSetting = accessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
@@ -63,7 +65,8 @@ namespace MentorBot.Functions.Processors.Timesheets
                     new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
             }
 
-            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, true, new GoogleChatAddress(originalChatEvent), responder as IHangoutsChatConnector)
+            var address = new GoogleChatAddress(originalChatEvent);
+            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, true, address, responder as IHangoutsChatConnector)
                 .ConfigureAwait(false);
 
             return new ValueTask<ChatEventResult>(
@@ -83,7 +86,14 @@ namespace MentorBot.Functions.Processors.Timesheets
             GoogleChatAddress address,
             IHangoutsChatConnector connector) =>
             await SendTimesheetNotificationsToUsersAsync(
-                await _openAirConnector.GetUnsubmittedTimesheetsAsync(date, DateTime.Today, state, email, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude),
+                await _openAirConnector.GetUnsubmittedTimesheetsAsync(
+                    date,
+                    Contract.LocalDateTime.Date,
+                    state,
+                    email,
+                    filterOutSender,
+                    TimesheetsProperties.UserMaxHours,
+                    customersToExclude),
                 email,
                 department,
                 notify,
@@ -93,8 +103,20 @@ namespace MentorBot.Functions.Processors.Timesheets
                 connector);
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(DateTime dateTime, TimesheetStates state, string senderEmail, bool filterOutSender, IReadOnlyList<string> customersToExclude) =>
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(dateTime, DateTime.Today, state, senderEmail, filterOutSender, TimesheetsProperties.UserMaxHours, customersToExclude);
+        public Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(
+            DateTime dateTime,
+            TimesheetStates state,
+            string senderEmail,
+            bool filterOutSender,
+            IReadOnlyList<string> customersToExclude) =>
+            _openAirConnector.GetUnsubmittedTimesheetsAsync(
+                dateTime,
+                Contract.LocalDateTime.Date,
+                state,
+                senderEmail,
+                filterOutSender,
+                TimesheetsProperties.UserMaxHours,
+                customersToExclude);
 
         /// <summary>Processes the specified timesheets.</summary>
         public async Task SendTimesheetNotificationsToUsersAsync(
@@ -157,7 +179,8 @@ namespace MentorBot.Functions.Processors.Timesheets
             }
             else if (email != null)
             {
-                var emailText = $"{text}<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>{string.Join("</b><br/><b>", notifiedUserList)}</b>";
+                var emailedUsers = string.Join("</b><br/><b>", notifiedUserList);
+                var emailText = $"{text}<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>{emailedUsers}</b>";
                 await _mailService.SendMailAsync("Users not notified", emailText, email);
             }
         }

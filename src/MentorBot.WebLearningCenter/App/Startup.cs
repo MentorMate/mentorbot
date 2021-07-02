@@ -1,61 +1,45 @@
-// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+using System.IO;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace MentorBot.WebLearningCenter
 {
     /// <summary>The application startup class.</summary>
-    public class Startup : IStartup
+    public class Startup
     {
-        private readonly IConfiguration _configuration;
+        private const string AngularStartScriptName = "start";
+        private const string ClientAppDirectory = "ClientApp";
+
+        private readonly IWebHostEnvironment _environment;
 
         /// <summary>Initializes a new instance of the <see cref="Startup"/> class.</summary>
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment environment)
         {
-            _configuration = configuration;
+            _environment = environment;
         }
 
         /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvc();
-
-            services.AddSpaStaticFiles(configuration
-                => configuration.RootPath = "ClientApp/dist");
-
-            return services.BuildServiceProvider();
+            services.AddSpaStaticFiles(configuration =>
+                configuration.RootPath = Path.Combine(ClientAppDirectory, "dist"));
         }
 
         /// <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>
         public void Configure(IApplicationBuilder app)
         {
-            if (app == null)
-            {
-                throw new ArgumentNullException(nameof(app));
-            }
-
-            var developmentEnvironment = app
-                .ApplicationServices
-                .GetService<IHostingEnvironment>()
-                .IsDevelopment();
-
-            app.UseStaticFiles();
             app.UseSpaStaticFiles();
-            app.UseMvcWithDefaultRoute();
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "ClientApp";
+                spa.Options.SourcePath = ClientAppDirectory;
 
-                if (developmentEnvironment)
+                if (_environment.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseAngularCliServer(AngularStartScriptName);
                 }
             });
         }

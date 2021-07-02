@@ -32,7 +32,11 @@ namespace MentorBot.Functions.Processors.BuildInfo
         public string Subject => nameof(BuildInfo);
 
         /// <inheritdoc/>
-        public async ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var jobNames = await accessor.GetAllUserPropertyValuesAsync<string>(BuildInfoProperties.JobName);
             if (jobNames == null ||

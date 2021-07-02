@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -21,7 +19,9 @@ namespace MentorBot.Functions.Services
     /// <summary>The most basic implementation of a Cognitive service.</summary>
     public class CognitiveService : ICognitiveService
     {
-        private static readonly Regex BotSelfPoint = new Regex("^\\s*@mentorbot\\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        private static readonly Regex BotSelfPoint = new Regex(
+            "^\\s*@mentorbot\\s*",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
         #pragma warning disable CA2213
         private readonly IMemoryCache _cache;

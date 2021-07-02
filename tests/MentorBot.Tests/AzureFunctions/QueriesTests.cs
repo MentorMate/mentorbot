@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.App;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Tests._Base;
 
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -26,18 +26,18 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetMessagesStatisticsAsyncShouldQueryDocument()
         {
-            var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
             var message1 = new Message { ProbabilityPercentage = 96 };
             var message2 = new Message { ProbabilityPercentage = 82 };
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var req = MockFunction.GetRequest(null, context);
 
+            SetUserRole(req, UserRoles.User);
             storageService.GetMessagesAsync().Returns(new[] { message1, message2 });
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(req, UserRoles.User));
-
-            var result = await Queries.GetMessagesStatisticsAsync(req);
+            var result = await Queries.GetMessagesStatisticsAsync(req, context);
             var array = result.ToArray();
 
             Assert.AreEqual(2, array.Length);
@@ -48,7 +48,6 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetSettingsShouldQueryTheStorage()
         {
-            var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
             var plugins = new []
             {
@@ -59,13 +58,15 @@ namespace MentorBot.Tests.AzureFunctions
                 }
             };
 
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var req = MockFunction.GetRequest(null, context);
+
+            SetUserRole(req, UserRoles.Administrator);
             storageService.GetAllPluginsAsync().Returns(plugins);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(req, UserRoles.Administrator));
-
-            var result = await Queries.GetPluginsAsync(req);
+            var result = await Queries.GetPluginsAsync(req, context);
 
             Assert.IsNotNull(result.FirstOrDefault(it => it.Name == "Issues/Ticketing"));
         }
@@ -73,7 +74,6 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetSettingsShouldUpdateGroups()
         {
-            var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
             var plugins = new[]
             {
@@ -93,13 +93,15 @@ namespace MentorBot.Tests.AzureFunctions
                 }
             };
 
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var req = MockFunction.GetRequest(null, context);
+
+            SetUserRole(req, UserRoles.Administrator);
             storageService.GetAllPluginsAsync().Returns(plugins);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(req, UserRoles.Administrator));
-
-            var result = await Queries.GetPluginsAsync(req);
+            var result = await Queries.GetPluginsAsync(req, context);
 
             var p = result.FirstOrDefault(it => it.Name == "Jenkins Build Info");
 
@@ -110,25 +112,24 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetSettingsErrorWhenRequestedFromUserRole()
         {
-            var req = GetHttpRequest();
+            var context = MockFunction.GetContext(GetAccessTokenServiceDescriptor());
+            var req = MockFunction.GetRequest(null, context);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                GetAccessTokenServiceDescriptor(req, UserRoles.User));
+            SetUserRole(req, UserRoles.User);
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
-                () => Queries.GetPluginsAsync(req));
+                () => Queries.GetPluginsAsync(req, context));
         }
 
         [TestMethod]
         public async Task GetUserInfoShouldValidateToken()
         {
-            var accessTokenService = Substitute.For<IAccessTokenService>();
-            var request = GetHttpRequest();
+            var context = MockFunction.GetContext(GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                GetAccessTokenServiceDescriptor(request, UserRoles.User));
+            SetUserRole(request, UserRoles.User);
 
-            var result = await Queries.GetUserInfoAsync(request);
+            var result = await Queries.GetUserInfoAsync(request, context);
 
             Assert.AreEqual(result.Role, "user");
         }
@@ -137,7 +138,6 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task GetUsersShouldQueryActiveUsers()
         {
             var storageService = Substitute.For<IStorageService>();
-            var request = GetHttpRequest();
             var data = new []
             {
                 new User
@@ -148,13 +148,15 @@ namespace MentorBot.Tests.AzureFunctions
                 }
             };
 
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
+
+            SetUserRole(request, UserRoles.Administrator);
             storageService.GetAllActiveUsersAsync().Returns(data);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(request, UserRoles.Administrator));
-
-            var result = await Queries.GetUsersAsync(request);
+            var result = await Queries.GetUsersAsync(request, context);
 
             Assert.AreEqual(result.First().Name, "U1");
         }
@@ -162,38 +164,39 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetUsersShouldErrorWhenRequestedFromUserRole()
         {
-            var request = GetHttpRequest();
+            var context = MockFunction.GetContext(GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                GetAccessTokenServiceDescriptor(request, UserRoles.User));
+            SetUserRole(request, UserRoles.User);
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
-                () => Queries.GetUsersAsync(request));
+                () => Queries.GetUsersAsync(request, context));
         }
 
         [TestMethod]
         public async Task GetPluginsAsyncShouldErrorWhenRequestedFromUserRole()
         {
-            var request = GetHttpRequest();
+            var context = MockFunction.GetContext(GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                GetAccessTokenServiceDescriptor(request, UserRoles.User));
+            SetUserRole(request, UserRoles.User);
 
             await Assert.ThrowsExceptionAsync<AccessViolationException>(
-                () => Queries.GetPluginsAsync(request));
+                () => Queries.GetPluginsAsync(request, context));
         }
 
         [TestMethod]
         public async Task GetPluginsAsyncShouldCreatePluginsWhenNonInStorage()
         {
             var storageService = Substitute.For<IStorageService>();
-            var request = GetHttpRequest();
-
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
+            var context = MockFunction.GetContext(
                 new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(request, UserRoles.Administrator));
+                GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
 
-            var result = await Queries.GetPluginsAsync(request);
+            SetUserRole(request, UserRoles.Administrator);
+
+            var result = await Queries.GetPluginsAsync(request, context);
 
             Assert.AreEqual(10, result.Count());
             storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 10));
@@ -202,7 +205,6 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task GetTimesheettatisticsAsyncShouldQueryDocument()
         {
-            var req = GetHttpRequest();
             var storageService = Substitute.For<IStorageService>();
             var stat1 = new Statistics<TimesheetStatistics[]>
             {
@@ -247,15 +249,16 @@ namespace MentorBot.Tests.AzureFunctions
             };
 
             var stats3 = new Statistics<TimesheetStatistics[]>[0];
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
 
+            SetUserRole(request, UserRoles.User);
             storageService.GetStatisticsAsync<TimesheetStatistics[]>(null, null)
                 .ReturnsForAnyArgs(new[] { stat1 }, new[] { stat2 }, stats3);
 
-            ServiceLocator.DefaultInstance.BuildServiceProviderWithDescriptors(
-                new ServiceDescriptor(typeof(IStorageService), storageService),
-                GetAccessTokenServiceDescriptor(req, UserRoles.User));
-
-            var result = await Queries.GetTimesheetStatisticsAsync(req);
+            var result = await Queries.GetTimesheetStatisticsAsync(request, context);
             var array = result.ToArray();
 
             Assert.AreEqual(4, array.Length);
@@ -269,19 +272,17 @@ namespace MentorBot.Tests.AzureFunctions
             Assert.AreEqual(2, array[3].Count);
         }
 
-        private static ServiceDescriptor GetAccessTokenServiceDescriptor(HttpRequest req, UserRoles role)
+        private static ServiceDescriptor GetAccessTokenServiceDescriptor()
         {
             var tokenService = Substitute.For<IAccessTokenService>();
-            var info = new AccessTokenUserInfo { IsValid = true, UserRole = role };
-            tokenService.ValidateTokenAsync(req).Returns(info);
             return new ServiceDescriptor(typeof(IAccessTokenService), tokenService);
         }
 
-        private static HttpRequest GetHttpRequest()
+        private static void SetUserRole(HttpRequestData data, UserRoles role)
         {
-            var context = new DefaultHttpContext();
-            context.Request.Method = "GET";
-            return context.Request;
+            var service = data.FunctionContext.InstanceServices.GetRequiredService<IAccessTokenService>();
+            var info = new AccessTokenUserInfo { IsValid = true, UserRole = role };
+            service.ValidateTokenAsync(data).Returns(info);
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+﻿using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
+using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
+
+using NS = Newtonsoft.Json;
 
 namespace MentorBot.Functions.Models.Domains.Plugins
 {
@@ -8,29 +10,35 @@ namespace MentorBot.Functions.Models.Domains.Plugins
     public sealed class PluginPropertyGroup
     {
         /// <summary>Gets or sets the name.</summary>
-        [JsonProperty("name")]
+        [NS.JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>Gets or sets the unique group name.</summary>
-        [JsonProperty("key")]
+        [NS.JsonProperty("key")]
+        [JsonPropertyName("key")]
         public string UniqueName { get; set; }
 
         /// <summary>Gets or sets a value indicating whether this <see cref="PluginProperty"/> is multi value.</summary>
-        [JsonProperty("multi")]
+        [NS.JsonProperty("multi")]
+        [JsonPropertyName("multi")]
         public bool Multi { get; set; }
 
         /// <summary>Gets or sets the property type.</summary>
-        [JsonProperty("type")]
+        [NS.JsonProperty("type")]
+        [JsonPropertyName("type")]
         public PropertyObjectTypes ObjectType { get; set; }
 
         /// <summary>Gets or sets the properties.</summary>
         [StoreAsJsonObject]
-        [JsonProperty("properties")]
+        [NS.JsonProperty("properties")]
+        [JsonPropertyName("properties")]
         public PluginProperty[] Properties { get; set; }
 
         /// <summary>Gets or sets the property values.</summary>
         [StoreAsJsonObject]
-        [JsonProperty("values")]
+        [NS.JsonProperty("values")]
+        [JsonPropertyName("values")]
         public PluginPropertyValue[][] Values { get; set; }
     }
 }

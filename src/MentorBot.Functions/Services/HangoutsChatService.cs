@@ -8,6 +8,8 @@ using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 
+using Microsoft.Extensions.Logging;
+
 namespace MentorBot.Functions.Services
 {
     /// <summary>The default service handaling 'Hangout Chat' events.</summary>
@@ -18,12 +20,17 @@ namespace MentorBot.Functions.Services
 
         private readonly ICognitiveService _cognitiveService;
         private readonly IAsyncResponder _responder;
+        private readonly ILogger _logger;
 
         /// <summary>Initializes a new instance of the <see cref="HangoutsChatService"/> class.</summary>
-        public HangoutsChatService(ICognitiveService cognitiveService, IAsyncResponder responder)
+        public HangoutsChatService(
+            ICognitiveService cognitiveService,
+            IAsyncResponder responder,
+            ILogger logger)
         {
             _cognitiveService = cognitiveService;
             _responder = responder;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -37,6 +44,12 @@ namespace MentorBot.Functions.Services
                 command == null ||
                 command.CommandProcessor == null ||
                 command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
+
+            if (!fail)
+            {
+                _logger.LogInformation(
+                    $"The command resolved is {command.CommandProcessor.Subject} in {command.CommandProcessor.Name}.");
+            }
 
             var rating = fail ? 0 : command.TextDeconstructionInformation.ConfidenceRating * 100;
             var result = new Message

@@ -19,7 +19,11 @@ namespace MentorBot.Functions.Processors
         public string Subject => "Hello";
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(TextDeconstructionInformation info, ChatEvent originalChatEvent, IAsyncResponder responder, IPluginPropertiesAccessor accessor)
+        public ValueTask<ChatEventResult> ProcessCommandAsync(
+            TextDeconstructionInformation info,
+            ChatEvent originalChatEvent,
+            IAsyncResponder responder,
+            IPluginPropertiesAccessor accessor)
         {
             var response = GetAnswer(info.TextSentanceChunk.ToLowerInvariant());
             return new ValueTask<ChatEventResult>(

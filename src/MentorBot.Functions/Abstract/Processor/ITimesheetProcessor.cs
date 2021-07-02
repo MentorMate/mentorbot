@@ -41,7 +41,12 @@ namespace MentorBot.Functions.Abstract.Processor
         /// <param name="senderEmail">The manager email.</param>
         /// <param name="filterOutSender">Should filter out the sender.</param>
         /// <param name="customersToExclude">The customers to exclude.</param>
-        Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(DateTime dateTime, TimesheetStates state, string senderEmail, bool filterOutSender, IReadOnlyList<string> customersToExclude);
+        Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(
+            DateTime dateTime,
+            TimesheetStates state,
+            string senderEmail,
+            bool filterOutSender,
+            IReadOnlyList<string> customersToExclude);
 
         /// <summary>Processes the notify asynchronous.</summary>
         /// <param name="timesheets">The timesheets.</param>

@@ -1,9 +1,8 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Services;
@@ -14,9 +13,8 @@ using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace MentorBot.Functions
 {
@@ -24,17 +22,16 @@ namespace MentorBot.Functions
     public static class Queries
     {
         /// <summary>Get the messages statistics asynchronous.</summary>
-        [FunctionName("get-messages-stats")]
+        [Function("get-messages-stats")]
         public static async Task<IEnumerable<MessagesStatistic>> GetMessagesStatisticsAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
         {
             Contract.Ensures(req != null, "Request is not instanciated");
 
-            ServiceLocator.EnsureServiceProvider();
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
 
-            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
-
-            var storage = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+            var storage = context.Get<IStorageService>() ?? throw new NullReferenceException();
 
             var messages = (await storage.GetMessagesAsync())
                 .GroupBy(it => it.ProbabilityPercentage / 10)
@@ -48,15 +45,14 @@ namespace MentorBot.Functions
         }
 
         /// <summary>Gets user auth info asynchronous.</summary>
-        [FunctionName("get-user-info")]
+        [Function("get-user-info")]
         public static async Task<AccessTokenUserInfo> GetUserInfoAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
         {
             Contract.Ensures(req != null, "Request is not instanciated");
 
-            ServiceLocator.EnsureServiceProvider();
-
-            var accessTokenService = ServiceLocator.Get<IAccessTokenService>() ?? throw new NullReferenceException();
+            var accessTokenService = context.Get<IAccessTokenService>() ?? throw new NullReferenceException();
 
             var userInfo = await accessTokenService.ValidateTokenAsync(req);
 
@@ -64,17 +60,16 @@ namespace MentorBot.Functions
         }
 
         /// <summary>Gets users info asynchronous.</summary>
-        [FunctionName("get-users")]
+        [Function("get-users")]
         public static async Task<IEnumerable<UserInfo>> GetUsersAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
         {
             Contract.Ensures(req != null, "Request is not instanciated");
 
-            ServiceLocator.EnsureServiceProvider();
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
 
-            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
-
-            var storageService = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+            var storageService = context.Get<IStorageService>() ?? throw new NullReferenceException();
 
             var users = await storageService.GetAllActiveUsersAsync();
 
@@ -92,17 +87,16 @@ namespace MentorBot.Functions
         }
 
         /// <summary>Gets the settings asynchronous.</summary>
-        [FunctionName("get-plugins")]
+        [Function("get-plugins")]
         public static async Task<IEnumerable<Plugin>> GetPluginsAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
         {
             Contract.Ensures(req != null, "Request is not instanciated");
 
-            ServiceLocator.EnsureServiceProvider();
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
 
-            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
-
-            var storage = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+            var storage = context.Get<IStorageService>() ?? throw new NullReferenceException();
 
             var plugins = await storage.GetAllPluginsAsync();
             var systemPlugins = SystemPlugins.GetSystemPlugins();
@@ -152,22 +146,21 @@ namespace MentorBot.Functions
         }
 
         /// <summary>Gets users info asynchronous.</summary>
-        [FunctionName("get-timesheet-stats")]
+        [Function("get-timesheet-stats")]
         public static async Task<IEnumerable<TimesheetChartStatistic>> GetTimesheetStatisticsAsync(
-            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethods.Get), Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
         {
             Contract.Ensures(req != null, "Request is not instanciated");
 
-            ServiceLocator.EnsureServiceProvider();
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
 
-            await ServiceLocator.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
-
-            var storageService = ServiceLocator.Get<IStorageService>() ?? throw new NullReferenceException();
+            var storageService = context.Get<IStorageService>() ?? throw new NullReferenceException();
 
             const int hour = 20;
             const DayOfWeek reportDayOfWeek = DayOfWeek.Friday;
             var dataCount = 10;
-            var startDate = GetLastDateTime(DateTime.Now, reportDayOfWeek, hour);
+            var startDate = GetLastDateTime(Contract.LocalDateTime, reportDayOfWeek, hour);
             var data = new List<TimesheetChartStatistic>();
 
             while (dataCount-- > 0)

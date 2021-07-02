@@ -42,7 +42,9 @@ namespace MentorBot.Functions.Connectors
             var blobPath = BlobPath.ParseAndValidate(path);
             var container = _storageAccount.CreateCloudBlobClient().GetContainerReference(blobPath.ContainerName);
             var exists = await container.ExistsAsync();
-            return exists ? container.GetBlockBlobReference(blobPath.FilePath) : throw new DirectoryNotFoundException(@"Container with name {container} do not exists.");
+            return exists
+                ? container.GetBlockBlobReference(blobPath.FilePath)
+                : throw new DirectoryNotFoundException(@"Container with name {container} do not exists.");
         }
 
         /// <summary>Holds a connection path to a Blob resource.</summary>

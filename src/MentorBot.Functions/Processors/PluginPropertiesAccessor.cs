@@ -41,7 +41,8 @@ namespace MentorBot.Functions.Processors
 
         /// <inheritdoc />
         public IReadOnlyList<IReadOnlyList<PluginPropertyValue>> GetPluginPropertyGroup(string groupName) =>
-            _plugin.Groups?.FirstOrDefault(group => groupName.Equals(group.UniqueName, StringComparison.InvariantCulture))?.Values ?? new PluginPropertyValue[0][];
+            _plugin.Groups?.FirstOrDefault(group => groupName.Equals(group.UniqueName, StringComparison.InvariantCulture))?.Values
+            ?? Array.Empty<PluginPropertyValue[]>();
 
         /// <inheritdoc />
         public async Task<IReadOnlyList<T>> GetAllUserPropertyValuesAsync<T>(string uniqueName)
