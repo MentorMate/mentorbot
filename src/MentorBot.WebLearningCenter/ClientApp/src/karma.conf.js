@@ -20,10 +20,10 @@ module.exports = function (config) {
       'src/**/*.js': ['coverage']
     },
     coverageReporter: {
-      type : 'lcovonly',
-      dir : '../coverage',
+      type: 'lcovonly',
+      dir: '../coverage',
       subdir: '.',
-      file : 'coverage.lcov',
+      file: 'coverage.lcov',
       includeAllSources: true
     },
     phantomjsLauncher: {
@@ -35,5 +35,5 @@ module.exports = function (config) {
     autoWatch: true,
     browsers: ['PhantomJS', 'Chrome'],
     singleRun: false
-  });
-};
+  })
+}

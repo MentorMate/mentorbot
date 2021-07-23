@@ -26,13 +26,13 @@ namespace MentorBot.Tests.Business.Connectors
             var connector = new AzureLuisConnector(client);
             var info = await connector.DeconstructAsync("TT");
 
-            Assert.AreEqual("Test", info.TextSentanceChunk);
+            Assert.AreEqual("Test", info.TextSentenceChunk);
             Assert.AreEqual(0.75, info.ConfidenceRating);
             Assert.AreEqual("bob", info.Entities["Name"].FirstOrDefault());
         }
 
         [TestMethod]
-        public async Task AzureLuisClientExamplest()
+        public async Task AzureLuisClientExamples()
         {
             var options = new AzureCloudOptions(null, "A", "B", "C");
             var handler = new MockHttpMessageHandler()

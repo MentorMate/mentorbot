@@ -12,11 +12,11 @@ using Microsoft.Extensions.Logging;
 
 namespace MentorBot.Functions.Services
 {
-    /// <summary>The default service handaling 'Hangout Chat' events.</summary>
+    /// <summary>The default service handling 'Hangout Chat' events.</summary>
     /// <seealso cref="IHangoutsChatService"/>
     public class HangoutsChatService : IHangoutsChatService
     {
-        private const double ConfidentRatingUnknowThreshold = 0.6;
+        private const double ConfidentRatingUnknownThreshold = 0.6;
 
         private readonly ICognitiveService _cognitiveService;
         private readonly IAsyncResponder _responder;
@@ -43,7 +43,7 @@ namespace MentorBot.Functions.Services
             var fail =
                 command == null ||
                 command.CommandProcessor == null ||
-                command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknowThreshold;
+                command.TextDeconstructionInformation.ConfidenceRating < ConfidentRatingUnknownThreshold;
 
             if (!fail)
             {

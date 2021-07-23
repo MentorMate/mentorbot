@@ -25,12 +25,12 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void LocalTimeProcessorSubjectShoudBeTime()
+        public void LocalTimeProcessorSubjectShouldBeTime()
         {
             Assert.AreEqual(_processor.Subject, "Time");
         }
 
-        [DataRow("What is the current time in Mars", "The current time in Mars was not found.", DisplayName = "Time in unknow location")]
+        [DataRow("What is the current time in Mars", "The current time in Mars was not found.", DisplayName = "Time in unknown location")]
         [DataRow("What is the current time", "The current time is 03:00.", DisplayName = "Time in FLE")]
         [DataRow("What is the local time in Moscow", "The current time in Moscow is 04:00.", DisplayName = "Time in Moscow")]
         [DataTestMethod]

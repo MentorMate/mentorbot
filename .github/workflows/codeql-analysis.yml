@@ -1,8 +1,8 @@
+name: CodeQl analyze
 on:
   push:
     branches: [main, release-*]
   pull_request:
-    branches: [main, release-*]
 jobs:
   analyse:
     runs-on: ubuntu-latest
@@ -11,5 +11,9 @@ jobs:
         with:
           fetch-depth: 2
       - uses: github/codeql-action/init@v1
+        with:
+          languages: csharp, javascript, typescript
       - uses: github/codeql-action/autobuild@v1
+        run: |
+          dotnet build src/MentorBot.Functions/MentorBot.Functions.csproj --nologo
       - uses: github/codeql-action/analyze@v1

@@ -8,7 +8,7 @@
   "HangoutChatRequestToken": null,
   "GoogleCloudApplicationName": null,
   "GoogleCloudApiKey": null,
-  "GoogleCreadentialsFilePath": null,
+  "GoogleCredentialsFilePath": null,
   "AzureCosmosDBAccountEndpoint": null,
   "AzureCosmosDBKey": null,
   "DefaultTimeZoneName": "FLE Standard Time",

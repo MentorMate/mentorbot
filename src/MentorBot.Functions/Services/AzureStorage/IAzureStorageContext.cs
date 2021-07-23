@@ -11,7 +11,7 @@ namespace MentorBot.Functions.Services.AzureStorage
     /// <summary>An azure storage client context.</summary>
     public interface IAzureStorageContext : IDisposable
     {
-        /// <summary>Adds a database shema mapping.</summary>
+        /// <summary>Adds a database schema mapping.</summary>
         void AddAttributeMapper(Type type);
 
         /// <summary>Creates a table if not exists asynchronous.</summary>

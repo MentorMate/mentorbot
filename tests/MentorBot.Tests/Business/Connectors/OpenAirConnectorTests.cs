@@ -1,4 +1,5 @@
-﻿using System;
+﻿// cSpell:ignore ownerid, projectid, customerid, departmentid, locationid, 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -300,7 +301,7 @@ namespace MentorBot.Tests.Business.Processors
                 Name = "QA",
                 UserId = 1010
             };
-            var cust = new OpenAirClient.Customer
+            var customer = new OpenAirClient.Customer
             {
                 Id = 3000,
                 Name = "MM"
@@ -317,7 +318,7 @@ namespace MentorBot.Tests.Business.Processors
 
             client.GetAllUsersAsync().Returns(new[] { user1, user2 });
             client.GetAllDepartmentsAsync().Returns(new[] { dep });
-            client.GetAllActiveCustomersAsync().Returns(new[] { cust });
+            client.GetAllActiveCustomersAsync().Returns(new[] { customer });
             client.GetAllActiveBookingsAsync(DateTime.MinValue).ReturnsForAnyArgs(new[] { booking });
 
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");

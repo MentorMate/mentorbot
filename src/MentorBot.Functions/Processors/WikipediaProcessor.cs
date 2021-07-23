@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -105,7 +105,7 @@ namespace MentorBot.Functions.Processors
             }
             catch (Exception ex)
             {
-                return new ChatEventResult("Unknown error occured:" + ex.Message);
+                return new ChatEventResult("Unknown error occurred:" + ex.Message);
             }
         }
 
@@ -117,7 +117,7 @@ namespace MentorBot.Functions.Processors
                 info.Entities.GetValueOrDefault("Person Name", null);
 
             return entity == null || entity.Length == 0 ?
-                 Exp.Match(info.TextSentanceChunk)?.Groups[2]?.Value :
+                 Exp.Match(info.TextSentenceChunk)?.Groups[2]?.Value :
                  string.Join(' ', entity);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿// cSpell:ignore Jhon
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -75,7 +76,7 @@ namespace MentorBot.Tests.Business.Processors
             };
 
             var info = new TextDeconstructionInformation(
-                "Get unsubmited timesheets",
+                "Get unsubmitted timesheets",
                 null,
                 SentenceTypes.Unknown,
                 new Dictionary<string, string[]> { { "State", new[] { "unsubmitted" } } },

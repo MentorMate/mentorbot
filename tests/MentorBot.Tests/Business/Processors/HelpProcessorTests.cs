@@ -23,7 +23,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void HelpProcessorSubjectShoudBeHelp()
+        public void HelpProcessorSubjectShouldBeHelp()
         {
             Assert.AreEqual(_processor.Subject, "Help");
         }

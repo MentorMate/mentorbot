@@ -31,7 +31,7 @@ namespace MentorBot.Tests.Business.Processors
         [DataRow("Repeat after me I am a long test", "I am a long test", DisplayName = "Test long repeat")]
         [DataRow("Repeat after this I am a long test", "after this I am a long test", DisplayName = "Test odd repeat")]
         [DataRow("@mentorbot Repeat test", "test", DisplayName = "Test with @mentorbot")]
-        [DataRow("", "Repeat command can not recognise some segments.", DisplayName = "Unknow text")]
+        [DataRow("", "Repeat command can not recognize some segments.", DisplayName = "Unknown text")]
         [DataTestMethod]
         public async Task WhenAskedItShouldRepeat(string phrase, string expectedResult)
         {
@@ -41,7 +41,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void RepeatProcessorSubjectShoudBeRepeat()
+        public void RepeatProcessorSubjectShouldBeRepeat()
         {
             Assert.AreEqual(_processor.Subject, "Repeat");
         }

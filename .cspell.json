@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
   "version": "0.2",
   "language": "en-GB",
   "overrides": [
@@ -11,20 +12,55 @@
       "enabled": false
     }
   ],
+  "ignorePaths": [
+    ".gitattributes",
+    ".gitignore",
+    ".editorconfig",
+    "cspell.json",
+    "**/.gitignore",
+    "**/.vscode/**",
+    "*.{png,jpg,pdf}",
+    "**/*.ruleset",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/package*.json",
+    "**/tsconfig.json",
+    "**/karma.conf.js"
+],
   "words": [
+    "msbuild",
     "analyzer",
-    "Autobuild",
+    "analizers",
+    "ruleset",
+    "netcoreapp",
+    "netstandard",
+    "contentfiles",
+    "contoso",
+    "stylecop",
+    "sonarlint",
+    "nuget",
+    "nupkg",
+    "refs",
+    "sublicense",
+    "menees",
+    "autobuild",
     "CodeQL",
+    "markdownlint",
+    
+    "mentorbot",
+    "mentorbotlearningcenter",
+    "oidc",
+    "unsubmitted",
+    "timesheet",
+    "signin",
+    "signout",
     "counterclaim",
     "errorlevel",
     "LINQ",
-    "markdownlint",
-    "netcoreapp",
-    "netstandard",
     "NOLOGO",
-    "NuGet",
-    "nupkg",
-    "refs",
-    "sublicense"
+    "noeq",
+    "polyfills",
+    "jwks"
   ]
 }

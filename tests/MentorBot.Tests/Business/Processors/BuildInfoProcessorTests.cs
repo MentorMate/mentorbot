@@ -44,7 +44,7 @@ namespace MentorBot.Tests.Business.Processors
             var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var chatEvent = CreateEvent("jhon.doe.@mail.com");
             
-            accessor.GetAllUserPropertyValuesAsync<string>(null).ReturnsForAnyArgs(new[] { "asdf" });
+            accessor.GetAllUserPropertyValuesAsync<string>(null).ReturnsForAnyArgs(new[] { "property_value" });
             
             var info = await _processor.ProcessCommandAsync(null, chatEvent, null, accessor);
 

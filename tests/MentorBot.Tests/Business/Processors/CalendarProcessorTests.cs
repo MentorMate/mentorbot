@@ -30,7 +30,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void CalendarProcessorSubjectShoudBeMeetings()
+        public void CalendarProcessorSubjectShouldBeMeetings()
         {
             Assert.AreEqual(_processor.Subject, "Meetings");
         }

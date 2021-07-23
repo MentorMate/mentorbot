@@ -4,7 +4,7 @@ using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
 namespace MentorBot.Functions.Models.Domains
 {
-    /// <summary>The google adress metadata.</summary>
+    /// <summary>The google address metadata.</summary>
     [Storable("Addresses")]
     public sealed class GoogleAddress
     {

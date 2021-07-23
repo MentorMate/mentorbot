@@ -1,17 +1,15 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-namespace MentorBot.Functions.Models.TextAnalytics
+﻿namespace MentorBot.Functions.Models.TextAnalytics
 {
-    /// <summary>The sentance types.</summary>
+    /// <summary>The sentence types.</summary>
     public enum SentenceTypes
     {
-        /// <summary>The unknown sentance type.</summary>
+        /// <summary>The unknown sentence type.</summary>
         Unknown = 0,
 
-        /// <summary>The the sentance is commanding.</summary>
+        /// <summary>The the sentence is commanding.</summary>
         Command,
 
-        /// <summary>The sentance is question.</summary>
+        /// <summary>The sentence is question.</summary>
         Question
     }
 }

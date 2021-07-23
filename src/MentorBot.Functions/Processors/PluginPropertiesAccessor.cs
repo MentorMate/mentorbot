@@ -11,7 +11,7 @@ using MentorBot.Functions.Models.Domains.Plugins;
 
 namespace MentorBot.Functions.Processors
 {
-    /// <summary>The default property accessor implmentation.</summary>
+    /// <summary>The default property accessor implementation.</summary>
     public sealed class PluginPropertiesAccessor : IPluginPropertiesAccessor
     {
         private readonly string _email;

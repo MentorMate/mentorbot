@@ -57,7 +57,7 @@ namespace MentorBot.Functions
             {
                 var email = group.GetValue<string>(TimesheetsProperties.Email);
                 var notify = group.GetValue<bool>(TimesheetsProperties.NotifyByEmail);
-                var filterOutEmail = group.GetValue<bool>(TimesheetsProperties.DontNotifyManager);
+                var filterOutEmail = group.GetValue<bool>(TimesheetsProperties.DoNotNotifyManager);
 
                 await processor.NotifyAsync(
                     Contract.LocalDateTime.Date,

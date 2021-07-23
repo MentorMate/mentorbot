@@ -54,7 +54,7 @@ namespace MentorBot.Functions.Services
             new Document<T>(_client.Value, databaseName, collectionName);
 
         /// <summary>A document collection resource.</summary>
-        /// <typeparam name="T">The document reource type.</typeparam>
+        /// <typeparam name="T">The document resource type.</typeparam>
         public class Document<T> : IDocument<T>
         {
             private readonly IDocumentClient _client;

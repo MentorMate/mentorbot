@@ -115,13 +115,13 @@ namespace MentorBot.Tests.Business.Services
                     {
                         new Plugin
                         {
-                            ProcessorTypeName = "Processorrrrr",
+                            ProcessorTypeName = "CustomProcessor",
                             Enabled = true,
                             Groups = new []
                             {
                                 new PluginPropertyGroup
                                 {
-                                    Name = "Grouppp",
+                                    Name = "CustomGroup",
                                     UniqueName = "G1",
                                     Values = new []
                                     {
@@ -130,7 +130,7 @@ namespace MentorBot.Tests.Business.Services
                                             new PluginPropertyValue
                                             {
                                                 Key = "P1",
-                                                Value = "Apaplda"
+                                                Value = "CustomGroupCustomValue"
                                             }
                                         }
                                     }
@@ -140,14 +140,14 @@ namespace MentorBot.Tests.Business.Services
                     });
 
             processor.Subject.Returns("Subj");
-            processor.Name.Returns("Processorrrrr");
+            processor.Name.Returns("CustomProcessor");
 
             var result = await _service.GetCognitiveTextAnalysisResultAsync(
                 new TextDeconstructionInformation("Test", "Subj"), "dummy@domain.com");
 
             var group = result.PropertiesAccessor.GetPluginPropertyGroup("G1");
             Assert.AreEqual(1, group.Count);
-            Assert.AreEqual("Apaplda", group[0][0].Value);
+            Assert.AreEqual("CustomGroupCustomValue", group[0][0].Value);
             Assert.AreEqual(processor, result.CommandProcessor);
         }
 

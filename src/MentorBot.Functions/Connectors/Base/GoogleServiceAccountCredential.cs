@@ -28,7 +28,7 @@ namespace MentorBot.Functions.Connectors.Base
         /// <summary>Gets the service account stream asynchronous.</summary>
         public Task<Stream> GetServiceAccountStreamAsync() =>
             _storageConnector.IsConnected ?
-            _storageConnector.GetFileStreamAsync(_options.GoogleCreadentialsFilePath) :
+            _storageConnector.GetFileStreamAsync(_options.GoogleCredentialsFilePath) :
             Task.FromResult(Stream.Null);
 
         /// <summary>Gets the service account stream.</summary>

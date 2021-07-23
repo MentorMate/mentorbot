@@ -43,19 +43,19 @@ namespace MentorBot.Tests.Business.Connectors
             var space1 = new Space { Name = "spaces/A", Type = "DM" };
             var space2 = new Space { Name = "spaces/B", Type = "GM" };
             var space3 = new Space { Name = "spaces/C", Type = "DM" };
-            var requestCretor = Substitute.For<HangoutsChatConnector.IRequestCreator>();
+            var requestCreator = Substitute.For<HangoutsChatConnector.IRequestCreator>();
             var spacesListRequest = Substitute.For<IClientServiceRequest<ListSpacesResponse>>();
             var spacesListResponse = new ListSpacesResponse { Spaces = new[] { space1, space2, space3 } };
             var membersListRequest = Substitute.For<IClientServiceRequest<ListMembershipsResponse>>();
 
-            requestCretor.SpacesList(null).ReturnsForAnyArgs(spacesListRequest);
-            requestCretor.SpacesMembersList(null, null).ReturnsForAnyArgs(membersListRequest);
+            requestCreator.SpacesList(null).ReturnsForAnyArgs(spacesListRequest);
+            requestCreator.SpacesMembersList(null, null).ReturnsForAnyArgs(membersListRequest);
             spacesListRequest.Execute().Returns(spacesListResponse);
             membersListRequest.Execute().Throws(new Exception());
 
             var connector = new HangoutsChatConnector(new Lazy<HangoutsChatService>(() => null));
 
-            connector.RequestCreator = requestCretor;
+            connector.RequestCreator = requestCreator;
 
             // Act
             var result = connector.GetPrivateAddress(new[] { "spaces/A" });
@@ -72,20 +72,20 @@ namespace MentorBot.Tests.Business.Connectors
             var space = new Space { Name = "spaces/D", Type = "DM" };
             var membership1 = new Membership { Member = new User { Name = "user/Q", DisplayName = "Q", Type = "HUMAN" } };
             var membership2 = new Membership { Member = new User { Name = "user/W", DisplayName = "W", Type = "BOT" } };
-            var requestCretor = Substitute.For<HangoutsChatConnector.IRequestCreator>();
+            var requestCreator = Substitute.For<HangoutsChatConnector.IRequestCreator>();
             var spacesListRequest = Substitute.For<IClientServiceRequest<ListSpacesResponse>>();
             var spacesListResponse = new ListSpacesResponse { Spaces = new[] { space } };
             var membersListRequest = Substitute.For<IClientServiceRequest<ListMembershipsResponse>>();
             var membersListResponse = new ListMembershipsResponse { Memberships = new[] { membership1, membership2 } };
 
-            requestCretor.SpacesList(null).ReturnsForAnyArgs(spacesListRequest);
-            requestCretor.SpacesMembersList(null, null).ReturnsForAnyArgs(membersListRequest);
+            requestCreator.SpacesList(null).ReturnsForAnyArgs(spacesListRequest);
+            requestCreator.SpacesMembersList(null, null).ReturnsForAnyArgs(membersListRequest);
             spacesListRequest.Execute().Returns(spacesListResponse);
             membersListRequest.Execute().Returns(membersListResponse);
 
             var connector = new HangoutsChatConnector(new Lazy<HangoutsChatService>(() => null));
 
-            connector.RequestCreator = requestCretor;
+            connector.RequestCreator = requestCreator;
 
             // Act
             var result2 = connector.GetPrivateAddress(new string[0]);

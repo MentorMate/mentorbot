@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// cSpell:ignore Jhon
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void UserInfoProcessorSubjectShoudBeUser()
+        public void UserInfoProcessorSubjectShouldBeUser()
         {
             Assert.AreEqual(_processor.Subject, "User");
         }
@@ -43,14 +44,14 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task UserInfoShoudReturnInfoIfNoName()
+        public async Task UserInfoShouldReturnInfoIfNoName()
         {
             var result = await _processor.ProcessCommandAsync(GetInfo(null), CreateEvent(null), null, null);
             Assert.AreEqual(result.Text, "User was not found!");
         }
 
         [TestMethod]
-        public async Task UserInfoShoudReturnInfoIfNotFound()
+        public async Task UserInfoShouldReturnInfoIfNotFound()
         {
             var user = new User { Id = "A", Name = "Doe, Jhon", Email = "jhon.doe@abc.de", OpenAirUserId = 1 };
             var users = new[] { user };
@@ -62,7 +63,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task UserInfoShoudReturnInfoIfFound()
+        public async Task UserInfoShouldReturnInfoIfFound()
         {
             var user1 = GetUser("Doe, Jhon", "jhon.doe@abc.de", "A", 1, "Managers", null, null);
             var user2 = GetUser("Cherry, Merry", "merry.cherry@abc.de", "B", 2, ".NET", 1, "jhon.doe@abc.de", "First", "Second");
@@ -77,7 +78,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task UserInfoShoudNotReturnIfNotRequestedMyManager()
+        public async Task UserInfoShouldNotReturnIfNotRequestedMyManager()
         {
             var user1 = GetUser("Doe, Jhon", "jhon.doe@abc.de", "A", 1, "Managers", null, null);
             var user2 = GetUser("Cherry, Merry", "merry.cherry@abc.de", "B", 2, ".NET", 1, "jhon.doe@abc.de", "First", "Second");
@@ -106,7 +107,7 @@ namespace MentorBot.Tests.Business.Processors
             return new ChatEvent { Space = space, Message = message };
         }
 
-        private static User GetUser(string name, string email, string id, long oaId, string departmentName, long? managerId, string managerEmail, params string[] cuctomers) =>
+        private static User GetUser(string name, string email, string id, long oaId, string departmentName, long? managerId, string managerEmail, params string[] customers) =>
             new User
             {
                 Id = id,
@@ -118,7 +119,7 @@ namespace MentorBot.Tests.Business.Processors
                     Name = departmentName
                 },
                 Manager = managerId.HasValue ? new UserReference { OpenAirUserId = managerId.Value, Email = managerEmail } : null,
-                Customers = cuctomers.Select(it => new Customer { Name = it }).ToArray(),
+                Customers = customers.Select(it => new Customer { Name = it }).ToArray(),
             };
     }
 }

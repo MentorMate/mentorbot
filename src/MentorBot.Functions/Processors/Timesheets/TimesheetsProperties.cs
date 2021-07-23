@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-namespace MentorBot.Functions.Processors.Timesheets
+﻿namespace MentorBot.Functions.Processors.Timesheets
 {
     /// <summary>The timesheets properties keys.</summary>
     public static class TimesheetsProperties
@@ -45,7 +43,7 @@ namespace MentorBot.Functions.Processors.Timesheets
         public const string NotifyByEmail = "OpenAir.Notifications.NotifyByEmail";
 
         /// <summary>Filter out the manager when sending notifications.</summary>
-        public const string DontNotifyManager = "OpenAir.Notifications.DontNotifyManager";
+        public const string DoNotNotifyManager = "OpenAir.Notifications.DoNotNotifyManager";
 
         /// <summary>The filter by customer key.</summary>
         public const string FilterByCustomer = "OpenAir.Filters.Customer";

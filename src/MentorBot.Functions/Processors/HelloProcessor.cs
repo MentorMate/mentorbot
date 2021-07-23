@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Models.HangoutsChat;
@@ -25,7 +23,7 @@ namespace MentorBot.Functions.Processors
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var response = GetAnswer(info.TextSentanceChunk.ToLowerInvariant());
+            var response = GetAnswer(info.TextSentenceChunk.ToLowerInvariant());
             return new ValueTask<ChatEventResult>(
                 new ChatEventResult(response));
         }
@@ -46,6 +44,7 @@ namespace MentorBot.Functions.Processors
                 case "yo":
                 case "howdy":
                 case "sup":
+                // cspell:disable-next-line
                 case "whazzup":
                     return "Hello!";
                 case "what’s up":

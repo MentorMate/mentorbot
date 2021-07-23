@@ -37,7 +37,7 @@ namespace MentorBot.Functions.Processors
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var locationMatch = Regex.Match(info?.TextSentanceChunk, "in ([\\w\\s]+)$");
+            var locationMatch = Regex.Match(info?.TextSentenceChunk, "in ([\\w\\s]+)$");
             if (locationMatch.Success)
             {
                 var city = locationMatch.Groups[1].Value;

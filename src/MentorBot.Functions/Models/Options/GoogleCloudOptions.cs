@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace MentorBot.Functions.Models.Options
 {
@@ -13,7 +11,7 @@ namespace MentorBot.Functions.Models.Options
                   configuration[nameof(HangoutChatRequestToken)],
                   configuration[nameof(GoogleCloudApplicationName)],
                   configuration[nameof(GoogleCloudApiKey)],
-                  configuration[nameof(GoogleCreadentialsFilePath)])
+                  configuration[nameof(GoogleCredentialsFilePath)])
         {
         }
 
@@ -27,7 +25,7 @@ namespace MentorBot.Functions.Models.Options
             HangoutChatRequestToken = hangoutChatRequestToken;
             GoogleCloudApplicationName = googleCloudApplicationName;
             GoogleCloudApiKey = googleCloudApiKey;
-            GoogleCreadentialsFilePath = googleCreadentialsFilePath;
+            GoogleCredentialsFilePath = googleCreadentialsFilePath;
         }
 
         /// <summary>Gets the security token for Hangout Chat events.</summary>
@@ -39,7 +37,7 @@ namespace MentorBot.Functions.Models.Options
         /// <summary>Gets the API key.</summary>
         public string GoogleCloudApiKey { get; }
 
-        /// <summary>Gets the google creadentials file path.</summary>
-        public string GoogleCreadentialsFilePath { get; }
+        /// <summary>Gets the google credentials file path.</summary>
+        public string GoogleCredentialsFilePath { get; }
     }
 }

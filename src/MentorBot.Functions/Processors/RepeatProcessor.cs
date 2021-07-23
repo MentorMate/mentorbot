@@ -11,7 +11,7 @@ using MentorBot.Functions.Models.TextAnalytics;
 
 namespace MentorBot.Functions.Processors
 {
-    /// <summary>A processor that repeate back what is said.</summary>
+    /// <summary>A processor that repeat back what is said.</summary>
     /// <seealso cref="ICommandProcessor" />
     public class RepeatProcessor : ICommandProcessor
     {
@@ -29,7 +29,7 @@ namespace MentorBot.Functions.Processors
         /// <inheritdoc/>
         public string Subject => "Repeat";
 
-        /// <summary>Gets the number in miliseconds from a time string.</summary>
+        /// <summary>Gets the number in milliseconds from a time string.</summary>
         public static int GetTime(string value)
         {
             var match = RegExpTime.Match(value);
@@ -57,7 +57,7 @@ namespace MentorBot.Functions.Processors
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var text = RegExp.Replace(info.TextSentanceChunk, string.Empty);
+            var text = RegExp.Replace(info.TextSentenceChunk, string.Empty);
             var delayStr = info.Entities.GetValueOrDefault("Time")?.FirstOrDefault();
             if (!string.IsNullOrEmpty(text))
             {
@@ -73,7 +73,7 @@ namespace MentorBot.Functions.Processors
                 return Value(text);
             }
 
-            return Value("Repeat command can not recognise some segments.");
+            return Value("Repeat command can not recognize some segments.");
         }
 
         private static ValueTask<ChatEventResult> Value(string text) =>

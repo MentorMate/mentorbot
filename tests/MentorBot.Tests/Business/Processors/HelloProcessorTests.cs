@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿// cSpell:ignore Whaaaazzzup
+using System.Threading.Tasks;
 
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
@@ -20,7 +21,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void HelloProcessorSubjectShoudBeHelp()
+        public void HelloProcessorSubjectShouldBeHelp()
         {
             Assert.AreEqual(_processor.Subject, "Hello");
         }

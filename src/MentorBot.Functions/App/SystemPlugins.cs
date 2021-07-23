@@ -136,7 +136,7 @@ namespace MentorBot.Functions.App
                                 new PluginProperty
                                 {
                                     Name = "Don't Notify Manager",
-                                    UniqueName = TimesheetsProperties.DontNotifyManager,
+                                    UniqueName = TimesheetsProperties.DoNotNotifyManager,
                                     ValueType = PropertyValueTypes.Boolean,
                                 },
                             },

@@ -1,4 +1,5 @@
-﻿using System;
+﻿// cSpell:ignore Jhon
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace MentorBot.Tests.Business.Processors
 #pragma warning disable CS4014
 
         [TestMethod]
-        public async Task SendScheduledTimesheetShoudSendToSpace()
+        public async Task SendScheduledTimesheetShouldSendToSpace()
         {
             var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
             var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
@@ -48,10 +49,10 @@ namespace MentorBot.Tests.Business.Processors
             var analysisResult = new CognitiveTextAnalysisResult(deconstructionInformation, timesheetProcessor, propertiesAccessor);
             var address = new GoogleChatAddress("S1", "Space 1", "RM", "U1", "User 1");
             var timesheet = new Timesheet { UserEmail = "u@e.c", UserName = "Jhon Doe", DepartmentName = "Account", ManagerName = "ben@ten.com", Total = 5, UtilizationInHours = 10 };
-            var excludeCusts = new[] { "C1" };
+            var excludeCustomers = new[] { "C1" };
             _cognitiveService.GetCognitiveTextAnalysisResultAsync(null, null).ReturnsForAnyArgs(analysisResult);
 
-            propertiesAccessor.GetAllPluginPropertyValues<string>("OpenAir.Filters.Customer").Returns(excludeCusts);
+            propertiesAccessor.GetAllPluginPropertyValues<string>("OpenAir.Filters.Customer").Returns(excludeCustomers);
             propertiesAccessor
                 .GetPluginPropertyGroup("OpenAir.AutoNotifications")
                 .Returns(
@@ -89,7 +90,7 @@ namespace MentorBot.Tests.Business.Processors
 
             _hangoutsChatConnector.GetAddressByName("spaces/S1").Returns(address);
             timesheetProcessor
-                .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCusts)
+                .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCustomers)
                 .Returns(new[] { timesheet });
 
             await _timesheetService.SendScheduledTimesheetNotificationsAsync(date);
@@ -108,7 +109,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task SendScheduledTimesheetShoudeStoreStatistics()
+        public async Task SendScheduledTimesheetShouldStoreStatistics()
         {
             var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
             var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
@@ -160,7 +161,7 @@ namespace MentorBot.Tests.Business.Processors
 #pragma warning restore CS4014
 
         [TestMethod]
-        public void CronCheckShoudAllowManyValues()
+        public void CronCheckShouldAllowManyValues()
         {
             var date = new DateTime(2020, 7, 1, 10, 0, 0, DateTimeKind.Local);
 
@@ -179,7 +180,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void CronCheckShoudAllowMinutesValues()
+        public void CronCheckShouldAllowMinutesValues()
         {
             var date = new DateTime(2020, 7, 1, 9, 30, 5, DateTimeKind.Local);
 
@@ -191,7 +192,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void CronCheckShoudAllowEom()
+        public void CronCheckShouldAllowEom()
         {
             var date1 = new DateTime(2020, 10, 30, 9, 0, 0, DateTimeKind.Local);
             var date2 = new DateTime(2020, 10, 31, 9, 0, 0, DateTimeKind.Local);

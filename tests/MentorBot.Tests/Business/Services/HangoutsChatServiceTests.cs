@@ -46,9 +46,9 @@ namespace MentorBot.Tests.Business.Services
         public async Task WhenCommandConfidenceRatingLowReturnMessageAsync()
         {
             var dummyChatEvent = GetChatEvent();
-            var dymmtCognitiveTextAnalysisResult = GetCognitiveTextAnalysisResult();
+            var dummyCognitiveTextAnalysisResult = GetCognitiveTextAnalysisResult();
 
-            _cognitiveService.ProcessAsync(dummyChatEvent).Returns(dymmtCognitiveTextAnalysisResult);
+            _cognitiveService.ProcessAsync(dummyChatEvent).Returns(dummyCognitiveTextAnalysisResult);
 
             var result = await _service.BasicAsync(dummyChatEvent);
 

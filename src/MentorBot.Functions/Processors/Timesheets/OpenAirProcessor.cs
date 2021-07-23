@@ -49,7 +49,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var notify = info.TextSentanceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
+            var notify = info.TextSentenceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
             var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer), new string[0]);
             var period = OpenAirText.GetPeriod(info.Entities.GetValueOrDefault("Period")?.FirstOrDefault());

@@ -6,7 +6,7 @@ using MentorBot.Functions.Models.HangoutsChat;
 
 namespace MentorBot.Functions.Models.Domains
 {
-    /// <summary>The congnitive service result.</summary>
+    /// <summary>The cognitive service result.</summary>
 #pragma warning disable CC0021
     [Storable("Messages")]
 #pragma warning restore CC0021

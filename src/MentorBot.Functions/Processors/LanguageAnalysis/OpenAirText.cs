@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// cSpell:ignore unsibmitted, unsubmited, unsibmited, didn, aproved
+using System.Collections.Generic;
 
 using MentorBot.Functions.Models.Business;
 

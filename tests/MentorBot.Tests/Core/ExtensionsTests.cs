@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// cSpell:ignore Jhon
+using System.Collections.Generic;
 using System.Net.Http;
 
 using MentorBot.Functions.App.Extensions;
