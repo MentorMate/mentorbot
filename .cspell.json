@@ -1,0 +1,30 @@
+{
+  "version": "0.2",
+  "language": "en-GB",
+  "overrides": [
+    {
+      "filename": "{*.cmd,*.cs,*.csproj}",
+      "language": "en-US"
+    },
+    {
+      "filename": "{.cspell.json,*.svg}",
+      "enabled": false
+    }
+  ],
+  "words": [
+    "analyzer",
+    "Autobuild",
+    "CodeQL",
+    "counterclaim",
+    "errorlevel",
+    "LINQ",
+    "markdownlint",
+    "netcoreapp",
+    "netstandard",
+    "NOLOGO",
+    "NuGet",
+    "nupkg",
+    "refs",
+    "sublicense"
+  ]
+}

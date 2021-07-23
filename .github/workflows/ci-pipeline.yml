@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore src/
       - name: Build with dotnet
-        run: dotnet build --no-restore -c Release src/MentorBot.Functions/MentorBot.Functions.csproj
+        run: dotnet build --no-restore -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
       - name: Test with dotnet
         run: dotnet test --no-restore -c Debug -l trx ./tests/MentorBot.Tests/MentorBot.Tests.csproj  -l Appveyor /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="../../TestResults/" /p:ExcludeByFile=\"../../src/MentorBot.Functions/Models/**/*.cs\"
       - name: Upload dotnet test results
@@ -32,3 +32,12 @@ jobs:
         run: npm run test:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Upload test coverage
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f TestResults/coverage.opencover.xml -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov
+      - name: Archive published app
+        uses: papeloto/action-zip@v1
+        with:
+          files: dist/
+          dest: app.zip
+      - name: Azure Login
+        run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
+      - name: Deploy to azure
+        run: az functionapp deployment source config-zip --name mentorbot-app --resource-group mentorbot --branch main --src app.zip --subscription mentorbot
