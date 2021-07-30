@@ -25,7 +25,7 @@ namespace MentorBot.Tests.Business.Connectors
             Assert.AreEqual(result.Type, "standard");
             Assert.AreEqual(result.Title, "Car");
             Assert.AreEqual(result.Displaytitle, "Car");
-            Assert.AreEqual(result.Pageid, 13673345);
+            Assert.AreEqual(result.PageId, 13673345);
             Assert.AreEqual(result.Thumbnail.Source, "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/401_Gridlock.jpg/320px-401_Gridlock.jpg");
             Assert.AreEqual(result.Originalimage.Source, "https://upload.wikimedia.org/wikipedia/commons/5/5d/401_Gridlock.jpg");
             Assert.AreEqual(result.Lang, "en");

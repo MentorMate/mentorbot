@@ -41,7 +41,7 @@ namespace MentorBot.Functions.Processors.LanguageAnalysis
             { "SomeAreDoneUnsubmitted", "The following people need to submit timesheets. <br>" },
             { "NotifyUnsubmitted", ", You have unsubmitted timesheet. Please, submit your timesheet." },
             { "NotifyUnapproved", ", Your timesheet is not approved." },
-            { "AllAreNotifiedUnsubmitted", "All users with unsibmitted timesheets are notified! Total of {0}." },
+            { "AllAreNotifiedUnsubmitted", "All users with unsubmitted timesheets are notified! Total of {0}." },
             { "AllAreNotifiedUnapproved", "All users with unapproved timesheet are notified! Total of {0}." },
             { "SomeAreNotifiedUnsubmitted", "The following people where not notified and need to submit timesheets. <br>" },
             { "SomeAreNotifiedUnapproved", "The following people where not notified, and have unapproved. <br>" }
