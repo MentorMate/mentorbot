@@ -8,3 +8,4 @@ obj/
 package-lock.json
 yarn.lock
 coverage.opencover.xml
+super-linter.log

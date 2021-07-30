@@ -17,6 +17,7 @@
     ".gitignore",
     ".editorconfig",
     "cspell.json",
+    "super-linter.log",
     "**/.gitignore",
     "**/.vscode/**",
     "*.{png,jpg,pdf}",
