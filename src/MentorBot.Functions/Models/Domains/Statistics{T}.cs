@@ -4,9 +4,9 @@ namespace MentorBot.Functions.Models.Domains
 {
     /// <summary>A report statistics data.</summary>
     /// <typeparam name="T">The time of the statistics data.</typeparam>
-    #pragma warning disable CC0021
+#pragma warning disable CC0021
     [Storable("Statistics")]
-    #pragma warning restore CC0021
+#pragma warning restore CC0021
     public sealed class Statistics<T>
     {
         /// <summary>Gets or sets the Message Id.</summary>

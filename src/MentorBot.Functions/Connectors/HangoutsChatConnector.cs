@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Google;
 using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;

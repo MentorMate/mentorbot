@@ -10,7 +10,7 @@ namespace MentorBot.Tests._Base
     {
         /// <summary>Initializes a new instance of the <see cref="MockHttpResponseData"/> class.</summary>
         public MockHttpResponseData(FunctionContext functionContext)
-            : base (functionContext)
+            : base(functionContext)
         {
         }
 

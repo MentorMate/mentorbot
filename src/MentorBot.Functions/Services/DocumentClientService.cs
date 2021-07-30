@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,7 +11,7 @@ using Microsoft.Azure.Documents.Client;
 
 namespace MentorBot.Functions.Services
 {
-    /// <summary>An document database service for Azure Comtoso DB.</summary>
+    /// <summary>An document database service for Azure Contoso DB.</summary>
     public sealed class DocumentClientService : IDocumentClientService
     {
         /// <summary>The connection policy.</summary>

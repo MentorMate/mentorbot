@@ -1,4 +1,8 @@
-# MentorBot [![Build status](https://ci.appveyor.com/api/projects/status/0sjergot9u18yu4o/branch/master?svg=true)](https://ci.appveyor.com/project/rosenkolev/mentorbot/branch/master)
+# MentorBot
+[![build](https://github.com/MentorMate/mentorbot/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/ci-pipeline.yml)
+[![GitHub Super-Linter](https://github.com/MentorMate/mentorbot/actions/workflows/lint.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/lint.yml)
+[![spell check](https://github.com/MentorMate/mentorbot/actions/workflows/spell-check.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/spell-check.yml)
+[![codeql](https://github.com/MentorMate/mentorbot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/MentorSource/mentorbot/branch/master/graph/badge.svg)](https://codecov.io/gh/MentorMate/mentorbot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -8,8 +12,8 @@ MentorBot will constantly improve over time not only by learning itself, but als
 
 #### Tasks & Commands
 
-MentorBot uses commands and tasks execution system that can peform different actions in a distiributes system of nodes.
-The tasks can be simple like "Tell me what is the time in Mineapolis" or "What is the hex value of 255".
+MentorBot uses commands and tasks execution system that can perform different actions in a distribute system of nodes.
+The tasks can be simple like "Tell me what is the time in Minneapolis" or "What is the hex value of 255".
 The tasks can be a complex ones that require integrations with outside systems like "Get my JIRA tasks" or "Pull up timesheet report from OpenAir".
 Some sensitive tasks like pulling timesheet report out of OpenAir, cab be executed and verify by a blockchain system because the action deal with sensitive data.
 

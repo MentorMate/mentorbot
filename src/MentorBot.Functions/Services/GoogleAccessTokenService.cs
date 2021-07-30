@@ -21,9 +21,9 @@ namespace MentorBot.Functions.Services
         private const string DefaultAuthenticationSchema = "Bearer";
         private const string AuthorizationHeaderName = "Authorization";
 
-        #pragma warning disable CA2213
+#pragma warning disable CA2213
         private readonly IMemoryCache _cache;
-        #pragma warning restore CA2213
+#pragma warning restore CA2213
 
         private readonly IStorageService _storageService;
         private readonly Func<HttpMessageHandler> _messageHandlerFactory;

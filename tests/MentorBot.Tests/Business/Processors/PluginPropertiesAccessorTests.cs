@@ -113,7 +113,7 @@ namespace MentorBot.Tests.Business.Processors
 
             var storageService = Substitute.For<IStorageService>();
             _accessor = PluginPropertiesAccessor.GetInstance("r@d.c", null, storageService);
-            
+
             storageService.GetUserByEmailAsync("r@d.c").Returns(user);
 
             var result = await _accessor.GetAllUserPropertyValuesAsync<string>("Test3");

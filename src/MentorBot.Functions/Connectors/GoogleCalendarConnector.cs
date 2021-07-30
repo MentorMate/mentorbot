@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -66,7 +64,7 @@ namespace MentorBot.Functions.Connectors
             }
         }
 
-        /// <summary>Execute asyncronius request.</summary>
+        /// <summary>Execute asynchronous request.</summary>
         /// <typeparam name="T">The type of the request result.</typeparam>
         protected virtual Task<T> ExecuteAsync<T>(CalendarBaseServiceRequest<T> request)
             where T : class => request.ExecuteAsync();

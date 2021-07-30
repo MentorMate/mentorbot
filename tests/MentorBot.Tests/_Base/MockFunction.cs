@@ -22,7 +22,7 @@ namespace MentorBot.Tests._Base
             {
                 var logger = Substitute.For<ILogger>();
                 var loggerFactory = Substitute.For<ILoggerFactory>();
-                var descs = descriptors.Concat(
+                var services = descriptors.Concat(
                     new[]
                     {
                         new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory)
@@ -30,7 +30,7 @@ namespace MentorBot.Tests._Base
                     .ToArray();
 
                 loggerFactory.CreateLogger(string.Empty).ReturnsForAnyArgs(logger);
-                context.InstanceServices.Returns(new ServiceProvider(descs));
+                context.InstanceServices.Returns(new ServiceProvider(services));
                 context.GetLogger(string.Empty).ReturnsForAnyArgs(logger);
             }
 

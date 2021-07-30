@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
+﻿// cSpell:ignore ownerid, projectid, customerid, departmentid, locationid
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +46,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                             Date.Create(startDate),
                             Date.Create(endDate)
                         },
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<status/><name /><total/><notes /><userid /><starts />"
                         }
@@ -74,7 +73,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                         {
                             new Timesheet { Status = status },
                         },
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<status/><name /><total/><notes /><userid /><starts />",
                         },
@@ -89,7 +88,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     {
                         Type = DateType.User,
                         Limit = $"{skip},{take}",
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid />"
                         }
@@ -104,7 +103,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     {
                         Type = DateType.Department,
                         Limit = $"{skip},{take}",
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<id /><name /><userid />"
                         }
@@ -127,7 +126,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                                 Active = true
                             }
                         },
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<id/><name />"
                         }
@@ -157,7 +156,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                                 ApprovalStatus = "A"
                             }
                         },
-                        Return = new RaedReturn
+                        Return = new ReadReturn
                         {
                             Content = "<id/><userid/><ownerid /><projectid /><customerid /><booking_typeid />"
                         }

@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+
 using MentorBot.Functions.Connectors.Luis;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;

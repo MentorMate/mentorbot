@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using CoreHelpers.WindowsAzure.Storage.Table.Models;
+
 using MentorBot.Functions.Services.AzureStorage;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

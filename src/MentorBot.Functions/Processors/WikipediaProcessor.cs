@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace MentorBot.Functions.Processors
     /// <summary>A command that search for information in the wikipedia encyclopedia.</summary>
     public sealed class WikipediaProcessor : ICommandProcessor
     {
-        private static readonly Regex Exp = new (
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
+        private static readonly Regex Exp = new(
             "^(What +|Where +|Who +|Where +|are +|is +)+([\\w\\d\\s\\,\\.]+)$",
             RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 

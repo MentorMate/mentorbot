@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace MentorBot.Functions
 {
-    /// <summary>Simular to System.Diagnostics.Contracts.Contract.</summary>
+    /// <summary>Similar to System.Diagnostics.Contracts.Contract.</summary>
     public static class Contract
     {
         /// <summary>Gets the current date time.</summary>
@@ -11,7 +11,7 @@ namespace MentorBot.Functions
         public static DateTime LocalDateTime =>
             DateTime.Now;
 
-        /// <summary>Ensureses the condition is valid.</summary>
+        /// <summary>Ensures the condition is valid.</summary>
         /// <exception cref="Exception">Throws exception when the condition is false.</exception>
         public static bool Ensures(bool condition, string message) =>
             condition ? condition : throw new Exception(message);

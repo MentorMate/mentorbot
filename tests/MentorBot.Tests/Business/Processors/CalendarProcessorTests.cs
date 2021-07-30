@@ -68,7 +68,7 @@ namespace MentorBot.Tests.Business.Processors
                 },
                 ConferenceData = new ConferenceData
                 {
-                    EntryPoints = new []
+                    EntryPoints = new[]
                     {
                         new EntryPoint
                         {

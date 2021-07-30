@@ -26,7 +26,7 @@ namespace MentorBot.Tests.AzureFunctions
     [TestCategory("Functions")]
     public sealed class CommandsTests
     {
-        #pragma warning disable CS4014
+#pragma warning disable CS4014
 
         [TestMethod]
         public async Task SyncUserAsyncShouldExecuteSync()
@@ -83,7 +83,7 @@ namespace MentorBot.Tests.AzureFunctions
                             },
                             new PluginPropertyValue
                             {
-                                Key = "OpenAir.Notifications.DontNotifyManager",
+                                Key = "OpenAir.Notifications.DoNotNotifyManager",
                                 Value = false
                             },
                         }

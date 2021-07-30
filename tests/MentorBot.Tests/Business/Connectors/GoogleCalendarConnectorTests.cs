@@ -37,7 +37,7 @@ namespace MentorBot.Tests.Business.Connectors
             eventsResource.List(email).Returns(eventsListRequest);
 
             var result = await connector.GetNextMeetingAsync(email);
-            
+
             Assert.AreEqual(eventsListRequest.CalendarId, email);
             Assert.AreEqual(eventsListRequest.SingleEvents, true);
             Assert.AreEqual(eventsListRequest.ShowDeleted, false);

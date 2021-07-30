@@ -23,12 +23,12 @@ namespace MentorBot.Functions.Services
             "^\\s*@mentorbot\\s*",
             RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-        #pragma warning disable CA2213
+#pragma warning disable CA2213
         private readonly IMemoryCache _cache;
         private readonly IStorageService _storageService;
         private readonly IEnumerable<ICommandProcessor> _commandProcessors;
         private readonly ILanguageUnderstandingConnector _connector;
-        #pragma warning restore CA2213
+#pragma warning restore CA2213
 
         /// <summary>Initializes a new instance of the <see cref="CognitiveService"/> class.</summary>
         public CognitiveService(

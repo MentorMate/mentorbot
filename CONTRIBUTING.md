@@ -3,7 +3,7 @@
 1. Identify tasks needed for the next milestone.
 2. Create milestones.
 3. Create issues
-	1. Add busness requirements.
+	1. Add business requirements.
 	2. Set label enhancement or bug.
     3. Set label new.
     4. Add task list. For example (design,writing unit tests, develop, verified)
@@ -12,7 +12,7 @@
 ## Contribute with design
 
 1. Replace label "new" with "design".
-2. Create mockup and/or design.
+2. Create MockUp and/or design.
 3. Replace label "design" with "open"
 
 ## Contribute with development
@@ -22,7 +22,7 @@
 3. Write tests and code
 4. Commit to feature branch and create pull request to the master branch.
 5. Replace label "open" with "resolved"
-6. Assosieate the pull request
+6. Associate the pull request
 0. Make reviews to other developers "pull request"
 
 ## Contribute with testing

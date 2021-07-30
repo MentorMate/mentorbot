@@ -20,12 +20,12 @@ namespace MentorBot.Functions.Models.Options
             string hangoutChatRequestToken,
             string googleCloudApplicationName,
             string googleCloudApiKey,
-            string googleCreadentialsFilePath)
+            string googleCredentialsFilePath)
         {
             HangoutChatRequestToken = hangoutChatRequestToken;
             GoogleCloudApplicationName = googleCloudApplicationName;
             GoogleCloudApiKey = googleCloudApiKey;
-            GoogleCredentialsFilePath = googleCreadentialsFilePath;
+            GoogleCredentialsFilePath = googleCredentialsFilePath;
         }
 
         /// <summary>Gets the security token for Hangout Chat events.</summary>

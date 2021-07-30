@@ -8,7 +8,7 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets a value indicating whether this mail service is active.</summary>
         bool IsActive { get; }
 
-        /// <summary>Sends an email a list of recipents.</summary>
+        /// <summary>Sends an email a list of recipients.</summary>
         Task SendMailAsync(string subject, string message, params string[] emails);
     }
 }

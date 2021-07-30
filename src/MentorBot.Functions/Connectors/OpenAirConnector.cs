@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -98,7 +96,7 @@ namespace MentorBot.Functions.Connectors
                 {
                     try
                     {
-                        return FiterCustomersByNames(it.Customers, normalizedCustomerNames);
+                        return FilterCustomersByNames(it.Customers, normalizedCustomerNames);
                     }
                     catch (Exception ex)
                     {
@@ -226,7 +224,7 @@ namespace MentorBot.Functions.Connectors
             storedCustomers.Length != openAirCustomers.Length ||
             openAirCustomers.Any(it => !storedCustomers.Contains(it));
 
-        private static bool FiterCustomersByNames(Customer[] customers, string[] customerNames) =>
+        private static bool FilterCustomersByNames(Customer[] customers, string[] customerNames) =>
             customerNames == null ||
             customerNames.Length == 0 ||
             customers == null ||

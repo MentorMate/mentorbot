@@ -1,4 +1,7 @@
-﻿using MentorBot.Functions.Models.Domains.Plugins;
+﻿// cSpell:ignore AAAAB
+using System.Diagnostics.CodeAnalysis;
+
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Processors.BuildInfo;
 using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Timesheets;
@@ -8,47 +11,50 @@ namespace MentorBot.Functions.App
     /// <summary>A default in-system plugins.</summary>
     public static class SystemPlugins
     {
-        private static readonly Plugin Jira = new ()
-            {
-                Id = "31235913-2cd7-4bb1-9af8-35efa521bb1d",
-                Name = "Issues/Ticketing",
-                ProcessorTypeName = "MentorBot.Functions.Processors.Issues.IssuesProcessor",
-                Enabled = true,
-                Groups = new[]
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
+        private static readonly Plugin Jira = new()
+        {
+            Id = "31235913-2cd7-4bb1-9af8-35efa521bb1d",
+            Name = "Issues/Ticketing",
+            ProcessorTypeName = "MentorBot.Functions.Processors.Issues.IssuesProcessor",
+            Enabled = true,
+            Groups =
+                new[]
+                {
+                    new PluginPropertyGroup
                     {
-                        new PluginPropertyGroup
+                        Name = "Jira Hosts",
+                        UniqueName = IssuesProperties.HostsGroup,
+                        Multi = false,
+                        ObjectType = PropertyObjectTypes.Settings,
+                        Properties = new[]
                         {
-                            Name = "Jira Hosts",
-                            UniqueName = IssuesProperties.HostsGroup,
-                            Multi = false,
-                            ObjectType = PropertyObjectTypes.Settings,
-                            Properties = new[]
+                            new PluginProperty
                             {
-                                new PluginProperty
-                                {
-                                    Name = "Host",
-                                    UniqueName = IssuesProperties.Host,
-                                    ValueType = PropertyValueTypes.String,
-                                },
-                                new PluginProperty
-                                {
-                                    Name = "Username",
-                                    UniqueName = IssuesProperties.User,
-                                    ValueType = PropertyValueTypes.String,
-                                },
-                                new PluginProperty
-                                {
-                                    Name = "Token",
-                                    UniqueName = IssuesProperties.Token,
-                                    ValueType = PropertyValueTypes.String,
-                                },
+                                Name = "Host",
+                                UniqueName = IssuesProperties.Host,
+                                ValueType = PropertyValueTypes.String,
+                            },
+                            new PluginProperty
+                            {
+                                Name = "Username",
+                                UniqueName = IssuesProperties.User,
+                                ValueType = PropertyValueTypes.String,
+                            },
+                            new PluginProperty
+                            {
+                                Name = "Token",
+                                UniqueName = IssuesProperties.Token,
+                                ValueType = PropertyValueTypes.String,
                             },
                         },
                     },
-            };
+                },
+        };
 
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
         private static readonly Plugin Jenkins =
-            new ()
+            new()
             {
                 Id = "7239ed4d-5b95-4bdd-be2c-007c281e87e6",
                 Name = "Jenkins Build Info",
@@ -104,14 +110,16 @@ namespace MentorBot.Functions.App
                     },
             };
 
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
         private static readonly Plugin OpenAir =
-            new ()
+            new()
             {
                 Id = "1e2d563b-88f4-4ab4-896f-89fe5c6a0236",
                 Name = "OpenAir",
                 ProcessorTypeName = "MentorBot.Functions.Processors.Timesheets.OpenAirProcessor",
                 Enabled = true,
-                Groups = new[]
+                Groups =
+                    new[]
                     {
                         new PluginPropertyGroup
                         {

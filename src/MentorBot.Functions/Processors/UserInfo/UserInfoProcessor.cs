@@ -29,9 +29,9 @@ namespace MentorBot.Functions.Processors.UserInfo
         public string Name => GetType().FullName;
 
         /// <inheritdoc/>
-        #pragma warning disable CC0021
+#pragma warning disable CC0021
         public string Subject => "User";
-        #pragma warning restore CC0021
+#pragma warning restore CC0021
 
         /// <inheritdoc/>
         public async ValueTask<ChatEventResult> ProcessCommandAsync(

@@ -15,7 +15,7 @@ namespace MentorBot.Tests.Business.Connectors
     public sealed class JiraClientTests
     {
         [TestMethod]
-        public async Task JiraClientWhouldCallApi()
+        public async Task JiraClientWouldCallApi()
         {
             var handler = new MockHttpMessageHandler()
                     .Set("{ \"total\": 3, \"issues\":[{ \"id\": \"130552\", \"self\": \"https://jira.jj/rest/api/2/issue/130552\", \"key\": \"TT-790\", \"fields\": { \"summary\": \"Do some work\", \"assignee\": { \"name\": \"ali.baba\", \"key\": \"ali.baba\", \"accountId\": \"55\", \"emailAddress\": \"ali.baba@cave.com\", \"displayName\": \"Ali Baba\", } } }] }", "application/json");

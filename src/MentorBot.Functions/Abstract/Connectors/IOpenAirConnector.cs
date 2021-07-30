@@ -11,7 +11,7 @@ namespace MentorBot.Functions.Abstract.Connectors
     /// <summary>A connector that provide data from the OpenAir API endpoints.</summary>
     public interface IOpenAirConnector
     {
-        /// <summary>Get unsubmitted timesheet to the peaople I have access to.</summary>
+        /// <summary>Get unsubmitted timesheet to the people I have access to.</summary>
         Task<IReadOnlyList<Timesheet>> GetUnsubmittedTimesheetsAsync(
             DateTime date,
             DateTime today,

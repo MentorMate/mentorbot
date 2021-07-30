@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,7 +8,7 @@ using MentorBot.Functions.Models.TextAnalytics;
 
 namespace MentorBot.Functions.Connectors
 {
-    /// <summary>Use Microsoft language understanding service to deconstruct a sentance/phrase.</summary>
+    /// <summary>Use Microsoft language understanding service to deconstruct a sentence/phrase.</summary>
     public class AzureLuisConnector : ILanguageUnderstandingConnector
     {
         private readonly ILuisClient _client;
@@ -34,11 +32,11 @@ namespace MentorBot.Functions.Connectors
                 response.Query,
                 response.TopScoringIntent.Intent,
                 SentenceTypes.Unknown,
-                EntitiesToDictoinary(response.Entities),
+                EntitiesToDictionary(response.Entities),
                 null,
                 response.TopScoringIntent.Score);
 
-        private static Dictionary<string, string[]> EntitiesToDictoinary(LuisClient.ScoringEntity[] entities) =>
+        private static Dictionary<string, string[]> EntitiesToDictionary(LuisClient.ScoringEntity[] entities) =>
             entities
                 .Where(it => it.Score > 0.5)
                 .GroupBy(it => it.Type)

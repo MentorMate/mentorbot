@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿// cSpell:ignore pageid
+using System.Text.Json.Serialization;
 
 using NS = Newtonsoft.Json;
 
@@ -20,7 +21,9 @@ namespace MentorBot.Functions.Connectors.Wikipedia
             public string Displaytitle { get; set; }
 
             /// <summary>Gets or sets the page identifier.</summary>
-            public long Pageid { get; set; }
+            [NS.JsonProperty("pageid")]
+            [JsonPropertyName("pageid")]
+            public long PageId { get; set; }
 
             /// <summary>Gets or sets the thumbnail.</summary>
             public Image Thumbnail { get; set; }

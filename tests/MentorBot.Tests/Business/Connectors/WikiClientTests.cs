@@ -1,7 +1,9 @@
 ﻿// cSpell:ignore pageid
 using System.Threading.Tasks;
+
 using MentorBot.Functions.Connectors.Wikipedia;
 using MentorBot.Tests.Base;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MentorBot.Tests.Business.Connectors

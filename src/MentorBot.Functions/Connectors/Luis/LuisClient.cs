@@ -8,7 +8,7 @@ using MentorBot.Functions.Models.Options;
 
 namespace MentorBot.Functions.Connectors.Luis
 {
-    /// <summary>The LUSI web client.</summary>
+    /// <summary>The LUIS web client.</summary>
     public sealed partial class LuisClient : ILuisClient
     {
         private readonly Func<HttpMessageHandler> _messageHandlerFactory;

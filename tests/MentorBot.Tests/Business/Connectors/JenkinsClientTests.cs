@@ -15,7 +15,7 @@ namespace MentorBot.Tests.Business.Connectors
     public sealed class JenkinsClientTests
     {
         [TestMethod]
-        public async Task JenkinsClientWhouldCallApi()
+        public async Task JenkinsClientWouldCallApi()
         {
             var handler = new MockHttpMessageHandler()
                     .Set("{ \"DisplayName\": \"A\", \"Result\":\"B\" }", "application/json");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -18,8 +19,8 @@ namespace MentorBot.Functions.App.Extensions
     /// <summary>A http request headers extensions.</summary>
     public static class HttpRequestExtensions
     {
-        private static readonly JsonObjectSerializer AzureJsonSerializer =
-            new (SerializerOptions);
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
+        private static readonly JsonObjectSerializer AzureJsonSerializer = new(SerializerOptions);
 
         /// <summary>Gets azure json serializer options.</summary>
         public static JsonSerializerOptions SerializerOptions =>

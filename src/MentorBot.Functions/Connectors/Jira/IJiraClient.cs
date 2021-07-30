@@ -1,12 +1,10 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using static MentorBot.Functions.Connectors.Jira.JiraClient;
 
 namespace MentorBot.Functions.Connectors.Jira
 {
-    /// <summary>The LUSI web client.</summary>
+    /// <summary>The JIRA web client.</summary>
     public interface IJiraClient
     {
         /// <summary>Queries the service asynchronous.</summary>

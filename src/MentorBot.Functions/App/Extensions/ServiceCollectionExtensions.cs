@@ -27,7 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MentorBot.Functions.App.Extensions
 {
-    /// <summary>Service locator is normally bad practice, but other methods are not realiable in Azure Functions.</summary>
+    /// <summary>Service locator is normally bad practice, but other methods are not reliable in Azure Functions.</summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>Tries to create a type or return default value.</summary>

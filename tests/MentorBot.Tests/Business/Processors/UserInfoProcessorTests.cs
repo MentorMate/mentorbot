@@ -95,7 +95,7 @@ namespace MentorBot.Tests.Business.Processors
                 "Get user info for " + name,
                 "User",
                 SentenceTypes.Command,
-                new Dictionary<string, string[]> { { "Text", name == null ? null :  new [] { name } } },
+                new Dictionary<string, string[]> { { "Text", name == null ? null : new[] { name } } },
                 null,
                 1);
 

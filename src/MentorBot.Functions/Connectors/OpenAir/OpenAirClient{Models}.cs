@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
+﻿// cSpell:ignore ownerid, projectid, customerid, departmentid, locationid
 using System;
 using System.Globalization;
 using System.Xml;
@@ -158,12 +157,12 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             /// <summary>Gets or sets the return.</summary>
             [XmlElement("_Return", Order = 100)]
-            public RaedReturn Return { get; set; }
+            public ReadReturn Return { get; set; }
         }
 
         /// <summary>The open air read request return collection.</summary>
         [Serializable]
-        public sealed class RaedReturn : IXmlSerializable
+        public sealed class ReadReturn : IXmlSerializable
         {
             /// <summary>Gets or sets the content.</summary>
             public string Content { get; set; }

@@ -1,6 +1,5 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
 using MentorBot.Functions.Models.Domains.Plugins;
 
 namespace MentorBot.Functions.Models.DataResultModels

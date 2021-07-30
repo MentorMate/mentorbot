@@ -81,7 +81,7 @@ namespace MentorBot.Functions
                 Manager = it.Manager?.Email,
                 Department = it.Department?.Name,
                 Role = Enum.GetName(typeof(UserRoles), it.Role),
-                Customers = string.Join(", ", it.Customers?.Select(cust => cust.Name) ?? Enumerable.Empty<string>()),
+                Customers = string.Join(", ", it.Customers?.Select(customer => customer.Name) ?? Enumerable.Empty<string>()),
                 Properties = it.Properties,
             });
         }

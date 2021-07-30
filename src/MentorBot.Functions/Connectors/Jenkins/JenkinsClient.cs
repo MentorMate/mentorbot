@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -8,7 +6,7 @@ using MentorBot.Functions.App.Extensions;
 
 namespace MentorBot.Functions.Connectors.Jenkins
 {
-    /// <summary>The LUSI web client.</summary>
+    /// <summary>The Jenkins web client.</summary>
     public sealed partial class JenkinsClient : IJenkinsClient
     {
         /// <summary>The client name.</summary>

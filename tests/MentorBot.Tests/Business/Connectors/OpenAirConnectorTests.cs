@@ -114,7 +114,7 @@ namespace MentorBot.Tests.Business.Processors
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
                 .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth ><Read status=\"0\"><Customer><id>1000</id><name>A</name></Customer><Customer><id>1001</id><name>B</name></Customer></Read ></response>");
-            
+
             var client = new OpenAirClient(() => handler, options);
             var date = new DateTime(2000, 10, 10);
             var results = await client.GetAllActiveCustomersAsync();
@@ -267,7 +267,7 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual(6, timesheets.Count);
         }
 
-        #pragma warning disable CS4014
+#pragma warning disable CS4014
 
         [TestMethod]
         public async Task OpenAirShouldSyncUsers()
@@ -340,7 +340,7 @@ namespace MentorBot.Tests.Business.Processors
                 .Received()
                 .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it =>
                     it.Count == 1
-                    && it.First().Manager.Email == "bill.manager@mentormate.com" 
+                    && it.First().Manager.Email == "bill.manager@mentormate.com"
                     && it.First().Customers.First().Name == "MM"
                     && it.First().Department.Name == "QA"
                     && it.First().Department.Owner.Email == "bill.manager@mentormate.com"));
@@ -403,7 +403,7 @@ namespace MentorBot.Tests.Business.Processors
                 list.Any(u => u.OpenAirUserId == 1000 && u.Department.Name == "Test")));
         }
 
-        #pragma warning restore CS4014
+#pragma warning restore CS4014
 
         private static User CreateUser(long id, string name, string departmentName, string managerEmail, long departmentId = 1, long managerId = 100, long? departmentOwner = null) =>
             new User

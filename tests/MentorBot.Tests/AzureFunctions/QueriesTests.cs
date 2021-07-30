@@ -49,7 +49,7 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task GetSettingsShouldQueryTheStorage()
         {
             var storageService = Substitute.For<IStorageService>();
-            var plugins = new []
+            var plugins = new[]
             {
                 new Plugin
                 {
@@ -138,7 +138,7 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task GetUsersShouldQueryActiveUsers()
         {
             var storageService = Substitute.For<IStorageService>();
-            var data = new []
+            var data = new[]
             {
                 new User
                 {

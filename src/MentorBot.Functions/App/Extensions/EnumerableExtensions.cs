@@ -7,7 +7,7 @@ namespace MentorBot.Functions.App.Extensions
     /// <summary>Extensions related to enumerable types.</summary>
     public static class EnumerableExtensions
     {
-        /// <summary>Anies the string in collection.</summary>
+        /// <summary>Any string in collection.</summary>
         /// <typeparam name="T">The type of the entity.</typeparam>
         public static bool AnyStringInCollection<T>(
             this IEnumerable<T> entities,
