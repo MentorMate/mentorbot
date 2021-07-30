@@ -14,3 +14,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: \bLICENSE$|\blog\.txt$
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_SHELL_SHFMT: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_TYPESCRIPT_ES: false

@@ -67,7 +67,10 @@ namespace MentorBot.Functions.Connectors
                 var containerName = path.Substring(0, index);
                 var filePath = path.Substring(index + 1);
 
-                Contract.Ensures(!string.IsNullOrWhiteSpace(containerName) && !string.IsNullOrWhiteSpace(filePath), "Blob path is invalid!");
+                Contract.Ensures(
+                    !string.IsNullOrWhiteSpace(containerName) && !string.IsNullOrWhiteSpace(filePath),
+                    "Blob path is invalid!");
+
                 return new BlobPath
                 {
                     ContainerName = containerName,

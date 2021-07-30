@@ -24,12 +24,12 @@ namespace MentorBot.Functions.App.Extensions
 
         /// <summary>Gets azure json serializer options.</summary>
         public static JsonSerializerOptions SerializerOptions =>
-             new JsonSerializerOptions(JsonSerializerDefaults.Web)
-             {
-                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                 AllowTrailingCommas = true,
-                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-             };
+            new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                AllowTrailingCommas = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
 
         /// <summary>Set a basics authentication.</summary>
         public static void BasicAuthentication(this HttpRequestHeaders headers, string username, string password) =>

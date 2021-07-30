@@ -204,7 +204,7 @@ namespace MentorBot.Tests.AzureFunctions
                 new ServiceDescriptor(typeof(IAccessTokenService), accessTokenService),
                 new ServiceDescriptor(typeof(IStorageService), storageService));
             var request = MockFunction.GetRequest(
-                "[{\"id\": \"2\", \"email\":\"a@b.c\", \"name\":\"Test\", \"properties\": { \"p1\": [[\"key\": \"k1\", \"value\":\"v1\"]] } }]",
+                "[{\"id\":\"2\",\"email\":\"a@b.c\",\"name\":\"Test\",\"properties\":{\"p1\":[[\"key\":\"k1\",\"value\":\"v1\"]]}}]",
                 context);
 
             storageService.GetUserByEmailAsync("a@b.c").Returns(user);

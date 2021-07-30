@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.1.0" />
     <PackageReference Include="CoreHelpers.WindowsAzure.Storage.Table" Version="3.0.112" />
-    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.25.1" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.15.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.53.0.*" />

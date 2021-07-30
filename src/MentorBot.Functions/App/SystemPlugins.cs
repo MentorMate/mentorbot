@@ -194,7 +194,8 @@ namespace MentorBot.Functions.App
                                     Name = "Start Hour",
                                     DescriptionHtml =
                                         "Job run every <b>30 min</b>." +
-                                        " '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18, '1,2 MON,THU,EOM' etc.",
+                                        " '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18," +
+                                        " '1,2 MON,THU,EOM' etc.",
                                     UniqueName = TimesheetsProperties.AutoNotificationsCron,
                                     ValueType = PropertyValueTypes.String,
                                 },
