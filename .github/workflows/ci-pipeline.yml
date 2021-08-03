@@ -23,7 +23,6 @@ jobs:
         run: >
           dotnet test --no-restore -c Debug
           -l trx tests/MentorBot.Tests/MentorBot.Tests.csproj
-          -l Appveyor
           /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="../../TestResults/"
           /p:ExcludeByFile=\"../../src/MentorBot.Functions/Models/**/*.cs\"
       - name: Upload dotnet test results

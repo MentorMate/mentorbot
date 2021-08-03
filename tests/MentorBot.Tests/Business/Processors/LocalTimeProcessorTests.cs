@@ -7,6 +7,8 @@ using MentorBot.Functions.Processors;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using TimeZoneConverter;
+
 namespace MentorBot.Tests.Business.Processors
 {
     /// <summary>Tests for <see cref="LocalTimeProcessor" />.</summary>
@@ -20,7 +22,7 @@ namespace MentorBot.Tests.Business.Processors
         public void TestInitialize()
         {
             _processor = new LocalTimeProcessor(
-                () => TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time"),
+                () => TZConvert.GetTimeZoneInfo("FLE Standard Time"),
                 () => new DateTime(2018, 1, 1, 1, 0, 0, DateTimeKind.Utc));
         }
 
