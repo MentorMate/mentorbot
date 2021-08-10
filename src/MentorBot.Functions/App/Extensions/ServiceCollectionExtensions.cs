@@ -6,6 +6,7 @@ using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App.SmtpClient;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
+using MentorBot.Functions.Connectors.BingMaps;
 using MentorBot.Functions.Connectors.Jenkins;
 using MentorBot.Functions.Connectors.Jira;
 using MentorBot.Functions.Connectors.Luis;
@@ -58,6 +59,7 @@ namespace MentorBot.Functions.App.Extensions
             services.AddSingleton(new GoogleCloudOptions(config));
             services.AddSingleton(new OpenAirOptions(config));
             services.AddSingleton(new SmtpOptions(config));
+            services.AddSingleton(new BingMapsOptions(config));
             services.AddSingleton<IDocumentClientService>(
                 new DocumentClientService(config["AzureCosmosDBAccountEndpoint"], config["AzureCosmosDBKey"]));
 
@@ -98,10 +100,12 @@ namespace MentorBot.Functions.App.Extensions
             services.AddTransient<ILuisClient, LuisClient>();
             services.AddTransient<IJenkinsClient, JenkinsClient>();
             services.AddTransient<IJiraClient, JiraClient>();
+            services.AddTransient<IBingMapsClient, BingMapsClient>();
             services.AddTransient<ITimesheetService, TimesheetService>();
 
             services.AddHttpClient(JenkinsClient.Name);
             services.AddHttpClient(JiraClient.Name);
+            services.AddHttpClient(BingMapsClient.Name);
 
             services.AddTransient<GoogleServiceAccountCredential>();
 

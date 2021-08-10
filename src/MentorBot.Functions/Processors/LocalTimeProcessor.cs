@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
+using MentorBot.Functions.Connectors.BingMaps;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
+
+using TimeZoneConverter;
 
 namespace MentorBot.Functions.Processors
 {
@@ -16,10 +18,15 @@ namespace MentorBot.Functions.Processors
     {
         private readonly Func<TimeZoneInfo> _currentTimeZoneFactory;
         private readonly Func<DateTime> _dateTimeFactory;
+        private readonly IBingMapsClient _client;
 
         /// <summary>Initializes a new instance of the <see cref="LocalTimeProcessor"/> class.</summary>
-        public LocalTimeProcessor(Func<TimeZoneInfo> currentTimeZoneFactory, Func<DateTime> dateTimeFactory)
+        public LocalTimeProcessor(
+            IBingMapsClient client,
+            Func<TimeZoneInfo> currentTimeZoneFactory,
+            Func<DateTime> dateTimeFactory)
         {
+            _client = client;
             _currentTimeZoneFactory = currentTimeZoneFactory;
             _dateTimeFactory = dateTimeFactory;
         }
@@ -31,7 +38,7 @@ namespace MentorBot.Functions.Processors
         public string Subject => "Time";
 
         /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(
+        public async ValueTask<ChatEventResult> ProcessCommandAsync(
             TextDeconstructionInformation info,
             ChatEvent originalChatEvent,
             IAsyncResponder responder,
@@ -41,29 +48,20 @@ namespace MentorBot.Functions.Processors
             if (locationMatch.Success)
             {
                 var city = locationMatch.Groups[1].Value;
-
-                // TODO: This is not a good method because it doesn't contain all cities. A better method is required.
-                var timeZone = TimeZoneInfo
-                    .GetSystemTimeZones()
-                    .FirstOrDefault(it => it
-                        .DisplayName
-                        .IndexOf(city, StringComparison.InvariantCultureIgnoreCase) > -1);
-
+                var data = await _client.QueryAsync(city);
+                var timeZone = data == null ? null : TZConvert.GetTimeZoneInfo(data.GenericName);
                 if (timeZone == null)
                 {
-                    return new ValueTask<ChatEventResult>(
-                        new ChatEventResult($"The current time {locationMatch.Value} was not found."));
+                    return new ChatEventResult($"The current time {locationMatch.Value} was not found.");
                 }
 
                 var timeInLocation = ConvertDateTimeToString(_dateTimeFactory(), timeZone);
-                return new ValueTask<ChatEventResult>(
-                        new ChatEventResult($"The current time {locationMatch.Value} is {timeInLocation}."));
+                return new ChatEventResult($"The current time {locationMatch.Value} is {timeInLocation}.");
             }
 
             var time = ConvertDateTimeToString(_dateTimeFactory(), _currentTimeZoneFactory());
 
-            return new ValueTask<ChatEventResult>(
-                new ChatEventResult($"The current time is {time}."));
+            return new ChatEventResult($"The current time is {time}.");
         }
 
         private static string ConvertDateTimeToString(DateTime dateTime, TimeZoneInfo timeZone) =>

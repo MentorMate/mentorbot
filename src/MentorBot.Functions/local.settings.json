@@ -11,6 +11,7 @@
   "GoogleCredentialsFilePath": null,
   "AzureCosmosDBAccountEndpoint": null,
   "AzureCosmosDBKey": null,
+  "BingMapsKey":  null,
   "DefaultTimeZoneName": "FLE Standard Time",
   "OpenAirUrl": null,
   "OpenAirCompany": null,
