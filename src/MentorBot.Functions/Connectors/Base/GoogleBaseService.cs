@@ -9,7 +9,10 @@ using MentorBot.Functions.Models.Options;
 
 namespace MentorBot.Functions.Connectors.Base
 {
-    /// <summary>The base class for all google connectors. This class provide helper methods like create new google service instance.</summary>
+    /// <summary>
+    /// The base class for all google connectors.
+    /// This class provide helper methods like create new google service instance.
+    /// </summary>
     /// <typeparam name="T">The type of the google service.</typeparam>
     public class GoogleBaseService<T>
         where T : BaseClientService
@@ -28,7 +31,10 @@ namespace MentorBot.Functions.Connectors.Base
 
         /// <summary>Creates the base client service initializer by service account.</summary>
         [ExcludeFromCodeCoverage]
-        public static BaseClientService.Initializer InitByServiceAccount(string name, Stream serviceAccountStream, params string[] scopes) =>
+        public static BaseClientService.Initializer InitByServiceAccount(
+            string name,
+            Stream serviceAccountStream,
+            params string[] scopes) =>
             new BaseClientService.Initializer
             {
                 ApplicationName = name,

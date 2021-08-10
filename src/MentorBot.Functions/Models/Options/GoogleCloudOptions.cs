@@ -8,10 +8,10 @@ namespace MentorBot.Functions.Models.Options
         /// <summary>Initializes a new instance of the <see cref="GoogleCloudOptions"/> class.</summary>
         public GoogleCloudOptions(IConfiguration configuration)
             : this(
-                  configuration[nameof(HangoutChatRequestToken)],
-                  configuration[nameof(GoogleCloudApplicationName)],
-                  configuration[nameof(GoogleCloudApiKey)],
-                  configuration[nameof(GoogleCredentialsFilePath)])
+                configuration[nameof(HangoutChatRequestToken)],
+                configuration[nameof(GoogleCloudApplicationName)],
+                configuration[nameof(GoogleCloudApiKey)],
+                configuration[nameof(GoogleCredentialsFilePath)])
         {
         }
 

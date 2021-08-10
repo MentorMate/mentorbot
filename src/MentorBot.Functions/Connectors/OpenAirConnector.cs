@@ -45,7 +45,9 @@ namespace MentorBot.Functions.Connectors
             var timesheets = new List<OpenAirClient.Timesheet>();
             var normalizedCustomerNames = filterByCustomers?.Select(NormalizeValue).ToArray();
             var isEndOfMonthReport = date.Date == today && today.AddDays(1).Day == 1;
-            var dayOfWeekMultiplier = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday ? 5 : (int)today.DayOfWeek;
+            var dayOfWeekMultiplier = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday
+                ? 5 :
+                (int)today.DayOfWeek;
 
             if (state == TimesheetStates.Unsubmitted)
             {
@@ -63,10 +65,10 @@ namespace MentorBot.Functions.Connectors
                     new TimesheetBasicData(
                         it.Key.Value,
                         it.Where(sheet => sheet.StartDate.Date > toweek)
-                          .Where(sheet =>
-                            (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
-                            (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
-                          .Sum(sheet => sheet.Total ?? 0)))
+                            .Where(sheet =>
+                                (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
+                                (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
+                            .Sum(sheet => sheet.Total ?? 0)))
                 .ToArray();
 
             var users = await _storageService.GetAllActiveUsersAsync();
@@ -171,7 +173,9 @@ namespace MentorBot.Functions.Connectors
 
                 if (storedUser == null && user.Active == true)
                 {
-                    var createUser = CreateUser(Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture), user, manager, department, customers);
+                    var userUid = Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture);
+                    var createUser = CreateUser(userUid, user, manager, department, customers);
+
                     usersListToAdd.Add(createUser);
                 }
                 else if (

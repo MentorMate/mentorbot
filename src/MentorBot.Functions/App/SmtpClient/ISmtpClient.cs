@@ -20,7 +20,7 @@ namespace MentorBot.Functions.App.SmtpClient
         /// <summary>Gets or sets a value indicating whether [use default credentials].</summary>
         bool UseDefaultCredentials { get; set; }
 
-        /// <summary>Gets or sets a value indicating whether [the SmtpClient uses Secure Sockets Layer (SSL) to encrypt the connection].</summary>
+        /// <summary>Gets or sets a value indicating whether [the SmtpClient uses SSL to encrypt the connection].</summary>
         bool EnableSsl { get; set; }
 
         /// <summary>Gets or sets the amount of time after which a call timeouts.</summary>

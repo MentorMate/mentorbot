@@ -8,11 +8,11 @@ namespace MentorBot.Functions.Models.Options
         /// <summary>Initializes a new instance of the <see cref="OpenAirOptions"/> class.</summary>
         public OpenAirOptions(IConfiguration configuration)
             : this(
-                  configuration[nameof(OpenAirUrl)],
-                  configuration[nameof(OpenAirCompany)],
-                  configuration[nameof(OpenAirApiKey)],
-                  configuration[nameof(OpenAirUserName)],
-                  configuration[nameof(OpenAirPassword)])
+                configuration[nameof(OpenAirUrl)],
+                configuration[nameof(OpenAirCompany)],
+                configuration[nameof(OpenAirApiKey)],
+                configuration[nameof(OpenAirUserName)],
+                configuration[nameof(OpenAirPassword)])
         {
         }
 

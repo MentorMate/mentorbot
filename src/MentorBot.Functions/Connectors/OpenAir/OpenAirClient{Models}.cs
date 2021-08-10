@@ -201,23 +201,23 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             /// <summary>Implements the operator >.</summary>
             public static bool operator <(Date date, DateTime dateTime) =>
-               date.ToDateTime() < dateTime;
+                date.ToDateTime() < dateTime;
 
             /// <summary>Implements the operator less or equal.</summary>
             public static bool operator <=(Date date, DateTime dateTime) =>
-               date.ToDateTime() <= dateTime;
+                date.ToDateTime() <= dateTime;
 
             /// <summary>Implements the operator less or equal.</summary>
             public static bool operator >=(Date date, DateTime dateTime) =>
-               date.ToDateTime() >= dateTime;
+                date.ToDateTime() >= dateTime;
 
             /// <summary>Implements the operator equal.</summary>
             public static bool operator ==(Date date, DateTime dateTime) =>
-               date.ToDateTime() == dateTime;
+                date.ToDateTime() == dateTime;
 
             /// <summary>Implements the operator no equal.</summary>
             public static bool operator !=(Date date, DateTime dateTime) =>
-               date.ToDateTime() != dateTime;
+                date.ToDateTime() != dateTime;
 
             /// <summary>Creates the specified date time.</summary>
             public static Date Create(DateTime dateTime) =>

@@ -50,12 +50,15 @@ namespace MentorBot.Functions.Processors
 
             if (item?.Summary == null)
             {
-                return new ChatEventResult("Can not find your next event! You may have no events or the service user account do not see your calendar.");
+                return new ChatEventResult(
+                    "Can not find your next event! You may have no events or the service user account do not see your calendar.");
             }
 
             var link = item.ConferenceData?.EntryPoints.FirstOrDefault();
             var startDate = item.Start.DateTime.HasValue ?
-                TimeZoneInfo.ConvertTime(item.Start.DateTime.Value, _currentTimeZoneFactory()).ToString("HH:mm", CultureInfo.InvariantCulture) :
+                TimeZoneInfo
+                    .ConvertTime(item.Start.DateTime.Value, _currentTimeZoneFactory())
+                    .ToString("HH:mm", CultureInfo.InvariantCulture) :
                 null;
             var keyValue = new KeyValue
             {
