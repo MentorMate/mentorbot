@@ -55,11 +55,11 @@ jobs:
           dest: app.zip
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
-      - name: Azure Set Subscription
-        run: az account set --subscription ${{ secrets.AZ_SUB }}
       - name: Deploy to azure the API
         run: >
           az functionapp deployment source config-zip
-          --name mentorbot-app --resource-group mentorbot --branch main --src app.zip --subscription mentorbot
+          -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot --build-remote false
       - name: Deploy the web app
-        run: az storage blob upload-batch --account-name mentorbotstorage -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web'
+        run: >
+          az storage blob upload-batch
+          --account-name mentorbotstorage -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription mentorbot
