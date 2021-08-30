@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
@@ -108,6 +109,9 @@ namespace MentorBot.Functions.App.Extensions
             services.AddHttpClient(BingMapsClient.Name);
 
             services.AddTransient<GoogleServiceAccountCredential>();
+
+            services.Configure<JsonSerializerOptions>(options =>
+                options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
             return services;
         }
