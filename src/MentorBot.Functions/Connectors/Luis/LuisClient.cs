@@ -30,17 +30,17 @@ namespace MentorBot.Functions.Connectors.Luis
         /// <inheritdoc/>
         public async Task<QueryResponse> QueryAsync(string query)
         {
-            var queryData = HttpUtility.UrlEncode(query);
-            var url = $"apps/{_options.LuisApiAppId}?timezoneOffset=-360&subscription-key={_options.LuisApiAppKey}&q=" + queryData;
+            var url = new UriBuilder($"https://{_options.LuisApiHostName}/luis/v2.0/apps/{_options.LuisApiAppId}");
+            var queryParams = HttpUtility.ParseQueryString(string.Empty);
+            queryParams["timezoneOffset"] = "-360";
+            queryParams["subscription-key"] = _options.LuisApiAppKey;
+            queryParams["q"] = query;
+            url.Query = queryParams.ToString();
 
             using var messageHandler = _messageHandlerFactory();
-            using var client =
-                new HttpClient(messageHandler, false)
-                {
-                    BaseAddress = new Uri($"https://{_options.LuisApiHostName}/luis/v2.0")
-                };
+            using var client = new HttpClient(messageHandler, false);
 
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url.ToString());
 
             response.EnsureSuccessStatusCode();
 

@@ -1,9 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
-using System.Threading.Tasks;
-
-using MentorBot.Functions.Abstract.Processor;
+﻿using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
@@ -26,7 +21,7 @@ namespace MentorBot.Functions.Services
         public HangoutsChatService(
             ICognitiveService cognitiveService,
             IAsyncResponder responder,
-            ILogger logger)
+            ILogger<HangoutsChatService> logger)
         {
             _cognitiveService = cognitiveService;
             _responder = responder;

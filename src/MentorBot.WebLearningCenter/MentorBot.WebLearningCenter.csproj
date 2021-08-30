@@ -5,7 +5,7 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup Label="NuGet Packages">
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.9" />
   </ItemGroup>
   <PropertyGroup Label="SPA">
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>

@@ -1,4 +1,6 @@
-﻿using MentorBot.Functions.Abstract.Connectors;
+﻿using System.Text.Json;
+
+using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App.Extensions;
@@ -10,6 +12,7 @@ using MentorBot.Localize;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MentorBot.Tests.Core
@@ -33,6 +36,18 @@ namespace MentorBot.Tests.Core
             Assert.IsInstanceOfType(services.GetService<IGoogleCalendarConnector>(), typeof(GoogleCalendarConnector));
             Assert.IsInstanceOfType(services.GetService<ICognitiveService>(), typeof(CognitiveService));
             Assert.IsInstanceOfType(services.GetService<IStringLocalizer>(), typeof(StringLocalizer));
+            Assert.IsInstanceOfType(, typeof(StringLocalizer));
+        }
+
+        [TestMethod]
+        public void ServiceLocatorSetJsonSerialization()
+        {
+            var config = new ConfigurationBuilder().Build();
+            var services = new ServiceCollection().ConfigureServices(config).BuildServiceProvider();
+            var options = services.GetService<IOptions<JsonSerializerOptions>>().Value;
+
+            Assert.IsNotNull(options);
+            Assert.AreEqual(JsonNamingPolicy.CamelCase, options.PropertyNamingPolicy);
         }
     }
 }

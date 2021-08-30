@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Google;
+﻿using Google;
 using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;
 using Google.Apis.Requests;
@@ -89,7 +83,7 @@ namespace MentorBot.Functions.Connectors
 
             if (address.ThreadName != null)
             {
-                message.Thread = new Thread
+                message.Thread = new Google.Apis.HangoutsChat.v1.Data.Thread
                 {
                     Name = address.ThreadName
                 };
