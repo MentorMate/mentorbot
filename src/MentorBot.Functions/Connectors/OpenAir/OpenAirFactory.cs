@@ -12,18 +12,23 @@ namespace MentorBot.Functions.Connectors.OpenAir
     public static class OpenAirFactory
     {
         /// <summary>Creates a <see cref="User"/> model.</summary>
-        public static User CreateUser(string id, OpenAirClient.User user, UserReference manager, Department department, Customer[] customers) =>
-           new User
-           {
-               Id = id,
-               OpenAirUserId = user.Id.Value,
-               Name = user.Name,
-               Email = user.Address.FirstOrDefault()?.Email,
-               Active = user.Active ?? false,
-               Department = department,
-               Manager = manager,
-               Customers = customers
-           };
+        public static User CreateUser(
+            string id,
+            OpenAirClient.User user,
+            UserReference manager,
+            Department department,
+            Customer[] customers) =>
+            new User
+            {
+                Id = id,
+                OpenAirUserId = user.Id.Value,
+                Name = user.Name,
+                Email = user.Address.FirstOrDefault()?.Email,
+                Active = user.Active ?? false,
+                Department = department,
+                Manager = manager,
+                Customers = customers
+            };
 
         /// <summary>Creates a <see cref="UserReference"/> model.</summary>
         public static UserReference CreateUserReferenceById(long? userId, IReadOnlyList<OpenAirClient.User> users) =>

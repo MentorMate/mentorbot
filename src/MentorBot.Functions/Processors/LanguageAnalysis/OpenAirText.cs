@@ -36,7 +36,11 @@ namespace MentorBot.Functions.Processors.LanguageAnalysis
         private static readonly IReadOnlyDictionary<string, string> Phrases = new Dictionary<string, string>
         {
             { "AllAreDoneUnapproved", "<b>All user's timesheets are approved.</b>" },
-            { "AllAreDoneUnsubmitted", "<b>All user have have submitted timesheets.</b>" },
+            {
+                "AllAreDoneUnsubmitted",
+                "<b>If you're reading this, probably MentorBot has encountered internal server error or everybody submitted their" +
+                " timesheets on time. The second one Is highly unlikely, so please review the log.</b>"
+            },
             { "SomeAreDoneUnapproved", "The following people have timesheets hours, that are unapproved. <br>" },
             { "SomeAreDoneUnsubmitted", "The following people need to submit timesheets. <br>" },
             { "NotifyUnsubmitted", ", You have unsubmitted timesheet. Please, submit your timesheet." },

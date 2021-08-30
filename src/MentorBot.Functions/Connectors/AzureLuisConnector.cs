@@ -21,8 +21,9 @@ namespace MentorBot.Functions.Connectors
 
         /// <inheritdoc/>
         public Task<TextDeconstructionInformation> DeconstructAsync(string text) =>
-            _client.QueryAsync(text)
-                   .ContinueWith(task => CreateInformationIfTopScore(task.Result));
+            _client
+                .QueryAsync(text)
+                .ContinueWith(task => CreateInformationIfTopScore(task.Result));
 
         private static TextDeconstructionInformation CreateInformationIfTopScore(LuisClient.QueryResponse response) =>
             response.TopScoringIntent.Score < 0.75 ? null : CreateInformation(response);

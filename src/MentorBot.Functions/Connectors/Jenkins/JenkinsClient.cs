@@ -29,7 +29,8 @@ namespace MentorBot.Functions.Connectors.Jenkins
             httpClient.DefaultRequestHeaders.BasicAuthentication(username, token);
 
             var httpResponseMessage = await httpClient.GetAsync(
-                $"{host.TrimEnd('/')}/job/{encodedJobName}/lastBuild/api/json?tree=building,description,displayName,result,url,changeSet[items[comment]]");
+                $"{host.TrimEnd('/')}/job/{encodedJobName}/lastBuild/api/json" +
+                "?tree=building,description,displayName,result,url,changeSet[items[comment]]");
 
             httpResponseMessage.EnsureSuccessStatusCode();
 

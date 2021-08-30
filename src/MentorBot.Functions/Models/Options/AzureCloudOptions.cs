@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 
 using Microsoft.Extensions.Configuration;
 
@@ -21,7 +19,11 @@ namespace MentorBot.Functions.Models.Options
         }
 
         /// <summary>Initializes a new instance of the <see cref="AzureCloudOptions"/> class.</summary>
-        public AzureCloudOptions(string azureStorageAccountConnectionString, string luisApiHostName, string luisApiAppId, string luisApiAppKey)
+        public AzureCloudOptions(
+            string azureStorageAccountConnectionString,
+            string luisApiHostName,
+            string luisApiAppId,
+            string luisApiAppKey)
         {
             AzureStorageAccountConnectionString = azureStorageAccountConnectionString;
             LuisApiHostName = luisApiHostName;

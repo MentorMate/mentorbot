@@ -72,7 +72,7 @@ namespace MentorBot.Functions.Processors.Issues
                     {
                         new Section
                         {
-                             Widgets = widgets
+                            Widgets = widgets
                         },
                     },
                 });

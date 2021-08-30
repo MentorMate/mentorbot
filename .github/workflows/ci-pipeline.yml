@@ -34,7 +34,14 @@ jobs:
         if: ${{ always() }}
       - name: Publish dotnet
         run: dotnet publish --no-restore -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
+      - name: npm package install
+        run: npm install --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Publish angular
+        env:
+          AZURE_WEB_PATH: ${{ secrets.AZURE_WEB_PATH }}
+          AZURE_API_PATH: ${{ secrets.AZURE_API_PATH }}
+          AZURE_CODE: ${{ secrets.AZURE_CODE }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: npm run build:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Run front end lint
         run: npm run lint --prefix ./src/MentorBot.WebLearningCenter/ClientApp
@@ -53,7 +60,13 @@ jobs:
           dest: app.zip
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
-      - name: Deploy to azure
+      - name: Deploy to azure the API
+        env:
+          SCM_DO_BUILD_DURING_DEPLOYMENT: false 
         run: >
           az functionapp deployment source config-zip
-          --name mentorbot-app --resource-group mentorbot --branch main --src app.zip --subscription mentorbot
+          -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot
+      - name: Deploy the web app
+        run: >
+          az storage blob upload-batch
+          --account-name mentorbotstorage -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription mentorbot

@@ -27,7 +27,8 @@ namespace MentorBot.Functions.Connectors.Jira
             httpClient.DefaultRequestHeaders.BasicAuthentication(username, token);
 
             var httpResponseMessage = await httpClient.GetAsync(
-                $"{host.TrimEnd('/')}/rest/api/2/search?jql=project={project} AND status IN (\"{status}\")&maxResults=100&fields=summary,assignee");
+                $"{host.TrimEnd('/')}/rest/api/2/search" +
+                $"?jql=project={project} AND status IN (\"{status}\")&maxResults=100&fields=summary,assignee");
 
             httpResponseMessage.EnsureSuccessStatusCode();
 

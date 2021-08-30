@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace MentorBot.Functions.Models.Options
 {
@@ -10,11 +8,11 @@ namespace MentorBot.Functions.Models.Options
         /// <summary>Initializes a new instance of the <see cref="OpenAirOptions"/> class.</summary>
         public OpenAirOptions(IConfiguration configuration)
             : this(
-                  configuration[nameof(OpenAirUrl)],
-                  configuration[nameof(OpenAirCompany)],
-                  configuration[nameof(OpenAirApiKey)],
-                  configuration[nameof(OpenAirUserName)],
-                  configuration[nameof(OpenAirPassword)])
+                configuration[nameof(OpenAirUrl)],
+                configuration[nameof(OpenAirCompany)],
+                configuration[nameof(OpenAirApiKey)],
+                configuration[nameof(OpenAirUserName)],
+                configuration[nameof(OpenAirPassword)])
         {
         }
 

@@ -50,19 +50,19 @@ namespace MentorBot.Functions.Models.HangoutsChat
         /// <param name="label">The button label.</param>
         /// <param name="url">The button URL.</param>
         public static Button CreateTextButton(string label, string url) =>
-             new Button
-             {
-                 TextButton = new TextButton
-                 {
-                     Text = label,
-                     OnClick = new OnClick
-                     {
-                         OpenLink = new OpenLink
-                         {
-                             Url = url
-                         }
-                     }
-                 }
-             };
+            new Button
+            {
+                TextButton = new TextButton
+                {
+                    Text = label,
+                    OnClick = new OnClick
+                    {
+                        OpenLink = new OpenLink
+                        {
+                            Url = url
+                        }
+                    }
+                }
+            };
     }
 }

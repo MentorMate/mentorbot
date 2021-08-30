@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
@@ -76,7 +74,7 @@ namespace MentorBot.Functions.Processors.BuildInfo
                     {
                         new Section
                         {
-                             Widgets = widgets
+                            Widgets = widgets
                         },
                     },
                 });
