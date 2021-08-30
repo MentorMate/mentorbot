@@ -36,7 +36,6 @@ namespace MentorBot.Tests.Core
             Assert.IsInstanceOfType(services.GetService<IGoogleCalendarConnector>(), typeof(GoogleCalendarConnector));
             Assert.IsInstanceOfType(services.GetService<ICognitiveService>(), typeof(CognitiveService));
             Assert.IsInstanceOfType(services.GetService<IStringLocalizer>(), typeof(StringLocalizer));
-            Assert.IsInstanceOfType(, typeof(StringLocalizer));
         }
 
         [TestMethod]

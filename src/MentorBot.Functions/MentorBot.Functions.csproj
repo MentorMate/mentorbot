@@ -20,8 +20,8 @@
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.53.0.*" />
-    <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.53.0.*" />
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.54.0.*" />
+    <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.54.0.*" />
     <PackageReference Include="TimeZoneConverter" Version="3.5.0" />
   </ItemGroup>
   <ItemGroup Label="Projects and Files Reference">

@@ -35,6 +35,7 @@ namespace MentorBot.Functions.Connectors.Luis
             queryParams["timezoneOffset"] = "-360";
             queryParams["subscription-key"] = _options.LuisApiAppKey;
             queryParams["q"] = query;
+            url.Port = -1;
             url.Query = queryParams.ToString();
 
             using var messageHandler = _messageHandlerFactory();

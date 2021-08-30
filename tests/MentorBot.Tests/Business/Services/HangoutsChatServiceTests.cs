@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using MentorBot.Functions;
+﻿using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.HangoutsChat;
@@ -21,14 +19,14 @@ namespace MentorBot.Tests.Business.Services
         private HangoutsChatService _service;
         private ICognitiveService _cognitiveService;
         private IAsyncResponder _asyncResponder;
-        private ILogger _logger;
+        private ILogger<HangoutsChatService> _logger;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _cognitiveService = Substitute.For<ICognitiveService>();
             _asyncResponder = Substitute.For<IAsyncResponder>();
-            _logger = Substitute.For<ILogger>();
+            _logger = Substitute.For<ILogger<HangoutsChatService>>();
             _service = new HangoutsChatService(_cognitiveService, _asyncResponder, _logger);
         }
 
