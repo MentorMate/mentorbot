@@ -50,7 +50,12 @@ namespace MentorBot.Functions.Processors.Timesheets
             IPluginPropertiesAccessor accessor)
         {
             var notify = info.TextSentenceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
-            var departmentValue = info.Entities.GetValueOrDefault(nameof(Department))?.FirstOrDefault()?.Replace(". ", ".", StringComparison.InvariantCulture);
+            var departmentValue = info
+                .Entities
+                .GetValueOrDefault(nameof(Department))
+                ?.FirstOrDefault()
+                ?.Replace(". ", ".", StringComparison.InvariantCulture);
+
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer), new string[0]);
             var period = OpenAirText.GetPeriod(info.Entities.GetValueOrDefault("Period")?.FirstOrDefault());
             var state = OpenAirText.GetTimesheetState(info.Entities.GetValueOrDefault("State")?.FirstOrDefault());
@@ -66,7 +71,17 @@ namespace MentorBot.Functions.Processors.Timesheets
             }
 
             var address = new GoogleChatAddress(originalChatEvent);
-            NotifyAsync(date, state, senderEmail, customersToExclude, departmentValue, notify, false, true, address, responder as IHangoutsChatConnector)
+            NotifyAsync(
+                date,
+                state,
+                senderEmail,
+                customersToExclude,
+                departmentValue,
+                notify,
+                false,
+                true,
+                address,
+                responder as IHangoutsChatConnector)
                 .ConfigureAwait(false);
 
             return new ValueTask<ChatEventResult>(
@@ -162,7 +177,10 @@ namespace MentorBot.Functions.Processors.Timesheets
                 }
 
                 text = notifiedUserList.Count == filteredTimesheet.Length ?
-                    string.Format(CultureInfo.InvariantCulture, OpenAirText.GetText(state, OpenAirTextTypes.AllAreNotified), notifiedUserList.Count) :
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        OpenAirText.GetText(state, OpenAirTextTypes.AllAreNotified),
+                        notifiedUserList.Count) :
                     OpenAirText.GetText(state, OpenAirTextTypes.SomeAreNotified) + GetCardText(filteredTimesheet, notifiedUserList);
             }
             else
@@ -180,7 +198,9 @@ namespace MentorBot.Functions.Processors.Timesheets
             else if (email != null)
             {
                 var emailedUsers = string.Join("</b><br/><b>", notifiedUserList);
-                var emailText = $"{text}<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>{emailedUsers}</b>";
+                var emailText =
+                    $"{text}<br/><br/><b>The following people where notified by a direct massage or email:" +
+                    $"<br/><b>{emailedUsers}</b>";
                 await _mailService.SendMailAsync("Users not notified", emailText, email);
             }
         }

@@ -1,4 +1,9 @@
-﻿using Google;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Google;
 using Google.Apis.HangoutsChat.v1;
 using Google.Apis.HangoutsChat.v1.Data;
 using Google.Apis.Requests;

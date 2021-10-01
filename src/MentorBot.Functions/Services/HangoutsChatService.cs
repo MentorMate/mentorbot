@@ -1,4 +1,7 @@
-﻿using MentorBot.Functions.Abstract.Processor;
+﻿using System;
+using System.Threading.Tasks;
+
+using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;

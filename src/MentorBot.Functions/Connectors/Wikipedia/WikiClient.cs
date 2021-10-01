@@ -29,18 +29,15 @@ namespace MentorBot.Functions.Connectors.Wikipedia
         /// <param name="query">The query text.</param>
         public async Task<QueryResponse> QueryAsync(string query)
         {
+            using var messageHandler = _messageHandlerFactory();
+            using var client = new HttpClient(messageHandler, false);
+
             var url = WikiApiV1 + HttpUtility.UrlEncode(query);
-            using (var messageHandler = _messageHandlerFactory())
-            {
-                using (var client = new HttpClient(messageHandler, false))
-                {
-                    var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url);
 
-                    response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-                    return await response.Content.ReadAsAsync<QueryResponse>();
-                }
-            }
+            return await response.Content.ReadAsAsync<QueryResponse>();
         }
     }
 }

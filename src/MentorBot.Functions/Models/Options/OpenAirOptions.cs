@@ -17,7 +17,12 @@ namespace MentorBot.Functions.Models.Options
         }
 
         /// <summary>Initializes a new instance of the <see cref="OpenAirOptions"/> class.</summary>
-        public OpenAirOptions(string openAirUrl, string openAirCompany, string openAirApiKey, string openAirUserName, string openAirPassword)
+        public OpenAirOptions(
+            string openAirUrl,
+            string openAirCompany,
+            string openAirApiKey,
+            string openAirUserName,
+            string openAirPassword)
         {
             OpenAirUrl = openAirUrl;
             OpenAirCompany = openAirCompany;

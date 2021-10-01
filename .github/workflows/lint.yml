@@ -18,3 +18,4 @@ jobs:
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_TYPESCRIPT_STANDARD: false
           VALIDATE_TYPESCRIPT_ES: false
+          LOG_LEVEL: WARN

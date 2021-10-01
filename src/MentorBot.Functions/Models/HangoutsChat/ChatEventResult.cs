@@ -4,7 +4,7 @@ using Google.Apis.HangoutsChat.v1.Data;
 
 namespace MentorBot.Functions.Models.HangoutsChat
 {
-    /// <summary>A return result for chat event. We can use <see cref="Google.Apis.HangoutsChat.v1.Data.Message"/>, but this is simpler object.</summary>
+    /// <summary>A return result for chat event. We can use <see cref="Message"/>, but this is simpler object.</summary>
     /// <seealso cref="Message"/>
     public class ChatEventResult
     {

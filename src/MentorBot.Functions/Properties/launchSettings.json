@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "MentorBot.Functions": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30880,
+      "useSSL": false
+    }
+  }
+}

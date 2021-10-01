@@ -29,3 +29,13 @@
 
 1. Get a feature or bug with label "resolved" and verify it
 2. Return it to "open" with a comment or replace the label with "verified"
+
+## Run in linux docker as production
+1. In top folder build the image
+   ```
+   docker build -t mentorbot-functions -f src\MentorBot.Functions\Dockerfile .
+   ```
+2. Run
+   ```
+   docker run -it --rm --name mentorbot-local mentorbot-functions
+   ```

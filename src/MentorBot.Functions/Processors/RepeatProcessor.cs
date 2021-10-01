@@ -16,8 +16,8 @@ namespace MentorBot.Functions.Processors
     public class RepeatProcessor : ICommandProcessor
     {
         private static readonly Regex RegExp = new Regex(
-           "^(@mentorbot\\s+)?repeat( after me)?((with)? delay \\d+\\w*)?\\s*",
-           RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            "^(@mentorbot\\s+)?repeat( after me)?((with)? delay \\d+\\w*)?\\s*",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         private static readonly Regex RegExpTime = new Regex(
             "^(\\d+)(\\w*)$",
