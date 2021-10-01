@@ -1,4 +1,7 @@
-﻿using MentorBot.Functions.Connectors.BingMaps;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
+
+using MentorBot.Functions.Connectors.BingMaps;
 using MentorBot.Functions.Models.Options;
 using MentorBot.Tests.Base;
 
