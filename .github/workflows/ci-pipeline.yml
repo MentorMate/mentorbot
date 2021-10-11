@@ -66,7 +66,7 @@ jobs:
           SCM_DO_BUILD_DURING_DEPLOYMENT: false 
         run: >
           az functionapp deployment source config-zip
-          -n mentorbot-application -g mentorbot --src app.zip --subscription mentorbot
+          -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot
       - name: Deploy the web app
         run: >
           az storage blob upload-batch
