@@ -50,6 +50,10 @@ namespace MentorBot.Functions.App
                         },
                     },
                 },
+            Examples = new[]
+            {
+                "Get issues for PROJECT in state TO DO",
+            },
         };
 
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
@@ -108,6 +112,10 @@ namespace MentorBot.Functions.App
                             },
                         },
                     },
+                Examples = new[]
+                {
+                    "Show build status",
+                },
             };
 
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
@@ -253,6 +261,12 @@ namespace MentorBot.Functions.App
                             },
                         },
                     },
+                Examples = new[]
+                {
+                    "Get unsubmitted timesheets",
+                    "Get unapproved timesheets for the previous week",
+                    "Get unsubmitted timesheets in department QA exclude customer 'Test Customer'",
+                },
             };
 
         /// <summary>Gets the system plugins.</summary>
@@ -267,6 +281,10 @@ namespace MentorBot.Functions.App
                         Name = "Google Calendar",
                         ProcessorTypeName = "MentorBot.Functions.Processors.CalendarProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Get my next meeting",
+                        },
                     },
                     new Plugin
                     {
@@ -274,6 +292,10 @@ namespace MentorBot.Functions.App
                         Name = "Greetings",
                         ProcessorTypeName = "MentorBot.Functions.Processors.HelloProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Hi",
+                        },
                     },
                     new Plugin
                     {
@@ -281,6 +303,10 @@ namespace MentorBot.Functions.App
                         Name = "Help",
                         ProcessorTypeName = "MentorBot.Functions.Processors.HelpProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Help",
+                        },
                     },
                     new Plugin
                     {
@@ -288,6 +314,11 @@ namespace MentorBot.Functions.App
                         Name = "Time",
                         ProcessorTypeName = "MentorBot.Functions.Processors.LocalTimeProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Get my local time",
+                            "Get the time in Varna",
+                        },
                     },
                     OpenAir,
                     new Plugin
@@ -296,6 +327,11 @@ namespace MentorBot.Functions.App
                         Name = "Repeater",
                         ProcessorTypeName = "MentorBot.Functions.Processors.RepeatProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "repeat after me This is cool",
+                            "repeat delay 10s This is cool",
+                        },
                     },
                     new Plugin
                     {
@@ -303,6 +339,12 @@ namespace MentorBot.Functions.App
                         Name = "Wikipedia",
                         ProcessorTypeName = "MentorBot.Functions.Processors.WikipediaProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Who are The Beatles",
+                            "What is Sun",
+                            "Who is Petar",
+                        },
                     },
                     new Plugin
                     {
@@ -310,6 +352,11 @@ namespace MentorBot.Functions.App
                         Name = "User Info",
                         ProcessorTypeName = "MentorBot.Functions.Processors.UserInfo.UserInfoProcessor",
                         Enabled = true,
+                        Examples = new[]
+                        {
+                            "Get user information for Jhon Doe",
+                            "Show user Jhon Doe",
+                        },
                     },
                 };
     }

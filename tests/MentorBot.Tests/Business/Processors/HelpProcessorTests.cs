@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
-using MentorBot.Functions.Connectors.Luis;
+using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
 
@@ -15,13 +16,13 @@ namespace MentorBot.Tests.Business.Processors
     public sealed class HelpProcessorTests
     {
         private HelpProcessor _processor;
-        private ILuisClient _client;
+        private IStorageService _storageService;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _client = Substitute.For<ILuisClient>();
-            _processor = new HelpProcessor(_client);
+            _storageService = Substitute.For<IStorageService>();
+            _processor = new HelpProcessor(_storageService);
         }
 
         [TestMethod]
@@ -39,39 +40,29 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task HelpWhenAskedShouldCheckTheApi()
         {
-            _client.GetExamplesAsync().Returns(
+            _storageService.GetAllPluginsAsync().Returns(
                 new[]
                 {
-                    new LuisClient.Utterance
+                    new Plugin
                     {
-                        Text = "1",
-                        IntentLabel = "A"
+                        Examples = new [] { "1" },
                     },
-                    new LuisClient.Utterance
+                    new Plugin
                     {
-                        Text = "2",
-                        IntentLabel = "A"
+                        Examples = new [] { "2" },
                     },
-                    new LuisClient.Utterance
+                    new Plugin
                     {
-                        Text = "10",
-                        IntentLabel = "C"
+                        Examples = new [] { "10" },
                     },
-                    new LuisClient.Utterance
+                    new Plugin
                     {
-                        Text = "3",
-                        IntentLabel = "A"
+                        Examples = new [] { "3" },
                     },
-                    new LuisClient.Utterance
+                    new Plugin
                     {
-                        Text = "4",
-                        IntentLabel = "A"
+                        Examples = new [] { "4", "5" },
                     },
-                    new LuisClient.Utterance
-                    {
-                        Text = "5",
-                        IntentLabel = "A"
-                    }
                 });
 
             var result = await _processor.ProcessCommandAsync(new TextDeconstructionInformation(null, null), null, null, null);

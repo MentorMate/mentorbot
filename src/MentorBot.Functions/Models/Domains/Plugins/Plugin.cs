@@ -42,5 +42,11 @@ namespace MentorBot.Functions.Models.Domains.Plugins
         [NS.JsonProperty("groups")]
         [JsonPropertyName("groups")]
         public PluginPropertyGroup[] Groups { get; set; }
+
+        /// <summary>Gets or sets the command examples.</summary>
+        [StoreAsJsonObject]
+        [NS.JsonProperty("examples")]
+        [JsonPropertyName("examples")]
+        public string[] Examples { get; set; }
     }
 }

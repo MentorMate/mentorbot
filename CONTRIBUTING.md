@@ -39,3 +39,20 @@
    ```
    docker run -it --rm --name mentorbot-local mentorbot-functions
    ```
+
+## Build with docker under linux
+```bash
+docker run -it --rm --name build-bot -v %cd%:/app -w /app  mcr.microsoft.com/dotnet/sdk:6.0
+
+# REM Install sdk 3.1
+# wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
+# apt-get update && apt-get install -y dotnet-sdk-3.1
+# dotnet publish -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
+```
+
+## Create test az-function
+```
+az functionapp create --resource-group mentorbot --consumption-plan-location westeurope --runtime dotnet-isolated --functions-version 3 --name mentorbot-application --storage-account mentorbotstorage --os-type Linux
+az functionapp config appsettings set --settings FUNCTIONS_EXTENSION_VERSION=~4 -n mentorbot-application -g mentorbot
+az functionapp deployment source config-zip -n mentorbot-application -g mentorbot --src app.zip --subscription mentorbot
+```

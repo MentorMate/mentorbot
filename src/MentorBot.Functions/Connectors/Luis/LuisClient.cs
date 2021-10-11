@@ -51,17 +51,18 @@ namespace MentorBot.Functions.Connectors.Luis
         /// <inheritdoc/>
         public async Task<Utterance[]> GetExamplesAsync()
         {
-            const int take = 100;
-            var url = $"apps/{_options.LuisApiAppId}/versions/0.1/examples?skip=0&take={take}&subscription-key={_options.LuisApiAppKey}";
+            var url = new UriBuilder($"https://{_options.LuisApiHostName}/luis/api/v2.0/apps/{_options.LuisApiAppId}/versions/0.1_upgraded/examples");
+            var queryParams = HttpUtility.ParseQueryString(string.Empty);
+            queryParams["skip"] = "0";
+            queryParams["take"] = "100";
+            queryParams["subscription-key"] = _options.LuisApiAppKey;
+            url.Port = -1;
+            url.Query = queryParams.ToString();
 
             using var messageHandler = _messageHandlerFactory();
-            using var client =
-                new HttpClient(messageHandler, false)
-                {
-                    BaseAddress = new Uri($"https://{_options.LuisApiHostName}/luis/api/v2.0")
-                };
+            using var client = new HttpClient(messageHandler, false);
 
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url.ToString());
 
             response.EnsureSuccessStatusCode();
 

@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
 
 using MentorBot.Functions.Abstract.Processor;
-using MentorBot.Functions.Connectors.Luis;
+using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 
@@ -14,12 +15,12 @@ namespace MentorBot.Functions.Processors
     /// <seealso cref="ICommandProcessor" />
     public sealed class HelpProcessor : ICommandProcessor
     {
-        private readonly ILuisClient _luisClient;
+        private readonly IStorageService _storageService;
 
         /// <summary>Initializes a new instance of the <see cref="HelpProcessor"/> class.</summary>
-        public HelpProcessor(ILuisClient luisClient)
+        public HelpProcessor(IStorageService storageService)
         {
-            _luisClient = luisClient;
+            _storageService = storageService;
         }
 
         /// <inheritdoc/>
@@ -35,11 +36,8 @@ namespace MentorBot.Functions.Processors
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var examples = await _luisClient.GetExamplesAsync();
-            var results = examples
-                .GroupBy(it => it.IntentLabel)
-                .SelectMany(group => group.Take(4).Select(it => it.Text));
-
+            var plugins = await _storageService.GetAllPluginsAsync();
+            var results = plugins.SelectMany(it => it.Examples ?? Array.Empty<string>()).DefaultIfEmpty(string.Empty);
             return new ChatEventResult(
                 ChatEventFactory.CreateCard(
                     new TextParagraph
