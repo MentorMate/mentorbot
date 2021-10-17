@@ -107,7 +107,9 @@ namespace MentorBot.Functions.Services
                 null;
         }
 
-        private async Task<GoogleAccessTokenInfo> ExecuteRequestAsync(string accessToken, Func<HttpMessageHandler> httpMessageHandlerFactory)
+        private async Task<GoogleAccessTokenInfo> ExecuteRequestAsync(
+            string accessToken,
+            Func<HttpMessageHandler> httpMessageHandlerFactory)
         {
             using var messageHandler = httpMessageHandlerFactory();
             using var client = new HttpClient(messageHandler, false);

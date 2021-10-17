@@ -87,13 +87,13 @@ namespace MentorBot.Functions.Processors
                         {
                             Widgets = new[]
                             {
-                                 new WidgetMarkup
-                                 {
-                                     Buttons = new[]
-                                     {
-                                         ChatEventFactory.CreateTextButton("Wikipedia", pagePath)
-                                     }
-                                 }
+                                new WidgetMarkup
+                                {
+                                    Buttons = new[]
+                                    {
+                                        ChatEventFactory.CreateTextButton("Wikipedia", pagePath)
+                                    }
+                                }
                             }
                         });
                 }
@@ -119,8 +119,8 @@ namespace MentorBot.Functions.Processors
                 info.Entities.GetValueOrDefault("Person Name", null);
 
             return entity == null || entity.Length == 0 ?
-                 Exp.Match(info.TextSentenceChunk)?.Groups[2]?.Value :
-                 string.Join(' ', entity);
+                Exp.Match(info.TextSentenceChunk)?.Groups[2]?.Value :
+                string.Join(' ', entity);
         }
     }
 }

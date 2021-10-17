@@ -207,7 +207,8 @@ namespace MentorBot.Functions.Processors.Timesheets
 
         private static string GetCardText(IReadOnlyList<Timesheet> timesheets, IReadOnlyList<string> notifiedUserList) =>
             string.Join(string.Empty, timesheets.Where(it => !notifiedUserList.Contains(it.UserName))
-                .Select(it => $"<b>{it.UserName}:</b> {it.Total}/{it.UtilizationInHours} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
+                .Select(it =>
+                    $"<b>{it.UserName}:</b> {it.Total}/{it.UtilizationInHours} <i>({it.DepartmentName}, {it.ManagerName})</i><br>"));
 
         private async Task<IReadOnlyList<string>> NotifyUsersOverChatAsync(
             IHangoutsChatConnector connector,

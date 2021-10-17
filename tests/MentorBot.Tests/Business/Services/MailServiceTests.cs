@@ -34,13 +34,13 @@ namespace MentorBot.Tests.Business.Services
         {
             await _service.SendMailAsync("Test", "Msg", "test@domain.com");
             _client.Received()
-                   .SendMailAsync(Arg.Is<MailMessage>(it =>
-                        it.From.Address == "jhon.doe@domain.com" &&
-                        it.To[0].Address == "test@domain.com" &&
-                        it.Subject == "Test" &&
-                        it.Body == "Msg" &&
-                        it.IsBodyHtml &&
-                        it.BodyEncoding == Encoding.UTF8));
+                .SendMailAsync(Arg.Is<MailMessage>(it =>
+                    it.From.Address == "jhon.doe@domain.com" &&
+                    it.To[0].Address == "test@domain.com" &&
+                    it.Subject == "Test" &&
+                    it.Body == "Msg" &&
+                    it.IsBodyHtml &&
+                    it.BodyEncoding == Encoding.UTF8));
         }
 
         [TestMethod]

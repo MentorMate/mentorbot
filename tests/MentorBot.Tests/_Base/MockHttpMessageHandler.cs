@@ -36,7 +36,10 @@ namespace MentorBot.Tests.Base
             return response;
         }
 
-        public MockHttpMessageHandler Set(string content, string contentType = "application/xml", HttpStatusCode statusCode = HttpStatusCode.OK)
+        public MockHttpMessageHandler Set(
+            string content,
+            string contentType = "application/xml",
+            HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Responses.Add(new Response
             {

@@ -51,7 +51,9 @@ namespace MentorBot.Functions.Connectors.Luis
         /// <inheritdoc/>
         public async Task<Utterance[]> GetExamplesAsync()
         {
-            var url = new UriBuilder($"https://{_options.LuisApiHostName}/luis/api/v2.0/apps/{_options.LuisApiAppId}/versions/0.1_upgraded/examples");
+            var url = new UriBuilder(
+                $"https://{_options.LuisApiHostName}/luis/api/v2.0/apps/{_options.LuisApiAppId}/versions/0.1_upgraded/examples");
+
             var queryParams = HttpUtility.ParseQueryString(string.Empty);
             queryParams["skip"] = "0";
             queryParams["take"] = "100";

@@ -10,6 +10,24 @@
     {
       "filename": "{.cspell.json,*.svg}",
       "enabled": false
+    },
+    {
+      "filename": "*.md",
+      "words": [
+        "dpkg",
+        "functionapp",
+        "westeurope",
+        "appsettings",
+        "HADOLINT"
+      ]
+    },
+    {
+      "filename": "Dockerfile",
+      "words": [
+        "WORKDIR",
+        "wwwroot",
+        "aspnet"
+      ]
     }
   ],
   "ignorePaths": [

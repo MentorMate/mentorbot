@@ -60,14 +60,18 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public async Task<CognitiveTextAnalysisResult> GetCognitiveTextAnalysisResultAsync(TextDeconstructionInformation definition, string email)
+        public async Task<CognitiveTextAnalysisResult> GetCognitiveTextAnalysisResultAsync(
+            TextDeconstructionInformation definition,
+            string email)
         {
             var plugins = await GetPluginsAsync();
             foreach (var processor in _commandProcessors)
             {
                 if (processor.Subject.Equals(definition.Subject, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var plugin = plugins.FirstOrDefault(it => it.ProcessorTypeName.Equals(processor.Name, StringComparison.InvariantCulture));
+                    var plugin = plugins.FirstOrDefault(
+                        it => it.ProcessorTypeName.Equals(processor.Name, StringComparison.InvariantCulture));
+
                     if (plugin.Enabled)
                     {
                         var accessor = PluginPropertiesAccessor.GetInstance(email, plugin, _storageService);

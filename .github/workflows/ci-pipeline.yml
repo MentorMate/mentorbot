@@ -1,9 +1,11 @@
 name: build
+
 on:
   push:
     branches: [main, release-*]
   pull_request:
     branches: [main, release-*]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,11 +65,13 @@ jobs:
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
       - name: Deploy to azure the API
         env:
-          SCM_DO_BUILD_DURING_DEPLOYMENT: false 
+          SCM_DO_BUILD_DURING_DEPLOYMENT: false
         run: >
           az functionapp deployment source config-zip
           -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot
       - name: Deploy the web app
         run: >
+          # shellcheck disable=SC2016
+
           az storage blob upload-batch
           --account-name mentorbotstorage -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription mentorbot

@@ -1,6 +1,4 @@
-﻿// Copyright (c) 2018. Licensed under the MIT License. See https://www.opensource.org/licenses/mit-license.php for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -104,7 +102,8 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<IReadOnlyList<Statistics<T>>> GetStatisticsAsync<T>(string date, string time) =>
             Task.FromResult(QueryWhenConnected<Statistics<T>>(
-                $"SELECT TOP 1000 * FROM {StatisticsDocumentName} s WHERE s.Data == '{date}' AND s.Time == '{time}'", StatisticsDocumentName));
+                $"SELECT TOP 1000 * FROM {StatisticsDocumentName} s WHERE s.Data == '{date}' AND s.Time == '{time}'",
+                StatisticsDocumentName));
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {
@@ -113,10 +112,13 @@ namespace MentorBot.Functions.Services
                 return _documentClientService.Get<T>(DatabaseName, documentName).Query(sqlException);
             }
 
-            return new T[0];
+            return Array.Empty<T>();
         }
 
-        private async Task<T> ExecuteIfConnectedAsync<TModel, T>(Func<IDocument<TModel>, Task<T>> action, string documentName, T defaultValue)
+        private async Task<T> ExecuteIfConnectedAsync<TModel, T>(
+            Func<IDocument<TModel>, Task<T>> action,
+            string documentName,
+            T defaultValue)
         {
             if (_documentClientService.IsConnected)
             {

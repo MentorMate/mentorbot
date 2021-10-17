@@ -1,4 +1,4 @@
-name: super linter
+name: Lint Code Base
 on:
   push:
     branches: [main, release-*]
@@ -9,13 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: github/super-linter@v4.2.2
+        with:
+          fetch-depth: 2
+      - uses: github/super-linter@v4.8.1
         env:
-          FILTER_REGEX_EXCLUDE: \bLICENSE$|\blog\.txt$
+          FILTER_REGEX_EXCLUDE: \bLICENSE$
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_SHELL_SHFMT: false
+          DEFAULT_BRANCH: main
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_TYPESCRIPT_STANDARD: false
           VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
           LOG_LEVEL: WARN

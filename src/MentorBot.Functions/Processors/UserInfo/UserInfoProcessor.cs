@@ -97,8 +97,8 @@ namespace MentorBot.Functions.Processors.UserInfo
                     return names[0].Equals(name, StringComparison.InvariantCultureIgnoreCase);
                 case 2:
                     return name.Equals(string.Concat(names[0], " ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
-                           name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
-                           name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase);
+                        name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase);
                 default:
                     return false;
             }

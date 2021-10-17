@@ -1,4 +1,4 @@
-﻿// cSpell:ignore AAAAB
+﻿// cSpell:ignore AAAAB, Jhon, Petar
 using System.Diagnostics.CodeAnalysis;
 
 using MentorBot.Functions.Models.Domains.Plugins;
