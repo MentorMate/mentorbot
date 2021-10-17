@@ -16,6 +16,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: \bLICENSE$
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
+          VALIDATE_YAML: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_TYPESCRIPT_STANDARD: false

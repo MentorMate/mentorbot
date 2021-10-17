@@ -3,7 +3,6 @@
 [![build](https://github.com/MentorMate/mentorbot/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/ci-pipeline.yml)
 [![GitHub Super-Linter](https://github.com/MentorMate/mentorbot/actions/workflows/linter.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/linter.yml)
 [![spell check](https://github.com/MentorMate/mentorbot/actions/workflows/spell-check.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/spell-check.yml)
-[![codeql](https://github.com/MentorMate/mentorbot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/MentorMate/mentorbot/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/MentorMate/mentorbot/branch/main/graph/badge.svg?token=e7x4iMuLTj)](https://codecov.io/gh/MentorMate/mentorbot)
 [![dotnet](https://img.shields.io/badge/dotnet-v6.0-blue)](https://dotnet.microsoft.com/download/dotnet/6.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
