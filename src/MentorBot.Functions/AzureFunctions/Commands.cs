@@ -53,6 +53,7 @@ namespace MentorBot.Functions
 
             var excludes = result.PropertiesAccessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
             var groups = result.PropertiesAccessor.GetPluginPropertyGroup(TimesheetsProperties.NotificationsGroup);
+            var today = GetLocalDateTime(context).Date;
             foreach (var group in groups)
             {
                 var email = group.GetValue<string>(TimesheetsProperties.Email);
@@ -60,7 +61,7 @@ namespace MentorBot.Functions
                 var filterOutEmail = group.GetValue<bool>(TimesheetsProperties.DoNotNotifyManager);
 
                 await processor.NotifyAsync(
-                    Contract.LocalDateTime.Date,
+                    today,
                     TimesheetStates.Unsubmitted,
                     email,
                     excludes,
@@ -82,7 +83,7 @@ namespace MentorBot.Functions
             Contract.Ensures(myTimer != null, "Timer is not instanciated");
 
             var timesheetService = context.Get<ITimesheetService>();
-            var now = Contract.LocalDateTime;
+            var now = GetLocalDateTime(context);
             var dateTimeMinutes = (now.Minute / 10) * 10;
             var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
 
@@ -124,5 +125,10 @@ namespace MentorBot.Functions
 
             await storageService.AddOrUpdateUserAsync(user);
         }
+
+        private static DateTime GetLocalDateTime(FunctionContext context) =>
+            TimeZoneInfo.ConvertTime(
+                context.Get<Func<DateTime>>()(),
+                context.Get<Func<TimeZoneInfo>>()());
     }
 }
