@@ -43,7 +43,8 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public void OpenAirProcessorSubjectShoudBeTimesheets()
         {
-            Assert.AreEqual(_processor.Subject, "Timesheets");
+            Assert.AreEqual("Timesheets", _processor.Subject);
+            Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.OpenAirProcessor", _processor.Name);
         }
 
 #pragma warning disable CS4014
@@ -60,6 +61,20 @@ namespace MentorBot.Tests.Business.Processors
             var result = await _processor.ProcessCommandAsync(info, CreateEvent("a@b.c"), null, accessor) as ChatEventResult;
 
             Assert.AreEqual("Provide a state of the time sheets, like unsubmitted or unapproved!", result.Text);
+        }
+
+        [TestMethod]
+        public async Task GetTimesheetsAsyncShouldReturnFromOpenAir()
+        {
+            var dateTime = DateTime.Now;
+            var customers = new[] { "Test Customer" };
+
+            // Act
+            await _processor.GetTimesheetsAsync(dateTime, TimesheetStates.Unsubmitted, "a@b.c", true, customers);
+
+            await _connector
+                .Received()
+                .GetUnsubmittedTimesheetsAsync(dateTime, dateTime.Date, TimesheetStates.Unsubmitted, "a@b.c", true, TimesheetsProperties.UserMaxHours, customers);
         }
 
         [TestMethod]
@@ -157,6 +172,37 @@ namespace MentorBot.Tests.Business.Processors
                 .AddAddressesAsync(Arg.Is<IReadOnlyList<GoogleAddress>>(arr => arr[0].SpaceName == "space/B"));
             _mailService.Received()
                 .SendMailAsync("Users not notified", "All users with unsubmitted timesheets are notified! Total of 2.<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>Jhon</b><br/><b>ElA</b>", "a@b.c");
+        }
+
+        [TestMethod]
+        public async Task SendTimesheetNotificationsToUsersShouldSendAllSubmitted()
+        {
+            var responder = Substitute.For<IHangoutsChatConnector>();
+            var address = new GoogleChatAddress("space/B", "MentorBot", null, "A", "Jhon");
+            var responses = new[]
+            {
+                "<b>If you're reading this, probably MentorBot has encountered internal server error or everybody submitted their timesheets on time. The second one Is highly unlikely, so please review the log.</b>",
+                "<b>I spent 2 hours looking for unsubmitted timesheets and I couldn't find any! How should I log this time?</b>",
+                "<b>It must be the end of the world, because everyone submited their timesheet on time!</b>",
+            };
+
+            // Act
+            await _processor.SendTimesheetNotificationsToUsersAsync(
+                Array.Empty<Timesheet>(),
+                "a@b.c",
+                null,
+                false,
+                false,
+                TimesheetStates.Unsubmitted,
+                address,
+                responder);
+
+            // Test
+            responder.Received()
+                .SendMessageAsync(
+                    null,
+                    Arg.Is<GoogleChatAddress>(it => it.Space.Name == "space/B"),
+                    Arg.Is<Card[]>(cards => Array.IndexOf(responses, cards[0].Sections[0].Widgets[0].TextParagraph.Text) > -1));
         }
 
 #pragma warning restore CS4014

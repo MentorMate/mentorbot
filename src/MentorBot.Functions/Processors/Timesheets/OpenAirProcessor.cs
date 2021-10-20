@@ -156,7 +156,9 @@ namespace MentorBot.Functions.Processors.Timesheets
             var notifiedUserList = new List<string>();
             if (filteredTimesheet.Length == 0)
             {
-                text = OpenAirText.GetText(state, OpenAirTextTypes.AllAreDone);
+                var responses = OpenAirText.GetText(state, OpenAirTextTypes.AllAreDone).Split('|', StringSplitOptions.RemoveEmptyEntries);
+                var rand = new Random();
+                text = responses[rand.Next(0, responses.Length - 1)];
             }
             else if (notify && filteredTimesheet.Length > 0)
             {

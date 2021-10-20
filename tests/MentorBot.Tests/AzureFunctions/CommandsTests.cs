@@ -49,10 +49,13 @@ namespace MentorBot.Tests.AzureFunctions
             var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
             var deconstructionInformation = new TextDeconstructionInformation(null, null);
             var analysisResult = new CognitiveTextAnalysisResult(deconstructionInformation, null, propertiesAccessor);
+            var dateTime = DateTime.Now;
             var context = MockFunction.GetContext(
                 new ServiceDescriptor(typeof(ITimesheetProcessor), timesheetProcessor),
                 new ServiceDescriptor(typeof(ICognitiveService), cognitiveService),
-                new ServiceDescriptor(typeof(IHangoutsChatConnector), hangoutsChatConnector));
+                new ServiceDescriptor(typeof(IHangoutsChatConnector), hangoutsChatConnector),
+                new ServiceDescriptor(typeof(Func<DateTime>), () => dateTime),
+                new ServiceDescriptor(typeof(Func<TimeZoneInfo>), () => TimeZoneInfo.Local));
 
             cognitiveService.GetCognitiveTextAnalysisResultAsync(null, null).ReturnsForAnyArgs(analysisResult);
             propertiesAccessor
@@ -92,7 +95,7 @@ namespace MentorBot.Tests.AzureFunctions
             await Commands.TimesheetsReminderAsync(new TimerInfo(), context);
 
             timesheetProcessor.Received().NotifyAsync(
-                DateTime.Today,
+                dateTime.Date,
                 TimesheetStates.Unsubmitted,
                 "test@domain.com",
                 Arg.Is<string[]>(data => data[0] == "A" && data[1] == "B"),
@@ -112,7 +115,9 @@ namespace MentorBot.Tests.AzureFunctions
             var dateTimeMinutes = (now.Minute / 10) * 10;
             var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
             var context = MockFunction.GetContext(
-                new ServiceDescriptor(typeof(ITimesheetService), timesheetService));
+                new ServiceDescriptor(typeof(ITimesheetService), timesheetService),
+                new ServiceDescriptor(typeof(Func<DateTime>), () => dateTime),
+                new ServiceDescriptor(typeof(Func<TimeZoneInfo>), () => TimeZoneInfo.Local));
 
             await Commands.ExecuteTimesheetsReminderAsync(new TimerInfo(), context);
 
