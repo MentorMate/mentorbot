@@ -36,7 +36,7 @@ jobs:
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
       - name: Publish dotnet
-        run: dotnet publish --no-restore -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
+        run: dotnet publish -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
       - name: npm package install
         run: npm install --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Publish angular
@@ -64,14 +64,12 @@ jobs:
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
       - name: Deploy to azure the API
-        env:
-          SCM_DO_BUILD_DURING_DEPLOYMENT: false
         run: >
           az functionapp deployment source config-zip
-          -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot
+          -n mentorbot-app -g mentorbot --src app.zip --subscription ${{ secrets.AZ_TENANT }}
       - name: Deploy the web app
         run: >
           # shellcheck disable=SC2016
 
-          az storage blob upload-batch
-          --account-name mentorbotstorage -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription mentorbot
+          az storage blob upload-batch --account-name mentorbotstorage
+          -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_TENANT }}

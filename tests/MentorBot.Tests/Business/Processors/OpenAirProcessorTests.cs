@@ -183,7 +183,7 @@ namespace MentorBot.Tests.Business.Processors
             {
                 "<b>If you're reading this, probably MentorBot has encountered internal server error or everybody submitted their timesheets on time. The second one Is highly unlikely, so please review the log.</b>",
                 "<b>I spent 2 hours looking for unsubmitted timesheets and I couldn't find any! How should I log this time?</b>",
-                "<b>It must be the end of the world, because everyone submited their timesheet on time!</b>",
+                "<b>It must be the end of the world, because everyone submitted their timesheet on time!</b>",
             };
 
             // Act
