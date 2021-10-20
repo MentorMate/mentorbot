@@ -66,10 +66,10 @@ jobs:
       - name: Deploy to azure the API
         run: >
           az functionapp deployment source config-zip
-          -n mentorbot-app -g mentorbot --src app.zip --subscription ${{ secrets.AZ_TENANT }}
+          -n mentorbot-app -g mentorbot --src app.zip --subscription mentorbot
       - name: Deploy the web app
         run: >
           # shellcheck disable=SC2016
 
           az storage blob upload-batch --account-name mentorbotstorage
-          -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_TENANT }}
+          -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription mentorbot
