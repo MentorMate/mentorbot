@@ -41,70 +41,21 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
-        public async Task TimesheetsReminderAsyncShouldCallTimesheetNotify()
+        public async Task ExecuteTimesheetsReminderAsyncShouldWotkOnDivisionByFive()
         {
-            var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
-            var cognitiveService = Substitute.For<ICognitiveService>();
-            var hangoutsChatConnector = Substitute.For<IHangoutsChatConnector>();
-            var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
-            var deconstructionInformation = new TextDeconstructionInformation(null, null);
-            var analysisResult = new CognitiveTextAnalysisResult(deconstructionInformation, null, propertiesAccessor);
-            var dateTime = DateTime.Now;
+            var timesheetService = Substitute.For<ITimesheetService>();
+            var dateTime = new DateTime(2021, 12, 1, 12, 16, 5, 123, DateTimeKind.Local);
             var context = MockFunction.GetContext(
-                new ServiceDescriptor(typeof(ITimesheetProcessor), timesheetProcessor),
-                new ServiceDescriptor(typeof(ICognitiveService), cognitiveService),
-                new ServiceDescriptor(typeof(IHangoutsChatConnector), hangoutsChatConnector),
+                new ServiceDescriptor(typeof(ITimesheetService), timesheetService),
                 new ServiceDescriptor(typeof(Func<DateTime>), () => dateTime),
                 new ServiceDescriptor(typeof(Func<TimeZoneInfo>), () => TimeZoneInfo.Local));
 
-            cognitiveService.GetCognitiveTextAnalysisResultAsync(null, null).ReturnsForAnyArgs(analysisResult);
-            propertiesAccessor
-                .GetAllPluginPropertyValues<string>("OpenAir.Filters.Customer")
-                .Returns(
-                    new[]
-                    {
-                        "A",
-                        "B"
-                    });
+            await Commands.ExecuteTimesheetsReminderAsync(new TimerInfo(), context);
 
-            propertiesAccessor
-                .GetPluginPropertyGroup("OpenAir.Notifications")
-                .Returns(
-                    new[]
-                    {
-                        new []
-                        {
-                            new PluginPropertyValue
-                            {
-                                Key = "OpenAir.Notifications.Email",
-                                Value = "test@domain.com"
-                            },
-                            new PluginPropertyValue
-                            {
-                                Key = "OpenAir.Notifications.NotifyByEmail",
-                                Value = false
-                            },
-                            new PluginPropertyValue
-                            {
-                                Key = "OpenAir.Notifications.DoNotNotifyManager",
-                                Value = false
-                            },
-                        }
-                    });
-
-            await Commands.TimesheetsReminderAsync(new TimerInfo(), context);
-
-            timesheetProcessor.Received().NotifyAsync(
-                dateTime.Date,
-                TimesheetStates.Unsubmitted,
-                "test@domain.com",
-                Arg.Is<string[]>(data => data[0] == "A" && data[1] == "B"),
-                null,
-                true,
-                false,
-                false,
-                null,
-                hangoutsChatConnector);
+            timesheetService
+                .Received()
+                .SendScheduledTimesheetNotificationsAsync(
+                    new DateTime(2021, 12, 1, 12, 15, 0, 0, DateTimeKind.Local));
         }
 
         [TestMethod]

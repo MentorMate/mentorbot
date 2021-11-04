@@ -6,9 +6,6 @@
         /// <summary>The processor name.</summary>
         public const string ProcessorSubjectName = nameof(Timesheets);
 
-        /// <summary>The notifications group key.</summary>
-        public const string NotificationsGroup = "OpenAir.Notifications";
-
         /// <summary>The auto notifications group key.</summary>
         public const string AutoNotificationsGroup = "OpenAir.AutoNotifications";
 
@@ -35,15 +32,6 @@
 
         /// <summary>The automatic notifications should notify users.</summary>
         public const string AutoNotificationsNotify = "OpenAir.AutoNotifications.Notify";
-
-        /// <summary>The email key.</summary>
-        public const string Email = "OpenAir.Notifications.Email";
-
-        /// <summary>The notify by email key.</summary>
-        public const string NotifyByEmail = "OpenAir.Notifications.NotifyByEmail";
-
-        /// <summary>Filter out the manager when sending notifications.</summary>
-        public const string DoNotNotifyManager = "OpenAir.Notifications.DoNotNotifyManager";
 
         /// <summary>The filter by customer key.</summary>
         public const string FilterByCustomer = "OpenAir.Filters.Customer";

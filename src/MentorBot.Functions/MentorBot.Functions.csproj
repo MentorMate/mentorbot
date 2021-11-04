@@ -16,7 +16,7 @@
   </PropertyGroup>
   <ItemGroup Label="NuGet Packages">
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.2" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.2.0-preview.1" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.2.0" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.1.0" />
     <PackageReference Include="CoreHelpers.WindowsAzure.Storage.Table" Version="3.0.112" />

@@ -131,34 +131,6 @@ namespace MentorBot.Functions.App
                     {
                         new PluginPropertyGroup
                         {
-                            Name = "Timesheets direct message notifications at 18 and 19 o'clock",
-                            UniqueName = TimesheetsProperties.NotificationsGroup,
-                            Multi = true,
-                            ObjectType = PropertyObjectTypes.Settings,
-                            Properties = new[]
-                            {
-                                new PluginProperty
-                                {
-                                    Name = "Manager Email",
-                                    UniqueName = TimesheetsProperties.Email,
-                                    ValueType = PropertyValueTypes.String,
-                                },
-                                new PluginProperty
-                                {
-                                    Name = "Notify By Email",
-                                    UniqueName = TimesheetsProperties.NotifyByEmail,
-                                    ValueType = PropertyValueTypes.Boolean,
-                                },
-                                new PluginProperty
-                                {
-                                    Name = "Don't Notify Manager",
-                                    UniqueName = TimesheetsProperties.DoNotNotifyManager,
-                                    ValueType = PropertyValueTypes.Boolean,
-                                },
-                            },
-                        },
-                        new PluginPropertyGroup
-                        {
                             Name = "OpenAir Filter Customers",
                             UniqueName = "OpenAir.Filters.Customers",
                             Multi = true,
@@ -201,7 +173,7 @@ namespace MentorBot.Functions.App
                                 {
                                     Name = "Start Hour",
                                     DescriptionHtml =
-                                        "Job run every <b>30 min</b>." +
+                                        "Job run every <b>15 min</b>." +
                                         " '16 Fri' 16:00 at friday, '16:30 FRI' is 16:30 at Fri, '18 *' is every day at 18," +
                                         " '1,2 MON,THU,EOM' etc.",
                                     UniqueName = TimesheetsProperties.AutoNotificationsCron,
@@ -217,7 +189,7 @@ namespace MentorBot.Functions.App
                                 new PluginProperty
                                 {
                                     Name = "Space (comma separated list)",
-                                    DescriptionHtml = "room ids taken from google chat url, only id, ex: AAAAB4BP1EQ",
+                                    DescriptionHtml = "room ids taken from google chat url, only id (optional), ex: AAAAB4BP1EQ",
                                     UniqueName = TimesheetsProperties.AutoNotificationsSpaces,
                                     ValueType = PropertyValueTypes.String,
                                 },

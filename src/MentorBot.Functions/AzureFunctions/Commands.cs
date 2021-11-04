@@ -7,12 +7,9 @@ using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App.Extensions;
-using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
-using MentorBot.Functions.Models.TextAnalytics;
-using MentorBot.Functions.Processors.Timesheets;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -36,55 +33,17 @@ namespace MentorBot.Functions
             await openAirConnector.SyncUsersAsync();
         }
 
-        /// <summary>A sync users command.</summary>
-        [Function("timesheets-reminder")]
-        public static async Task TimesheetsReminderAsync(
-            [TimerTrigger("0 */60 18-19 * * Fri")] TimerInfo myTimer,
-            FunctionContext context)
-        {
-            Contract.Ensures(myTimer != null, "Timer is not instanciated");
-
-            var cognitiveService = context.Get<ICognitiveService>();
-            var connector = context.Get<IHangoutsChatConnector>();
-            var processor = context.Get<ITimesheetProcessor>();
-
-            var result = await cognitiveService.GetCognitiveTextAnalysisResultAsync(
-                new TextDeconstructionInformation(string.Empty, "Timesheets"), null);
-
-            var excludes = result.PropertiesAccessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
-            var groups = result.PropertiesAccessor.GetPluginPropertyGroup(TimesheetsProperties.NotificationsGroup);
-            var today = GetLocalDateTime(context).Date;
-            foreach (var group in groups)
-            {
-                var email = group.GetValue<string>(TimesheetsProperties.Email);
-                var notify = group.GetValue<bool>(TimesheetsProperties.NotifyByEmail);
-                var filterOutEmail = group.GetValue<bool>(TimesheetsProperties.DoNotNotifyManager);
-
-                await processor.NotifyAsync(
-                    today,
-                    TimesheetStates.Unsubmitted,
-                    email,
-                    excludes,
-                    null,
-                    true,
-                    notify,
-                    filterOutEmail,
-                    null,
-                    connector);
-            }
-        }
-
         /// <summary>Execute a timesheet reminder.</summary>
         [Function("timesheets-reminder-configurable")]
         public static async Task ExecuteTimesheetsReminderAsync(
-            [TimerTrigger("0 */30 * * * 1-5")] TimerInfo myTimer,
+            [TimerTrigger("0 */15 * * * 1-5")] TimerInfo myTimer,
             FunctionContext context)
         {
             Contract.Ensures(myTimer != null, "Timer is not instanciated");
 
             var timesheetService = context.Get<ITimesheetService>();
             var now = GetLocalDateTime(context);
-            var dateTimeMinutes = (now.Minute / 10) * 10;
+            var dateTimeMinutes = now.Minute - (now.Minute % 5);
             var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
 
             await timesheetService.SendScheduledTimesheetNotificationsAsync(dateTime);

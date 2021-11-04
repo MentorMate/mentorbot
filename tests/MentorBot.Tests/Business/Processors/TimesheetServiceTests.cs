@@ -109,6 +109,74 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
+        public async Task SendScheduledTimesheetShouldSendNotificationsOnly()
+        {
+            var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
+            var timesheetProcessor = Substitute.For<ITimesheetProcessor>();
+            var propertiesAccessor = Substitute.For<IPluginPropertiesAccessor>();
+            var deconstructionInformation = new TextDeconstructionInformation(null, null);
+            var analysisResult = new CognitiveTextAnalysisResult(deconstructionInformation, timesheetProcessor, propertiesAccessor);
+            var timesheet = new Timesheet { UserEmail = "u@e.c", UserName = "Jhon Doe", DepartmentName = "Account", ManagerName = "ben@ten.com", Total = 5, UtilizationInHours = 10 };
+            var excludeCustomers = new[] { "C1" };
+            _cognitiveService.GetCognitiveTextAnalysisResultAsync(null, null).ReturnsForAnyArgs(analysisResult);
+
+            propertiesAccessor.GetAllPluginPropertyValues<string>("OpenAir.Filters.Customer").Returns(excludeCustomers);
+            propertiesAccessor
+                .GetPluginPropertyGroup("OpenAir.AutoNotifications")
+                .Returns(
+                    new[]
+                    {
+                        new []
+                        {
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.Spaces",
+                                Value = ""
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.Email",
+                                Value = "a@b.c"
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.ReportName",
+                                Value = "unsubmitted"
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.Cron",
+                                Value = "20 Wed"
+                            },
+                            new PluginPropertyValue
+                            {
+                                Key = "OpenAir.AutoNotifications.Notify",
+                                Value = true
+                            },
+                        }
+                    });
+
+            timesheetProcessor
+                .GetTimesheetsAsync(Arg.Any<DateTime>(), TimesheetStates.Unsubmitted, "a@b.c", true, excludeCustomers)
+                .Returns(new[] { timesheet });
+
+            await _timesheetService.SendScheduledTimesheetNotificationsAsync(date);
+
+            _hangoutsChatConnector.DidNotReceiveWithAnyArgs().GetAddressByName(null);
+            timesheetProcessor
+                .Received()
+                .SendTimesheetNotificationsToUsersAsync(
+                    Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
+                    "a@b.c",
+                    null,
+                    true,
+                    false,
+                    TimesheetStates.Unsubmitted,
+                    null,
+                    _hangoutsChatConnector);
+        }
+
+        [TestMethod]
         public async Task SendScheduledTimesheetShouldStoreStatistics()
         {
             var date = new DateTime(2020, 7, 1, 20, 0, 0, DateTimeKind.Local);
@@ -183,12 +251,14 @@ namespace MentorBot.Tests.Business.Processors
         public void CronCheckShouldAllowMinutesValues()
         {
             var date = new DateTime(2020, 7, 1, 9, 30, 5, DateTimeKind.Local);
+            var date2 = new DateTime(2021, 11, 5, 17, 45, 0, DateTimeKind.Local);
 
             Assert.IsFalse(TimesheetService.CronCheck("9 Wed", date));
             Assert.IsTrue(TimesheetService.CronCheck("9:30 Wed", date));
             Assert.IsTrue(TimesheetService.CronCheck("9,9:30 *", date));
             Assert.IsTrue(TimesheetService.CronCheck("9:00,9:30 *", date));
             Assert.IsFalse(TimesheetService.CronCheck("9:15 *", date));
+            Assert.IsTrue(TimesheetService.CronCheck("17:45 FRI", date2));
         }
 
         [TestMethod]

@@ -76,6 +76,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             var notificationsGroups = result.PropertiesAccessor.GetPluginPropertyGroup(TimesheetsProperties.AutoNotificationsGroup);
             var customerToExcludes = result.PropertiesAccessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
             var timesheets = new Dictionary<string, IReadOnlyList<Timesheet>>();
+            var addresses = new Dictionary<string, GoogleChatAddress>();
             foreach (var group in notificationsGroups)
             {
                 var cron = group.GetValue<string>(TimesheetsProperties.AutoNotificationsCron);
@@ -86,10 +87,29 @@ namespace MentorBot.Functions.Processors.Timesheets
                     var stateName = group.GetValue<string>(TimesheetsProperties.AutoNotificationsReportName);
                     var notify = group.GetValue<bool>(TimesheetsProperties.AutoNotificationsNotify);
                     var state = Enum.Parse<TimesheetStates>(stateName, true);
-                    if (string.IsNullOrEmpty(space) ||
-                        string.IsNullOrEmpty(email) ||
+                    if (string.IsNullOrEmpty(email) ||
                         state == TimesheetStates.None)
                     {
+                        continue;
+                    }
+
+                    var key = string.Concat(stateName, "_", email);
+                    if (string.IsNullOrEmpty(space))
+                    {
+                        if (notify)
+                        {
+                            await SendNotificationsAsync(
+                                timesheets,
+                                key,
+                                email,
+                                notify: true,
+                                state,
+                                scheduleDate,
+                                address: null,
+                                customerToExcludes,
+                                processor);
+                        }
+
                         continue;
                     }
 
@@ -98,35 +118,62 @@ namespace MentorBot.Functions.Processors.Timesheets
                         ? sp
                         : ("spaces/" + sp));
 
-                    var key = string.Concat(stateName, "_", email);
                     foreach (var spaceName in spaces)
                     {
-                        var address = _hangoutsChatConnector.GetAddressByName(spaceName);
+                        if (!addresses.TryGetValue(spaceName, out var address))
+                        {
+                            address = _hangoutsChatConnector.GetAddressByName(spaceName);
+                            addresses.Add(spaceName, address);
+                        }
+
                         if (address == null)
                         {
                             continue;
                         }
 
-                        if (!timesheets.TryGetValue(key, out var timesheetValues))
-                        {
-                            timesheetValues = await processor.GetTimesheetsAsync(scheduleDate, state, email, true, customerToExcludes);
-                            timesheets.Add(key, timesheetValues);
-                        }
-
-                        await processor.SendTimesheetNotificationsToUsersAsync(
-                            timesheetValues,
+                        await SendNotificationsAsync(
+                            timesheets,
+                            key,
                             email,
-                            department: null,
-                            notify: notify,
-                            notifyByEmail: false,
+                            notify,
                             state,
+                            scheduleDate,
                             address,
-                            _hangoutsChatConnector);
+                            customerToExcludes,
+                            processor);
                     }
                 }
             }
 
             await SaveGlobalStatisticsAsync(scheduleDate, customerToExcludes, result.PropertiesAccessor, processor);
+        }
+
+        private async Task SendNotificationsAsync(
+            Dictionary<string, IReadOnlyList<Timesheet>> timesheets,
+            string key,
+            string email,
+            bool notify,
+            TimesheetStates state,
+            DateTime scheduleDate,
+            GoogleChatAddress address,
+            IReadOnlyList<string> customerToExcludes,
+            ITimesheetProcessor processor)
+        {
+            if (!timesheets.TryGetValue(key, out var timesheetValues))
+            {
+                timesheetValues = await processor.GetTimesheetsAsync(scheduleDate, state, email, true, customerToExcludes);
+                timesheets.Add(key, timesheetValues);
+            }
+
+            await processor.SendTimesheetNotificationsToUsersAsync(
+                timesheetValues,
+                email,
+                department: null,
+                notify: notify,
+                notifyByEmail: false,
+                state,
+                address,
+                _hangoutsChatConnector);
         }
 
         private async Task SaveGlobalStatisticsAsync(

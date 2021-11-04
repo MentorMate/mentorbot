@@ -7,8 +7,11 @@ on:
     branches: [main, release-*]
 
 jobs:
-  build:
+  dotnet-build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      AZURE_FUNCTIONAPP_NAME: mentorbot
+      AZURE_FUNCTIONAPP_PACKAGE_PATH: './src/MentorBot.Functions'
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDK 3
@@ -33,10 +36,24 @@ jobs:
         with:
           name: dotnet-results
           path: TestResults
-        # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
       - name: Publish dotnet
-        run: dotnet publish -c Release src/MentorBot.Functions/MentorBot.Functions.csproj -o dist/
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+  ng-build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: npm package install
         run: npm install --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Publish angular
@@ -56,20 +73,11 @@ jobs:
           -t ${{ secrets.CODECOV_TOKEN }}
           -f TestResults/coverage.opencover.xml
           -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov
-      - name: Archive published app
-        uses: papeloto/action-zip@v1
-        with:
-          files: dist/
-          dest: app.zip
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
-      - name: Deploy to azure the API
-        run: >
-          az functionapp deployment source config-zip
-          -n mentorbot-app -g mentorbot --src app.zip --subscription ${{ secrets.AZ_TENANT }}
       - name: Deploy the web app
         run: >
           # shellcheck disable=SC2016
 
-          az storage blob upload-batch --account-name mentorbotstorage
-          -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_TENANT }}
+          az storage blob upload-batch --account-name {{ secrets.AZ_STORAGE }}
+          -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_SUB }}

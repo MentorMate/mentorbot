@@ -7,5 +7,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.0.1" />
     <PackageReference Include="Willezone.Azure.WebJobs.Extensions.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ApplicationInsights" Version="1.0.0-preview4" />
   </ItemGroup>
 </Project>
