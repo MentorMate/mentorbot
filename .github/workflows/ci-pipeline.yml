@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AZURE_FUNCTIONAPP_NAME: mentorbot
-      AZURE_FUNCTIONAPP_PACKAGE_PATH: './src/MentorBot.Functions'
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDK 3
@@ -39,16 +38,13 @@ jobs:
         if: ${{ always() }}
       - name: Publish dotnet
         shell: bash
-        run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
+        run: dotnet publish src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: 'dist/'
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
   ng-build-and-deploy:
     runs-on: ubuntu-latest
@@ -79,5 +75,5 @@ jobs:
         run: >
           # shellcheck disable=SC2016
 
-          az storage blob upload-batch --account-name {{ secrets.AZ_STORAGE }}
+          az storage blob upload-batch --account-name ${{ secrets.AZ_STORAGE }}
           -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_SUB }}

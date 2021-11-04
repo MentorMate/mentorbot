@@ -53,6 +53,7 @@
     "**/launchSettings.json"
   ],
   "words": [
+    "cref",
     "msbuild",
     "anymore",
     "analyzer",
