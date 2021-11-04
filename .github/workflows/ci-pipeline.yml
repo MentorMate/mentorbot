@@ -36,9 +36,9 @@ jobs:
           name: dotnet-results
           path: TestResults
         if: ${{ always() }}
-      - name: Publish dotnet
+      - name: Build for deploy
         shell: bash
-        run: dotnet publish src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
+        run: dotnet build src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
