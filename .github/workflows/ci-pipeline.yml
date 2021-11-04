@@ -45,6 +45,8 @@ jobs:
         with:
           files: dist/
           dest: app.zip
+      - name: Azure Login
+        run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
       - name: Deploy to azure the API
         run: >
           az functionapp deployment source config-zip -n ${{ env.AZURE_FUNCTIONAPP_NAME }}
