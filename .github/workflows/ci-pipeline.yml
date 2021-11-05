@@ -41,10 +41,13 @@ jobs:
         shell: bash
         run: dotnet publish src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
       - name: Archive published app
-        uses: papeloto/action-zip@v1
+        uses: montudor/action-zip@v1
         with:
-          files: dist/
-          dest: app.zip
+          args: zip -qq -r app.zip dist
+      - uses: actions/upload-artifact@v2
+        with:
+          name: mentorbot-api-package
+          path: app.zip
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
       - name: Deploy to azure the API
