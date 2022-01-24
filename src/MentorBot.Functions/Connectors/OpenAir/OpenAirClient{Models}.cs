@@ -47,6 +47,12 @@ namespace MentorBot.Functions.Connectors.OpenAir
         private static bool? ParseStringToBool(string value) =>
             value == null ? (bool?)null : value == "1";
 
+        private static DateTime? ParseStringToDateTime(string value, string format = "yyyyy-MM-dd") =>
+            string.IsNullOrEmpty(value) ? null : DateTime.ParseExact(value, format, CultureInfo.InvariantCulture);
+
+        private static string ParseDateTimeToString(DateTime value, string format = "yyyyy-MM-dd") =>
+            value.ToString(format, CultureInfo.InvariantCulture);
+
         /// <summary>The open air request model.</summary>
         [Serializable]
         [XmlRoot("request", Namespace = "")]
@@ -273,6 +279,10 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlIgnore]
             public bool? Active { get; set; }
 
+            /// <summary>Gets or sets the user start date in the organization.</summary>
+            [XmlIgnore]
+            public DateTime? StartDate { get; set; }
+
             /// <summary>Gets or sets the identifier.</summary>
             [XmlElement("id")]
             public string IdAsText
@@ -287,6 +297,14 @@ namespace MentorBot.Functions.Connectors.OpenAir
             {
                 get => Active.HasValue ? ParseBoolToString(Active.Value) : null;
                 set => Active = ParseStringToBool(value);
+            }
+
+            /// <summary>Gets or sets the start date as text.</summary>
+            [XmlElement("usr_start_date__c")]
+            public string StartDateAsText
+            {
+                get => StartDate.HasValue ? ParseDateTimeToString(StartDate.Value) : null;
+                set => StartDate = ParseStringToDateTime(value);
             }
 
             /// <summary>Gets or sets the department identifier as text.</summary>

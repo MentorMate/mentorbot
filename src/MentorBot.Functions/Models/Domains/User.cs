@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
@@ -38,6 +39,9 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary>Gets or sets the user role.</summary>
         public int Role { get; set; }
+
+        /// <summary>Gets or sets the user start date.</summary>
+        public DateTime? StartDate { get; set; }
 
         /// <summary>Gets or sets the user manager.</summary>
         [StoreAsJsonObject]

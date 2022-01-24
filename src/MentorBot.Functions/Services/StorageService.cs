@@ -39,7 +39,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllActiveUsersAsync() =>
             Task.FromResult(
-                QueryWhenConnected<User>("SELECT TOP 1000 * FROM users u WHERE u.Active == 1", UserDocumentName));
+                QueryWhenConnected<User>("SELECT TOP 2000 * FROM users u WHERE u.Active == 1", UserDocumentName));
 
         /// <inheritdoc/>
         public Task<User> GetUserByEmailAsync(string email) =>

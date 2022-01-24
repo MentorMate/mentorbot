@@ -157,12 +157,12 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllActiveUsersAsync() =>
-            _tableClientService.QueryAsync<User>(2000)
+            _tableClientService.QueryAsync<User>(3000)
                 .ContinueWith(task => (IReadOnlyList<User>)task.Result.Where(user => user.Active).ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
-            _tableClientService.QueryAsync<User>(2000)
+            _tableClientService.QueryAsync<User>(3000)
                 .ContinueWith(task => (IReadOnlyList<User>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>

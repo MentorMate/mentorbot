@@ -90,7 +90,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                         Limit = $"{skip},{take}",
                         Return = new ReadReturn
                         {
-                            Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid />"
+                            Content = "<id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /><usr_start_date__c/>"
                         }
                     },
                     result => result.User));
