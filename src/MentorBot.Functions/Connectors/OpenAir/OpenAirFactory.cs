@@ -25,9 +25,10 @@ namespace MentorBot.Functions.Connectors.OpenAir
                 Name = user.Name,
                 Email = user.Address.FirstOrDefault()?.Email,
                 Active = user.Active ?? false,
+                StartDate = user.StartDate,
                 Department = department,
                 Manager = manager,
-                Customers = customers
+                Customers = customers,
             };
 
         /// <summary>Creates a <see cref="UserReference"/> model.</summary>

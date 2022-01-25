@@ -62,7 +62,7 @@ namespace MentorBot.Tests.Business.Services
         public async Task StorageService_GetUsersByIdList()
         {
             var model = new User { OpenAirUserId = 10 };
-            SetDocumentQuery("mentorbot", "users", "SELECT TOP 1000 * FROM users u WHERE u.Active == 1", model);
+            SetDocumentQuery("mentorbot", "users", "SELECT TOP 2000 * FROM users u WHERE u.Active == 1", model);
 
             var result = await _service.GetAllActiveUsersAsync();
 
@@ -123,8 +123,8 @@ namespace MentorBot.Tests.Business.Services
                     new Plugin { Id = "3",  Key = "K3" },
                 });
 
-            document.Received().AddManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 2));
-            document.Received().UpdateManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 1));
+            document.Received().AddManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 2)).Wait();
+            document.Received().UpdateManyAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 1)).Wait();
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace MentorBot.Tests.Business.Services
 
             await _service.SaveMessageAsync(message);
 
-            document.Received().AddOrUpdateAsync(message);
+            document.Received().AddOrUpdateAsync(message).Wait();
         }
 
         [TestMethod]

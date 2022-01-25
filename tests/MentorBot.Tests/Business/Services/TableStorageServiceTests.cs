@@ -181,7 +181,7 @@ namespace MentorBot.Tests.Business.Services
         {
             var users = new List<User>();
 
-            _tableClientService.MergeOrInsertAsync<User>(Arg.Do<User>(u => users.Add(u)));
+            _tableClientService.MergeOrInsertAsync<User>(Arg.Do<User>(u => users.Add(u))).Wait();
 
             var result = await _storageService.AddUsersAsync(_users);
 
@@ -194,14 +194,17 @@ namespace MentorBot.Tests.Business.Services
         [TestMethod]
         public async Task UpdateUsersAsync_Connected_returns_true_and_updates_names_of_users()
         {
-            _tableClientService.MergeAsync<User>(Arg.Do<IEnumerable<User>>(input =>
-            {
-                foreach (var u in input)
-                {
-                    var ind = _users.IndexOf(_users.FirstOrDefault(us => us.OpenAirUserId == u.OpenAirUserId));
-                    _users[ind] = u;
-                }
-            }));
+            _tableClientService
+                .MergeAsync<User>(
+                    Arg.Do<IEnumerable<User>>(input =>
+                    {
+                        foreach (var u in input)
+                        {
+                            var ind = _users.IndexOf(_users.FirstOrDefault(us => us.OpenAirUserId == u.OpenAirUserId));
+                            _users[ind] = u;
+                        }
+                    }))
+                .Wait();
 
             var result = await _storageService.UpdateUsersAsync(new List<User>
             {
@@ -233,7 +236,7 @@ namespace MentorBot.Tests.Business.Services
             var user = new User { Id = "AA", Active = false };
             var user2 = new User { Id = "BB", Active = true };
 
-            _tableClientService.QueryAsync<User>(2000).Returns(new[] { user, user2 }.AsQueryable());
+            _tableClientService.QueryAsync<User>(3000).Returns(new[] { user, user2 }.AsQueryable());
 
             var result = await _storageService.GetAllActiveUsersAsync();
 

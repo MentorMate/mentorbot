@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Castle.Components.DictionaryAdapter;
-
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.OpenAir;
@@ -151,7 +149,7 @@ namespace MentorBot.Tests.Business.Processors
             var user = await client.GetAllUsersAsync();
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /><usr_start_date__c/></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -177,8 +175,10 @@ namespace MentorBot.Tests.Business.Processors
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name></name><total>40.00</total><starts><Date><month>01</month><day>28</day><year>2019</year></Date></starts><notes></notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>30.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>3</userid><name>A</name><total>40.00</total><starts><Date><month>02</month><day>28</day><year>2019</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
+                .Set(CreateTimesheetXmlContent((UserId: 3, new DateOnly(2019, 1, 28), Status: 'S', Hours: 40)))
+                .Set(CreateTimesheetXmlContent(
+                    (UserId: 2, new DateOnly(2019, 2, 28), Status: 'A', Hours: 30),
+                    (UserId: 3, new DateOnly(2019, 2, 28), Status: 'S', Hours: 40)));
 
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
@@ -202,8 +202,13 @@ namespace MentorBot.Tests.Business.Processors
         {
             var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
             var handler = new MockHttpMessageHandler()
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>S</status><userid>3</userid><name></name><total>40.00</total><starts><Date><month>03</month><day>23</day><year>2020</year></Date></starts><notes></notes></Timesheet></Read ></response>")
-                .Set("<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\"><Timesheet><status>A</status><userid>2</userid><name>A</name><total>16.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>1</userid><name>A</name><total>40.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>A</status><userid>4</userid><name>A</name><total>12.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet><Timesheet><status>S</status><userid>3</userid><name>A</name><total>8.00</total><starts><Date><month>03</month><day>30</day><year>2020</year></Date></starts><notes>PTO</notes></Timesheet></Read ></response>");
+                .Set(CreateTimesheetXmlContent(
+                    (UserId: 3, new DateOnly(2020, 03, 23), Status: 'S', Hours: 40)))
+                .Set(CreateTimesheetXmlContent(
+                    (UserId: 2, new DateOnly(2020, 03, 30), Status: 'A', Hours: 16),
+                    (UserId: 1, new DateOnly(2020, 03, 30), Status: 'S', Hours: 40),
+                    (UserId: 4, new DateOnly(2020, 03, 30), Status: 'A', Hours: 12),
+                    (UserId: 3, new DateOnly(2020, 03, 30), Status: 'S', Hours: 8)));
 
             var client = new OpenAirClient(() => handler, options);
             var storageService = Substitute.For<IStorageService>();
@@ -233,6 +238,46 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual(1, timesheets.Count);
             Assert.AreEqual("Test 3", timesheets[0].UserName);
             Assert.AreEqual(8, timesheets[0].Total);
+        }
+
+        [TestMethod]
+        public async Task OpenAirConnector_GetUnsubmittedTimesheetsShouldFilterNotStartedUsersAsync()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var handler = new MockHttpMessageHandler()
+                .Set(CreateTimesheetXmlContent(
+                    (UserId: 1, new DateOnly(2022, 1, 28), Status: 'S', Hours: 40),
+                    (UserId: 6, new DateOnly(2022, 1, 28), Status: 'S', Hours: 8)))
+                .Set(CreateTimesheetXmlContent(
+                    (UserId: 2, new DateOnly(2022, 1, 28), Status: 'A', Hours: 8),
+                    (UserId: 3, new DateOnly(2022, 1, 28), Status: 'A', Hours: 16),
+                    (UserId: 5, new DateOnly(2022, 1, 28), Status: 'A', Hours: 16)));
+
+            var client = new OpenAirClient(() => handler, options);
+            var storageService = Substitute.For<IStorageService>();
+            var connector = new OpenAirConnector(client, storageService);
+            var user1 = CreateUser(1, "Test 1", "Q", "d@e.f");
+            var user2 = CreateUser(2, "Test 2", "Q", "d@e.f");
+            var user3 = CreateUser(3, "Test 3", "Q", "d@e.f", startDate: new DateTime(2022, 1, 27));
+            var user4 = CreateUser(4, "Test 4", "Q", "d@e.f", startDate: new DateTime(2022, 1, 31));
+            var user5 = CreateUser(5, "Test 5", "Q", "d@e.f", startDate: new DateTime(2022, 1, 25));
+            var user6 = CreateUser(6, "Test 6", "Q", "d@e.f", startDate: new DateTime(2022, 1, 27));
+            var date = new DateTime(2022, 1, 28);
+
+            user5.Properties = CreateUserHoursProperty(20);
+            user6.Properties = CreateUserHoursProperty(40);
+            storageService.GetAllActiveUsersAsync().ReturnsForAnyArgs(new[] { user1, user2, user3, user4, user5, user6 });
+
+            // Act
+            var timesheets = await connector.GetUnsubmittedTimesheetsAsync(date, date, TimesheetStates.Unsubmitted, "d@e.f", true, "Hour", null);
+
+            Assert.AreEqual(2, timesheets.Count);
+            Assert.AreEqual("Test 2", timesheets[0].UserName);
+            Assert.AreEqual(40, timesheets[0].UtilizationInHours);
+            Assert.AreEqual(8, timesheets[0].Total);
+            Assert.AreEqual("Test 6", timesheets[1].UserName);
+            Assert.AreEqual(16, timesheets[1].UtilizationInHours);
+            Assert.AreEqual(8, timesheets[1].Total);
         }
 
         [TestMethod]
@@ -405,7 +450,40 @@ namespace MentorBot.Tests.Business.Processors
 
 #pragma warning restore CS4014
 
-        private static User CreateUser(long id, string name, string departmentName, string managerEmail, long departmentId = 1, long managerId = 100, long? departmentOwner = null) =>
+        private static Dictionary<string, Functions.Models.Domains.Plugins.PluginPropertyValue[][]> CreateUserHoursProperty(int hours)
+        {
+            var hourValue = new Functions.Models.Domains.Plugins.PluginPropertyValue
+            {
+                Key = "Hour",
+                Value = hours
+            };
+
+            return new Dictionary<string, Functions.Models.Domains.Plugins.PluginPropertyValue[][]>
+            {
+                { "OpenAir", new [] { new[] { hourValue } } }
+            };
+        }
+
+        private static string CreateXmlResponse<T>(Func<T, string> selector, params T[] args) =>
+            $"<?xml version=\"1.0\" standalone=\"yes\"?><response><Auth status=\"0\"></Auth><Read status=\"0\">{string.Join(string.Empty, args.Select(selector))}</Read></response>";
+
+        private static string CreateTimesheetXmlContent(params (int UserId, DateOnly Date, char Status, int Hours)[] args) =>
+            CreateXmlResponse(CreateTimesheetXml, args);
+
+        private static string CreateTimesheetXml((int UserId, DateOnly Date, char Status, int Hours) data) =>
+            $"<Timesheet><status>{data.Status}</status><userid>{data.UserId}</userid><name></name><total>{data.Hours}</total>" +
+            $"<starts><Date><month>{data.Date.Month}</month><day>{data.Date.Day}</day><year>{data.Date.Year}</year></Date></starts>" +
+            "<notes></notes></Timesheet>";
+
+        private static User CreateUser(
+            long id,
+            string name,
+            string departmentName,
+            string managerEmail,
+            long departmentId = 1,
+            long managerId = 100,
+            long? departmentOwner = null,
+            DateTime? startDate = null) =>
             new User
             {
                 Name = name,
@@ -417,7 +495,8 @@ namespace MentorBot.Tests.Business.Processors
                 },
                 Manager = string.IsNullOrEmpty(managerEmail) ? null : new UserReference { Email = managerEmail, OpenAirUserId = managerId },
                 OpenAirUserId = id,
-                Active = true
+                Active = true,
+                StartDate = startDate,
             };
     }
 }

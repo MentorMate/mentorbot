@@ -20,6 +20,9 @@ namespace MentorBot.Functions.Connectors
     /// <summary>Provider methods connected to OpenAir service endpoints.</summary>
     public sealed class OpenAirConnector : IOpenAirConnector
     {
+        private const int DaysInWeek = 7;
+        private const int WorkDaysInWeek = 5;
+        private const int WorkingHoursInWeek = 40;
         private readonly IOpenAirClient _client;
         private readonly IStorageService _storageService;
 
@@ -40,43 +43,21 @@ namespace MentorBot.Functions.Connectors
             string userPropertyMaxHoursKey,
             IReadOnlyList<string> filterByCustomers)
         {
-            var toweek = date.AddDays(-(double)date.DayOfWeek);
-            var lastWeek = toweek.AddDays(-7);
-            var timesheets = new List<OpenAirClient.Timesheet>();
+            var startOfWeek = date.AddDays(-(double)date.DayOfWeek);
+            var timesheetsData = await GetTimesheetBasicDataAsync(state, date, startOfWeek);
+            var users = await _storageService.GetAllActiveUsersAsync();
             var normalizedCustomerNames = filterByCustomers?.Select(NormalizeValue).ToArray();
             var isEndOfMonthReport = date.Date == today && today.AddDays(1).Day == 1;
-            var dayOfWeekMultiplier = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday
-                ? 5 :
-                (int)today.DayOfWeek;
+            var isTodayWeekend = today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday;
+            var dayOfWeekMultiplier = isTodayWeekend ? WorkDaysInWeek : (int)today.DayOfWeek;
 
-            if (state == TimesheetStates.Unsubmitted)
-            {
-                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "S"));
-                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(toweek, date.AddDays(1), "A"));
-            }
-            else if (state == TimesheetStates.Unapproved)
-            {
-                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, toweek, "A"));
-            }
-
-            var timesheetsData = timesheets
-                .GroupBy(it => it.UserId)
-                .Select(it =>
-                    new TimesheetBasicData(
-                        it.Key.Value,
-                        it.Where(sheet => sheet.StartDate.Date > toweek)
-                            .Where(sheet =>
-                                (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
-                                (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
-                            .Sum(sheet => sheet.Total ?? 0)))
-                .ToArray();
-
-            var users = await _storageService.GetAllActiveUsersAsync();
-
-            // 1. Filter out only users where the sender is line manager.
-            // 2. Filter out customers.
-            // 3. Select timesheet
+            // 1. Filter out user that are not started.
+            // 2. Filter out users by a predefined list of emails
+            // 3. Filter out only users where the sender is line manager.
+            // 4. Filter out customers.
+            // 5. Select timesheet
             var result = users
+                .Where(it => !it.StartDate.HasValue || it.StartDate <= today)
                 .Where(it =>
                     !filterSender ||
                     !senderEmail.Equals(it.Email, StringComparison.InvariantCultureIgnoreCase))
@@ -110,20 +91,34 @@ namespace MentorBot.Functions.Connectors
                 {
                     try
                     {
+                        // Normally how many hours this users should work in week?
+                        var requiredUserHoursPerWeek = user.Properties
+                            .GetAllUserValues<int>(userPropertyMaxHoursKey)
+                            .DefaultIfEmpty(WorkingHoursInWeek)
+                            .First();
+
+                        var requiredDays = WorkDaysInWeek;
+
+                        // If user starts that week, calculate valid dates.
+                        if (user.StartDate.HasValue && user.StartDate.Value >= startOfWeek && user.StartDate.Value <= date)
+                        {
+                            // If date difference + 1. So if we start today (date (today) - startDate (today)) + 1 = 1.
+                            requiredDays = (date.Date - user.StartDate.Value).Days + 1;
+                        }
+                        else if (isEndOfMonthReport)
+                        {
+                            requiredDays = dayOfWeekMultiplier;
+                        }
+
                         return new TimesheetExtendedData(
                             timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId),
                             user,
-                            CalculateRequiredHours(
-                                user.Properties
-                                    .GetAllUserValues<int>(userPropertyMaxHoursKey)
-                                    .DefaultIfEmpty(40).First(),
-                                isEndOfMonthReport,
-                                dayOfWeekMultiplier));
+                            requiredHours: (requiredUserHoursPerWeek / WorkDaysInWeek) * requiredDays);
                     }
                     catch (Exception ex)
                     {
                         Debug.Write(ex.Message);
-                        return new TimesheetExtendedData(null, user, 40);
+                        return new TimesheetExtendedData(null, user, WorkingHoursInWeek);
                     }
                 })
                 .Where(it => it.Timesheet.Total < it.RequiredHours)
@@ -184,7 +179,7 @@ namespace MentorBot.Functions.Connectors
                         storedUser,
                         storedUser.Manager,
                         storedUser.Department,
-                        storedUser.Customers ?? new Customer[0],
+                        storedUser.Customers ?? Array.Empty<Customer>(),
                         user,
                         manager,
                         department,
@@ -206,11 +201,6 @@ namespace MentorBot.Functions.Connectors
             }
         }
 
-        private static int CalculateRequiredHours(int hoursPerWeek, bool isEndOfMonth, int dayOfWeekMultiplier) =>
-            isEndOfMonth ?
-            (hoursPerWeek / 5 * dayOfWeekMultiplier) :
-            hoursPerWeek;
-
         private static bool UserNeedUpdate(
             User storedUser,
             UserReference storedManager,
@@ -221,6 +211,7 @@ namespace MentorBot.Functions.Connectors
             Department department,
             Customer[] openAirCustomers) =>
             storedUser.Active != openAirUser.Active ||
+            storedUser.StartDate != openAirUser.StartDate ||
             storedDep?.OpenAirDepartmentId != openAirUser.DepartmentId ||
             storedDep?.Name != department?.Name ||
             storedDep?.Owner?.OpenAirUserId != department?.Owner?.OpenAirUserId ||
@@ -247,6 +238,36 @@ namespace MentorBot.Functions.Connectors
 
             var names = name.Split(',');
             return names.Length == 1 ? name : $"{names[1].Trim()} {names[0].Trim()}";
+        }
+
+        private async Task<TimesheetBasicData[]> GetTimesheetBasicDataAsync(TimesheetStates state, DateTime date, DateTime startOfWeek)
+        {
+            var timesheets = new List<OpenAirClient.Timesheet>();
+            if (state == TimesheetStates.Unsubmitted)
+            {
+                var nextDay = date.AddDays(1);
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(startOfWeek, nextDay, "S"));
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(startOfWeek, nextDay, "A"));
+            }
+            else if (state == TimesheetStates.Unapproved)
+            {
+                var lastWeek = startOfWeek.AddDays(-DaysInWeek);
+                timesheets.AddRange(await _client.GetTimesheetsByStatusAsync(lastWeek, startOfWeek, "A"));
+            }
+
+            var timesheetsData = timesheets
+                .GroupBy(it => it.UserId)
+                .Select(it =>
+                    new TimesheetBasicData(
+                        it.Key.Value,
+                        it.Where(sheet => sheet.StartDate.Date > startOfWeek)
+                            .Where(sheet =>
+                                (state == TimesheetStates.Unapproved && sheet.Status == "A") ||
+                                (state == TimesheetStates.Unsubmitted && (sheet.Status == "S" || sheet.Status == "A")))
+                            .Sum(sheet => sheet.Total ?? 0)))
+                .ToArray();
+
+            return timesheetsData;
         }
 
         private class TimesheetBasicData

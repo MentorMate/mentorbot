@@ -106,7 +106,7 @@ namespace MentorBot.Tests.AzureFunctions
             var p = result.FirstOrDefault(it => it.Name == "Jenkins Build Info");
 
             Assert.AreEqual(2, p.Groups.Length);
-            storageService.Received().AddOrUpdatePluginsAsync((Plugin[])result);
+            storageService.Received().AddOrUpdatePluginsAsync((Plugin[])result).Wait();
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace MentorBot.Tests.AzureFunctions
             var result = await Queries.GetPluginsAsync(request, context);
 
             Assert.AreEqual(10, result.Count());
-            storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 10));
+            storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 10)).Wait();
         }
 
         [TestMethod]
