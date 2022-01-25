@@ -8,15 +8,8 @@ import { SettingsService } from './settings.service';
 import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    SettingsPageComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    SharedModule,
-    RouterModule.forChild([{ path: '', component: SettingsPageComponent }])
-  ],
-  providers: [SettingsService]
+  declarations: [SettingsPageComponent],
+  imports: [CommonModule, FormsModule, SharedModule, RouterModule.forChild([{ path: '', component: SettingsPageComponent }])],
+  providers: [SettingsService],
 })
-export class SettingsModule { }
+export class SettingsModule {}

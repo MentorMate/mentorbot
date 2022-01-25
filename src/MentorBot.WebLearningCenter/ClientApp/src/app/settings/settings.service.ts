@@ -9,7 +9,7 @@ export class SettingsService {
   static readonly getPlugins = 'get-plugins';
   static readonly savePlugins = 'save-plugins';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   public getPlugins(): Observable<Plugin[]> {
     return this.http.get<Plugin[]>(SettingsService.getPlugins);

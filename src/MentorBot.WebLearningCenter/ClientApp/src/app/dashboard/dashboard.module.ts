@@ -7,14 +7,12 @@ import { DashboardService } from './dashboard.service';
 import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    DashboardPageComponent
-  ],
+  declarations: [DashboardPageComponent],
   imports: [
-    CommonModule,
+    CommonModule, // components
     SharedModule,
-    RouterModule.forChild([{ path: '', component: DashboardPageComponent }])
+    RouterModule.forChild([{ path: '', component: DashboardPageComponent }]),
   ],
-  providers: [DashboardService]
+  providers: [DashboardService],
 })
-export class DashboardModule { }
+export class DashboardModule {}

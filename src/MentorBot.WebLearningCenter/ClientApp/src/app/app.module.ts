@@ -7,18 +7,14 @@ import { AppRootComponent } from './app-root.component';
 import { HttpRequestInterceptor } from './shared/http-request-interceptor';
 
 @NgModule({
-  imports: [
-    BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
-    HttpClientModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }), HttpClientModule, AppRoutingModule],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
-      multi: true
-    }
+      multi: true,
+    },
   ],
-  bootstrap: [AppRootComponent]
+  bootstrap: [AppRootComponent],
 })
-export class AppModule { }
+export class AppModule {}

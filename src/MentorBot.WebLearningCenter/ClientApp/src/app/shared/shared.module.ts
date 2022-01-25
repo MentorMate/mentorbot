@@ -7,19 +7,8 @@ import { ChartDirective } from './directives/chart.directive';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
-  declarations: [
-    PluginValuesComponent,
-    ChartDirective,
-    SafeHtmlPipe
-  ],
-  exports: [
-    PluginValuesComponent,
-    ChartDirective,
-    SafeHtmlPipe
-  ]
+  imports: [CommonModule, FormsModule],
+  declarations: [PluginValuesComponent, ChartDirective, SafeHtmlPipe],
+  exports: [PluginValuesComponent, ChartDirective, SafeHtmlPipe],
 })
-export class SharedModule { }
+export class SharedModule {}

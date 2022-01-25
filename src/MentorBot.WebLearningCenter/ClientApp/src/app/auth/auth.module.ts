@@ -14,29 +14,18 @@ import { AuthGuard } from './auth-guard.service';
 
 const allowSkipLogin = false;
 
-export const COMPONENTS = [
-  AuthCallbackComponent,
-  AuthCallbackLogoutComponent
-];
+export const COMPONENTS = [AuthCallbackComponent, AuthCallbackLogoutComponent];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    OAuthModule.forRoot()
-  ],
+  imports: [CommonModule, ReactiveFormsModule, OAuthModule.forRoot()],
   declarations: COMPONENTS,
-  exports: COMPONENTS
+  exports: COMPONENTS,
 })
 export class AuthModule {
-  public static forRoot(): ModuleWithProviders {
+  public static forRoot(): ModuleWithProviders<AuthModule> {
     return {
       ngModule: AuthModule,
-      providers: [
-        { provide: AuthService, useClass: (allowSkipLogin ? DebugAuthService : GoogleAuthService) },
-        AuthGuard,
-        RoleAuthService
-      ]
+      providers: [{ provide: AuthService, useClass: allowSkipLogin ? DebugAuthService : GoogleAuthService }, AuthGuard, RoleAuthService],
     };
   }
 }

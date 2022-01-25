@@ -1,0 +1,22 @@
+{
+  "singleQuote": true,
+  "arrowParens": "avoid",
+  "arrow-body-style": "off",
+  "prefer-arrow-callback": "off",
+  "printWidth": 140,
+  "bracketSameLine": true,
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "html"
+      }
+    },
+    {
+      "files": "*.component.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
+}

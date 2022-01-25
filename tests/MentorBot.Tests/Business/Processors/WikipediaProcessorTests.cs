@@ -26,7 +26,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void WikipediaProcessorSubjectShoudBeEncyclopedia()
+        public void WikipediaProcessorSubjectShouldBeEncyclopedia()
         {
             Assert.AreEqual(_processor.Subject, "Encyclopedia");
         }

@@ -2,6 +2,19 @@
   display: block;
 }
 
-canvas {
-  max-width: 800px;
+.dashboard {
+  display: flex;
+  gap: 20px;
+  justify-content: space-evenly;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+
+.answered {
+    width: 500px;
+}
+
+.timesheet {
+  flex: 1;
+  max-width: 1000px;
 }

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 
+const template = '<p>You are logged out.</p>';
+
 @Component({
   selector: 'app-auth-callback-logout',
-  template: '<p>You are logged out.</p>'
+  template,
 })
-export class AuthCallbackLogoutComponent {
-}
+export class AuthCallbackLogoutComponent {}

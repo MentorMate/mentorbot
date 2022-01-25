@@ -13,6 +13,6 @@ const style = `
 @Component({
   selector: 'app-not-found',
   template: template,
-  styles: [style]
+  styles: [style],
 })
-export class NotFoundPageComponent { }
+export class NotFoundPageComponent {}

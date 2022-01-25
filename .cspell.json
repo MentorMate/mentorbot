@@ -50,7 +50,8 @@
     "**/tsconfig.json",
     "**/karma.conf.js",
     "**/tslint.json",
-    "**/launchSettings.json"
+    "**/launchSettings.json",
+    "**/local.settings.json"
   ],
   "words": [
     "cref",
@@ -91,6 +92,7 @@
     "NOLOGO",
     "noeq",
     "polyfills",
-    "jwks"
+    "jwks",
+    "ngneat"
   ]
 }

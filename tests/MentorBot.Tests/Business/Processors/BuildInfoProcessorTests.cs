@@ -27,7 +27,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void BuildInfoProcessorSubjectShoudBeBuildInfo()
+        public void BuildInfoProcessorSubjectShouldBeBuildInfo()
         {
             Assert.AreEqual(_processor.Subject, "BuildInfo");
         }

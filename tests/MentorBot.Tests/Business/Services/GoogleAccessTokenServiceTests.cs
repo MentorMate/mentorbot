@@ -62,7 +62,7 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task ValidateTokenShouldSaveUserWithouGoogleId()
+        public async Task ValidateTokenShouldSaveUserWithoutGoogleId()
         {
             var usr = new User { Id = "U1", Role = 1 };
             var req = GetRequestWithAuthHeader("Bearer ABC123");

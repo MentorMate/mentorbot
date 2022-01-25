@@ -10,6 +10,6 @@ const style = `
 @Component({
   selector: 'app-about',
   template: template,
-  styles: [style]
+  styles: [style],
 })
-export class AboutPageComponent { }
+export class AboutPageComponent {}

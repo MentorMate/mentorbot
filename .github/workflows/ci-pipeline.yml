@@ -34,6 +34,11 @@ jobs:
           name: dotnet-results
           path: TestResults
         if: ${{ always() }}
+      - name: Upload test coverage
+        run: >
+          bash <(curl -s https://codecov.io/bash)
+          -t ${{ secrets.CODECOV_TOKEN }}
+          -f TestResults/coverage.opencover.xml
       - name: Build for deploy
         shell: bash
         run: dotnet publish src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
@@ -96,7 +101,6 @@ jobs:
         run: >
           bash <(curl -s https://codecov.io/bash)
           -t ${{ secrets.CODECOV_TOKEN }}
-          -f TestResults/coverage.opencover.xml
           -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}

@@ -20,7 +20,7 @@ namespace MentorBot.Tests.Business.Processors
         private PluginPropertiesAccessor _accessor;
 
         [TestMethod]
-        public void PluginAccessorWithPluginWithNoGeupShoudStillReturn()
+        public void PluginAccessorWithPluginWithNoGroupShouldStillReturn()
         {
             _accessor = PluginPropertiesAccessor.GetInstance(null, new Plugin(), null);
             Assert.IsNotNull(_accessor.GetAllPluginPropertyValues<string>("Test"));

@@ -8,9 +8,10 @@ import { UserInfo } from './user.models';
 @Injectable()
 export class UserService {
   static readonly url = 'get-users';
+
   static readonly saveUserProps = 'save-user-props';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getUsers(): Observable<UserInfo[]> {
     return this.http.get<UserInfo[]>(UserService.url);

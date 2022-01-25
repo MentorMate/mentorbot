@@ -13,19 +13,18 @@ const style = `
 @Component({
   selector: 'app-menu',
   templateUrl: 'menu.component.html',
-  styles: [style]
+  styles: [style],
 })
 export class MenuComponent implements OnInit {
-  name: string;
+  name?: string;
   paths = [
     { url: '/app/dashboard', name: 'Dashboard' },
     { url: '/app/settings', name: 'Settings' },
     { url: '/app/users', name: 'Users' },
-    { url: '/app/about', name: 'About' }];
+    { url: '/app/about', name: 'About' },
+  ];
 
-  constructor(
-    private authService: AuthService,
-    private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.name = this.authService.name;

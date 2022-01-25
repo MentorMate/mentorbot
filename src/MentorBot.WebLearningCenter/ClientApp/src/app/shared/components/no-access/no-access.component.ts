@@ -13,6 +13,6 @@ const style = `
 @Component({
   selector: 'app-no-access',
   template: template,
-  styles: [style]
+  styles: [style],
 })
-export class NoAccessPageComponent { }
+export class NoAccessPageComponent {}

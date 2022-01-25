@@ -16,7 +16,6 @@ const style = `
 @Component({
   selector: 'app-main',
   template: template,
-  styles: [style]
+  styles: [style],
 })
-export class AppMainComponent {
-}
+export class AppMainComponent {}

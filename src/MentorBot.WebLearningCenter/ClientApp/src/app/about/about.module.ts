@@ -5,12 +5,7 @@ import { RouterModule } from '@angular/router';
 import { AboutPageComponent } from './components/about-page/about-page.component';
 
 @NgModule({
-  declarations: [
-    AboutPageComponent
-  ],
-  imports: [
-    CommonModule,
-    RouterModule.forChild([{ path: '', component: AboutPageComponent }])
-  ]
+  declarations: [AboutPageComponent],
+  imports: [CommonModule, RouterModule.forChild([{ path: '', component: AboutPageComponent }])],
 })
-export class AboutModule { }
+export class AboutModule {}

@@ -3,10 +3,23 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class DebugAuthService implements AuthService {
-  get isLoggedIn() { return true; }
-  get name() { return ''; }
-  get accessToken() { return null; }
-  startAuthentication() { }
-  public completeAuthentication() { return Promise.resolve(true); }
-  signout() { }
+  get isLoggedIn(): boolean {
+    return true;
+  }
+
+  get name(): string {
+    return '';
+  }
+
+  get accessToken(): string {
+    return '';
+  }
+
+  startAuthentication() {}
+
+  public completeAuthentication() {
+    return Promise.resolve(true);
+  }
+
+  signout() {}
 }

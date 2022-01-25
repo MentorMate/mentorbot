@@ -17,7 +17,8 @@ namespace MentorBot.Functions.Connectors.OpenAir
             OpenAirClient.User user,
             UserReference manager,
             Department department,
-            Customer[] customers) =>
+            Customer[] customers,
+            User storedUser) =>
             new User
             {
                 Id = id,
@@ -29,6 +30,9 @@ namespace MentorBot.Functions.Connectors.OpenAir
                 Department = department,
                 Manager = manager,
                 Customers = customers,
+                Role = storedUser?.Role ?? 0,
+                GoogleUserId = storedUser?.GoogleUserId,
+                Properties = storedUser?.Properties,
             };
 
         /// <summary>Creates a <see cref="UserReference"/> model.</summary>

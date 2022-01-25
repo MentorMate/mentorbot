@@ -24,46 +24,37 @@ export const appRoutes: Routes = [
     canLoad: [AuthGuard],
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
-    children: [{
+    children: [
+      {
         path: '',
         redirectTo: 'dashboard',
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         path: 'dashboard',
-        loadChildren: './dashboard/dashboard.module#DashboardModule'
+        loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
       },
       {
         path: 'settings',
-        loadChildren: './settings/settings.module#SettingsModule'
+        loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule),
       },
       {
         path: 'users',
-        loadChildren: './users/user.module#UsersModule'
+        loadChildren: () => import('./users/user.module').then(m => m.UsersModule),
       },
       {
         path: 'about',
-        loadChildren: './about/about.module#AboutModule'
+        loadChildren: () => import('./about/about.module').then(m => m.AboutModule),
       },
-      { path: '**', component: NotFoundPageComponent }
-    ]
+      { path: '**', component: NotFoundPageComponent },
+    ],
   },
-  { path: '**', component: NotFoundPageComponent }
+  { path: '**', component: NotFoundPageComponent },
 ];
 
 @NgModule({
-  declarations: [
-    AppRootComponent,
-    AppMainComponent,
-    NotFoundPageComponent,
-    NoAccessPageComponent,
-    MenuComponent
-  ],
-  imports: [
-    CommonModule,
-    AuthModule.forRoot(),
-    RouterModule.forRoot(appRoutes)
-  ],
-  exports: [RouterModule]
+  declarations: [AppRootComponent, AppMainComponent, NotFoundPageComponent, NoAccessPageComponent, MenuComponent],
+  imports: [CommonModule, AuthModule.forRoot(), RouterModule.forRoot(appRoutes)],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

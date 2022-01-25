@@ -9,25 +9,28 @@ import { Plugin, ObjectType, PluginGroup } from '../../settings.models';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings-page.component.html',
-  styleUrls: ['./settings-page.component.scss']
+  styleUrls: ['./settings-page.component.scss'],
 })
 export class SettingsPageComponent implements OnInit {
-  plugins: Plugin[] = null;
-  pluginsGroups: { plugin: Plugin, groups: PluginGroup[] }[] = null;
+  plugins: Plugin[] | null = null;
+  pluginsGroups: { plugin: Plugin; groups: PluginGroup[] }[] | null = null;
 
-  constructor(private service: SettingsService) { }
+  constructor(private service: SettingsService) {}
 
   ngOnInit(): void {
-    this.service.getPlugins()
+    this.service
+      .getPlugins()
       .pipe(take(1))
       .subscribe(it => this.load(it));
   }
 
   save(): void {
-    this.service
-      .savePlugins(this.plugins)
-      .pipe(take(1))
-      .subscribe(data => this.ngOnInit());
+    if (this.plugins !== null) {
+      this.service
+        .savePlugins(this.plugins)
+        .pipe(take(1))
+        .subscribe(() => this.ngOnInit());
+    }
   }
 
   load(plugins: Plugin[]): void {

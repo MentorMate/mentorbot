@@ -41,7 +41,7 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
-        public async Task ExecuteTimesheetsReminderAsyncShouldWotkOnDivisionByFive()
+        public async Task ExecuteTimesheetsReminderAsyncShouldWorkOnDivisionByFive()
         {
             var timesheetService = Substitute.For<ITimesheetService>();
             var dateTime = new DateTime(2021, 12, 1, 12, 16, 5, 123, DateTimeKind.Local);
@@ -59,7 +59,7 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
-        public async Task ExecuteTimesheetsReminderAsyncShouldSendNotificaitions()
+        public async Task ExecuteTimesheetsReminderAsyncShouldSendNotifications()
         {
             var timesheetService = Substitute.For<ITimesheetService>();
             var now = DateTime.Now;

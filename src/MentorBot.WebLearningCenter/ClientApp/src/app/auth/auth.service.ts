@@ -18,15 +18,16 @@ export abstract class AuthService {
 export class RoleAuthService {
   static readonly getUserInfo = 'get-user-info';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   public checkUrlAccess(url: string): Observable<boolean> {
     const storedRoleName = userRole();
     if (storedRoleName === null) {
       return this.http.get<UserInfo>(RoleAuthService.getUserInfo).pipe(
-        map(it => it.isValid ? it.role : null),
+        map(it => (it.isValid ? it.role : null)),
         tap(it => userRole(it)),
-        map(() => checkPath(url)));
+        map(() => checkPath(url))
+      );
     }
 
     return of(checkPath(url));

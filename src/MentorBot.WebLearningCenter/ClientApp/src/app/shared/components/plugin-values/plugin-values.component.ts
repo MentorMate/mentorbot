@@ -6,21 +6,23 @@ import { PluginProperty, PluginValue, PluginGroup } from '../../../settings/sett
 @Component({
   selector: 'app-plugin-values',
   templateUrl: './plugin-values.component.html',
-  styles: []
+  styles: [],
 })
 export class PluginValuesComponent implements OnChanges {
   pluginsProperties: PropertyValue[][] = [];
 
-  @Input() group: PluginGroup = null;
-  @Input() values: PluginValue[][] = null;
+  @Input() group: PluginGroup | null = null;
+  @Input() values: PluginValue[][] | null = null;
   @Output() valuesChange = new EventEmitter<PluginValue[][]>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['group'] || changes['values']) &&
+    if (
+      (changes['group'] || changes['values']) &&
       typeof this.group !== 'undefined' &&
       this.group !== null &&
-      typeof this.values !== 'undefined') {
-      const properties = this.group.properties.toDictionary<PluginProperty>((obj, prop) => obj[prop.key] = prop);
+      typeof this.values !== 'undefined'
+    ) {
+      const properties = this.group.properties.toDictionary<PluginProperty>((obj, prop) => (obj[prop.key] = prop));
       this.pluginsProperties = this.values === null ? [] : this.values.map(it => it.map(value => ({ value, prop: properties[value.key] })));
     }
   }

@@ -30,11 +30,12 @@ export interface PluginValue {
 export enum ObjectType {
   None,
   User,
-  Settings
+  Settings,
 }
 
 export enum ValueType {
   None,
   String,
-  Boolean
+  Boolean,
+  Number,
 }

@@ -8,7 +8,7 @@ export class DashboardService {
   static readonly getMessagesStatistics = 'get-messages-stats';
   static readonly getTimesheetStatistics = 'get-timesheet-stats';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   public getData(): Observable<MessagesStatistic[]> {
     return this.http.get<MessagesStatistic[]>(DashboardService.getMessagesStatistics);

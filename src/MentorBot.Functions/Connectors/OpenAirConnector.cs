@@ -169,7 +169,7 @@ namespace MentorBot.Functions.Connectors
                 if (storedUser == null && user.Active == true)
                 {
                     var userUid = Guid.NewGuid().ToString(null, CultureInfo.InvariantCulture);
-                    var createUser = CreateUser(userUid, user, manager, department, customers);
+                    var createUser = CreateUser(userUid, user, manager, department, customers, null);
 
                     usersListToAdd.Add(createUser);
                 }
@@ -185,7 +185,7 @@ namespace MentorBot.Functions.Connectors
                         department,
                         customers))
                 {
-                    var updateUser = CreateUser(storedUser.Id, user, manager, department, customers);
+                    var updateUser = CreateUser(storedUser.Id, user, manager, department, customers, storedUser);
                     usersListToUpdate.Add(updateUser);
                 }
             }

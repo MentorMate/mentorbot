@@ -8,14 +8,8 @@ import { UserService } from './user.service';
 import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
-  declarations: [
-    UserPageComponent
-  ],
-  imports: [
-    CommonModule,
-    SharedModule,
-    RouterModule.forChild([{ path: '', component: UserPageComponent }])
-  ],
-  providers: [UserService, SettingsService]
+  declarations: [UserPageComponent],
+  imports: [CommonModule, SharedModule, RouterModule.forChild([{ path: '', component: UserPageComponent }])],
+  providers: [UserService, SettingsService],
 })
-export class UsersModule { }
+export class UsersModule {}

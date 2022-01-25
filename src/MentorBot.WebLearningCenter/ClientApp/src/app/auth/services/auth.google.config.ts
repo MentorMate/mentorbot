@@ -7,5 +7,5 @@ export const authConfig: AuthConfig = {
   clientId: environment.googleClientId,
   scope: 'openid profile email',
   sessionChecksEnabled: true,
-  strictDiscoveryDocumentValidation: false
+  strictDiscoveryDocumentValidation: false,
 };

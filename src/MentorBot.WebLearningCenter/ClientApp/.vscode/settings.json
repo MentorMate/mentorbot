@@ -1,0 +1,49 @@
+{
+    "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimitExceptIfOnlyOne",
+    "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 140,
+    "importSorter.sortConfiguration.removeUnusedImports": true,
+    "importSorter.sortConfiguration.customOrderingRules.defaultOrderLevel": 60,
+    "importSorter.sortConfiguration.customOrderingRules.rules": [
+        {
+        "regex": "^[@]",
+        "orderLevel": 10
+        },
+        {
+        "regex": "^ngx-bootstrap",
+        "orderLevel": 10
+        },
+        {
+        "type": "importMember",
+        "regex": "^$",
+        "orderLevel": 20,
+        "disableSort": true
+        },
+        {
+        "regex": "^rxjs",
+        "orderLevel": 30
+        },
+        {
+        "regex": "^[.]",
+        "orderLevel": 40,
+        "disableSort": true
+        }
+    ],
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.format.semicolons": "insert",
+    "typescript.preferences.importModuleSpecifier": "shortest",
+    "html.autoClosingTags": true,
+    "html.format.wrapLineLength": 140,
+    "html.format.wrapAttributes": "preserve-aligned",
+    "html.format.endWithNewline": false,
+    "[html]": {
+      "editor.linkedEditing": true,
+      "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "files.exclude": {
+        ".vs": true,
+        "node_modules": true
+    },
+    "angular.enable-strict-mode-prompt": false
+}

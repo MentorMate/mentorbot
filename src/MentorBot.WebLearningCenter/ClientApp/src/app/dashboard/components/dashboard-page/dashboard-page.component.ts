@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ChartDataSets, ChartData } from 'chart.js';
+import { ChartDataset, ChartData, DefaultDataPoint, ChartType } from 'chart.js';
 
 import { Observable } from 'rxjs';
 import { take, map } from 'rxjs/operators';
@@ -7,39 +7,23 @@ import { take, map } from 'rxjs/operators';
 import { DashboardService } from '../../dashboard.service';
 import { MessagesStatistic, TimesheetChartStatistic } from '../../dashboard.models';
 
-@Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard-page.component.html',
-  styleUrls: ['./dashboard-page.component.scss']
-})
-export class DashboardPageComponent implements OnInit {
-  answeredLabels = ['Answered', 'Unanswered'];
-  answeredData$: Observable<ChartDataSets[]>;
+type MyChartData = ChartData<ChartType, DefaultDataPoint<ChartType>, string>;
 
-  timesheet$: Observable<ChartData>;
+function mapAnswersToDataset(stats: MessagesStatistic[]): ChartDataset[] {
+  const data = stats.reduce(
+    (obj, it) => {
+      obj[it.probabilityPercentage > 60 ? 'answered' : 'unanswered'] += it.count;
+      return obj;
+    },
+    { answered: 0, unanswered: 0 }
+  );
 
-  constructor(private readonly _service: DashboardService) { }
-
-  ngOnInit(): void {
-    this.answeredData$ = this._service.getData().pipe(take(1), map(mapAnswersToDataset));
-    this.timesheet$ = this._service.getTimesheetStats().pipe(take(1), map(mapTimesheetToDatasets));
-  }
-}
-
-function mapAnswersToDataset(stats: MessagesStatistic[]): ChartDataSets[] {
-  const data = stats.reduce((obj, it) => {
-    obj[it.probabilityPercentage > 60 ? 'answered' : 'unanswered'] += it.count;
-    return obj;
-  }, { answered: 0, unanswered: 0 });
-
-  return [{
-    data: [data.answered, data.unanswered],
-    backgroundColor: [
-      'blue',
-      'red',
-      'yellow'
-    ]
-  }];
+  return [
+    {
+      data: [data.answered, data.unanswered],
+      backgroundColor: ['blue', 'red', 'yellow'],
+    },
+  ];
 }
 
 const colors = [
@@ -62,13 +46,13 @@ const colors = [
   'rgb(223, 230, 233)',
   'rgb(178, 190, 195)',
   'rgb(99, 110, 114)',
-  'rgb(45, 52, 54)'
+  'rgb(45, 52, 54)',
 ];
 
-function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): ChartData {
-  const labels = [];
-  const departments = [];
-  const datasets: ChartDataSets[] = [];
+function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): MyChartData {
+  const labels: string[] = [];
+  const departments: string[] = [];
+  const datasets: ChartDataset[] = [];
 
   stats.forEach(it => {
     if (!labels.includes(it.date)) {
@@ -82,7 +66,7 @@ function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): ChartData {
 
   departments.forEach((label: string, index: number) => {
     const color = colors.length > index ? colors[index] : null;
-    const set: ChartDataSets = { label, data: [], fill: false, backgroundColor: color, borderColor: color };
+    const set: ChartDataset = { label, data: [], fill: false, backgroundColor: color as string, borderColor: color as string };
     labels.forEach(dateVal => {
       const stat = stats.find(it => it.department === label && it.date === dateVal);
       const val = stat !== null && typeof stat !== 'undefined' ? stat.count : 0;
@@ -94,6 +78,26 @@ function mapTimesheetToDatasets(stats: TimesheetChartStatistic[]): ChartData {
 
   return {
     labels,
-    datasets
+    datasets,
   };
+}
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard-page.component.html',
+  styleUrls: ['./dashboard-page.component.scss'],
+})
+export class DashboardPageComponent implements OnInit {
+  answeredLabels = ['Answered', 'Unanswered'];
+
+  answeredData$?: Observable<ChartDataset[]>;
+
+  timesheet$?: Observable<MyChartData>;
+
+  constructor(private readonly _service: DashboardService) {}
+
+  ngOnInit(): void {
+    this.answeredData$ = this._service.getData().pipe(take(1), map(mapAnswersToDataset));
+    this.timesheet$ = this._service.getTimesheetStats().pipe(take(1), map(mapTimesheetToDatasets));
+  }
 }

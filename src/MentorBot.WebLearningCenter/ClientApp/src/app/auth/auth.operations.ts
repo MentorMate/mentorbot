@@ -1,8 +1,8 @@
-const routes = {
+const routes: Record<string, string | string[] | null> = {
   '/app/dashboard': ['user', 'administrator'],
   '/app/settings': 'administrator',
   '/app/users': 'administrator',
-  '/app/about': null
+  '/app/about': null,
 };
 
 export interface UserInfo {
@@ -14,7 +14,7 @@ export interface UserInfo {
   gender?: string;
 }
 
-export function userInfo(value?: UserInfo): UserInfo {
+export function userInfo(value?: UserInfo | null): UserInfo | null {
   const key = 'mm-bot-usr';
   if (value === null) {
     sessionStorage.removeItem(key);
@@ -25,13 +25,14 @@ export function userInfo(value?: UserInfo): UserInfo {
     sessionStorage.setItem(key, JSON.stringify(value));
   }
 
-  return JSON.parse(sessionStorage.getItem(key));
+  const storedValue = sessionStorage.getItem(key);
+  return storedValue === null ? null : JSON.parse(storedValue);
 }
 
 // Get or set the role name. The server checks for access again. Note that multiple logins are not supported with this.
-export function userRole(value?: string): string {
+export function userRole(value?: string | null): string | null {
   const user = userInfo();
-  const key = 'mm-bot-' + user.sub + '-role';
+  const key = 'mm-bot-' + user?.sub + '-role';
 
   if (user === null) {
     return null;
@@ -60,7 +61,8 @@ export function checkPath(url: string): boolean {
   }
 
   const userRoleName = userRole();
-  return userRoleName !== null && (
-    (Array.isArray(roleName) && roleName.indexOf(userRoleName) > -1) ||
-    (typeof roleName === 'string' && userRoleName === roleName));
+  return (
+    userRoleName !== null &&
+    ((Array.isArray(roleName) && roleName.indexOf(userRoleName) > -1) || (typeof roleName === 'string' && userRoleName === roleName))
+  );
 }

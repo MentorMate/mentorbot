@@ -41,7 +41,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public void OpenAirProcessorSubjectShoudBeTimesheets()
+        public void OpenAirProcessorSubjectShouldBeTimesheets()
         {
             Assert.AreEqual("Timesheets", _processor.Subject);
             Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.OpenAirProcessor", _processor.Name);

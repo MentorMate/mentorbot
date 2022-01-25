@@ -8,11 +8,11 @@ import { userRole, userInfo, UserInfo } from '../auth.operations';
 
 @Injectable()
 export class GoogleAuthService implements AuthService {
-  private user: UserInfo;
+  private user: UserInfo | null;
 
   constructor(private oauthService: OAuthService) {
     this.oauthService.configure(authConfig);
-    this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+    //this.oauthService.tokenValidationHandler = new JwksValidationHandler();
     this.user = userInfo();
   }
 
@@ -21,7 +21,7 @@ export class GoogleAuthService implements AuthService {
   }
 
   get name(): string {
-    return this.user === null ? null : this.user.given_name;
+    return this.user === null ? '' : this.user.given_name;
   }
 
   get accessToken(): string {
@@ -42,8 +42,8 @@ export class GoogleAuthService implements AuthService {
     return new Promise(resolver => {
       this.oauthService.loadDiscoveryDocumentAndTryLogin().then(success => {
         if (success) {
-          this.oauthService.loadUserProfile().then((user: UserInfo) => {
-            this.user = userInfo(user);
+          this.oauthService.loadUserProfile().then((user: object) => {
+            this.user = userInfo(user as UserInfo);
             resolver(true);
           });
         } else {

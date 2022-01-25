@@ -28,32 +28,36 @@ const style = `
 @Component({
   selector: 'app-users',
   templateUrl: './user-page.component.html',
-  styles: [style]
+  styles: [style],
 })
 export class UserPageComponent implements OnInit {
-  editingId: string = null;
-  users$: Observable<UserInfo[]>;
-  properties$: Observable<PluginGroup[]>;
+  editingId: string | null = null;
+  users$?: Observable<UserInfo[]>;
+  properties$?: Observable<PluginGroup[]>;
 
-  constructor(
-    private readonly _userService: UserService,
-    private readonly _settingsService: SettingsService) { }
+  constructor(private readonly _userService: UserService, private readonly _settingsService: SettingsService) {}
 
   ngOnInit(): void {
-    this.users$ = this._userService.getUsers().pipe(tap(users => users.forEach(user => {
-      if (user.properties === null ||
-        typeof user.properties === 'undefined') {
-        user.properties = {};
-      }
-    })));
+    this.users$ = this._userService.getUsers().pipe(
+      tap(users =>
+        users.forEach(user => {
+          if (user.properties === null || typeof user.properties === 'undefined') {
+            user.properties = {};
+          }
+        })
+      )
+    );
 
     this.properties$ = this._settingsService.getPlugins().pipe(
       take(1),
-      map(plugins => plugins
-        .filter(it => it.enabled && it.groups !== null && it.groups.length > 0)
-        .map(it => it.groups)
-        .reduce((a, b) => a.concat(b))
-        .filter(it => it.type === 1)));
+      map(plugins =>
+        plugins
+          .filter(it => it.enabled && it.groups !== null && it.groups.length > 0)
+          .map(it => it.groups)
+          .reduce((a, b) => a.concat(b))
+          .filter(it => it.type === 1)
+      )
+    );
   }
 
   edit(user: UserInfo): void {
@@ -61,6 +65,9 @@ export class UserPageComponent implements OnInit {
   }
 
   save(user: UserInfo): void {
-    this._userService.saveUserProperties(user).pipe(take(1)).subscribe(() => this.editingId = null);
+    this._userService
+      .saveUserProperties(user)
+      .pipe(take(1))
+      .subscribe(() => (this.editingId = null));
   }
 }
