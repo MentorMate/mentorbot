@@ -6,7 +6,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration=development",
-    "build:prod": "npm run build:prod-env && npm run build",
+    "build:prod": "npm run build:prod-env && ng build",
     "build:prod-env": "envsub src/environments/environment.ts.template src/environments/environment.prod.ts",
     "test": "ng test",
     "test:prod": "ng test",

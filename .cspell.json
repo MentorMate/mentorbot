@@ -93,6 +93,8 @@
     "noeq",
     "polyfills",
     "jwks",
-    "ngneat"
+    "ngneat",
+    "lcov",
+    "registerables"
   ]
 }
