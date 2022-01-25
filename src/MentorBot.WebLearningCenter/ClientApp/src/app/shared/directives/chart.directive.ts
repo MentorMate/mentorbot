@@ -39,8 +39,7 @@ export class ChartDirective implements AfterContentInit, OnChanges {
           },
         },
       });
-    })
-    
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

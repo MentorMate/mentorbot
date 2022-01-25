@@ -86,6 +86,9 @@ jobs:
             ${{ runner.os }}-build-
       - name: npm package install
         run: npm ci --prefix ./src/MentorBot.WebLearningCenter/ClientApp --cache ~/.npm --prefer-offline --no-audit --silent
+      - name: Run front end lint
+        run: npm run lint --prefix ./src/MentorBot.WebLearningCenter/ClientApp
+        continue-on-error: true
       - name: Publish angular
         env:
           AZURE_WEB_PATH: ${{ secrets.AZURE_WEB_PATH }}
@@ -93,8 +96,6 @@ jobs:
           AZURE_CODE: ${{ secrets.AZURE_CODE }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: npm run build:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
-      - name: Run front end lint
-        run: npm run lint --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Run front end tests
         run: npm run test:prod --prefix ./src/MentorBot.WebLearningCenter/ClientApp
       - name: Upload test coverage
