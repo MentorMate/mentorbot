@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: dotnet publish src/MentorBot.Functions/MentorBot.Functions.csproj -c Release -o dist/
       - name: Archive published app
-        uses: papeloto/action-zip@v1
+        uses: vimtor/action-zip@v1
         with:
           files: dist/
           dest: app.zip
