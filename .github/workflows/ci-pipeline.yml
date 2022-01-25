@@ -7,11 +7,8 @@ on:
     branches: [main, release-*]
 
 jobs:
-  dotnet-build-and-deploy:
+  dotnet-build:
     runs-on: ubuntu-latest
-    env:
-      AZURE_FUNCTIONAPP_NAME: mentorbot-app
-      AZURE_GROUP_NAME: mentorbot
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDK 3
@@ -49,6 +46,19 @@ jobs:
         with:
           name: mentorbot-api-package
           path: app.zip
+          retention-days: 30
+  # for some reason the 'az functionapp deployment' do not work correctly in linux. So just deploy from windows.
+  dotnet-deploy:
+    needs: dotnet-build
+    runs-on: windows-latest
+    env:
+      AZURE_FUNCTIONAPP_NAME: mentorbot-app
+      AZURE_GROUP_NAME: mentorbot
+    steps:
+      - name: Download api package
+        uses: actions/download-artifact@v2
+        with:
+          name: mentorbot-api-package
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
       - name: Deploy to azure the API
@@ -59,8 +69,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
       - name: npm package install
-        run: npm install --prefix ./src/MentorBot.WebLearningCenter/ClientApp
+        run: npm ci --prefix ./src/MentorBot.WebLearningCenter/ClientApp --cache ~/.npm --prefer-offline --no-audit --silent
       - name: Publish angular
         env:
           AZURE_WEB_PATH: ${{ secrets.AZURE_WEB_PATH }}
