@@ -47,10 +47,14 @@ namespace MentorBot.Functions.Connectors.OpenAir
         private static bool? ParseStringToBool(string value) =>
             value == null ? (bool?)null : value == "1";
 
-        private static DateTime? ParseStringToDateTime(string value, string format = "yyyyy-MM-dd") =>
-            string.IsNullOrEmpty(value) ? null : DateTime.ParseExact(value, format, CultureInfo.InvariantCulture);
+        private static DateTime? ParseStringToDateTime(string value, string format = "yyyy-MM-dd") =>
+                    string.IsNullOrEmpty(value)
+                    || value == "0000-00-00"
+                    || !DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)
+                    ? null
+                    : date;
 
-        private static string ParseDateTimeToString(DateTime value, string format = "yyyyy-MM-dd") =>
+        private static string ParseDateTimeToString(DateTime value, string format = "yyyy-MM-dd") =>
             value.ToString(format, CultureInfo.InvariantCulture);
 
         /// <summary>The open air request model.</summary>

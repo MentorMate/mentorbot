@@ -1,6 +1,7 @@
 ﻿// cSpell:ignore ownerid, projectid, customerid, departmentid, locationid, 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -89,6 +90,45 @@ namespace MentorBot.Tests.Business.Processors
             Assert.AreEqual(2, first.StartDate.Date.Month);
             Assert.AreEqual(25, first.StartDate.Date.Day);
             Assert.AreEqual(2019, first.StartDate.Date.Year);
+        }
+
+        [TestMethod]
+        public async Task OpenAirClientGetAllUsers_ShouldParseRecord()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var record =
+                "<User><departmentid>2</departmentid><name>Oniyide, Temitope</name><id>1623</id><active>1</active>" +
+                "<user_locationid>3</user_locationid><line_managerid>317</line_managerid><addr><Address>" +
+                "<email>temitope.oniyide@mentormate.com</email><first>Temitope</first><last>Oniyide</last></Address></addr>" +
+                "<usr_start_date__c>2021-11-11</usr_start_date__c></User>";
+            var handler = new MockHttpMessageHandler()
+                .Set($"<response><Auth status=\"0\"></Auth ><Read status=\"0\">{record}</Read ></response>");
+
+            var client = new OpenAirClient(() => handler, options);
+
+            var results = await client.GetAllUsersAsync();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(2, results.Single().DepartmentId);
+            Assert.AreEqual(3, results.Single().LocationId);
+            Assert.AreEqual(317, results.Single().ManagerId);
+            Assert.AreEqual("temitope.oniyide@mentormate.com", results.Single().Address.Single().Email);
+            Assert.AreEqual("11/11/2021 00:00", results.Single().StartDate.Value.ToString("g", CultureInfo.InvariantCulture));
+        }
+
+        [TestMethod]
+        public async Task OpenAirClientGetAllUsers_ShouldParseInvalidStartDate()
+        {
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var record =
+                "<User><departmentid>2</departmentid><name>Oniyide, Temitope</name><id>1623</id><active>1</active>" +
+                "<usr_start_date__c>0000-00-00</usr_start_date__c></User>";
+            var handler = new MockHttpMessageHandler()
+                .Set($"<response><Auth status=\"0\"></Auth ><Read status=\"0\">{record}</Read ></response>");
+
+            var client = new OpenAirClient(() => handler, options);
+
+            var results = await client.GetAllUsersAsync();
+            Assert.IsNull(results.Single().StartDate);
         }
 
         [TestMethod]
