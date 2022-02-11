@@ -98,7 +98,13 @@ namespace MentorBot.Functions.Processors.UserInfo
                 case 2:
                     return name.Equals(string.Concat(names[0], " ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
                         name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
-                        name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase);
+                        name.Equals(string.Concat(names[0], " , ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[1], " , ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[0], " . ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[1], " . ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[0], " . ", names[1] + " @ mentormate . com"), StringComparison.InvariantCultureIgnoreCase) ||
+                        name.Equals(string.Concat(names[1], " . ", names[0] + " @ mentormate . com"), StringComparison.InvariantCultureIgnoreCase);
+
                 default:
                     return false;
             }
