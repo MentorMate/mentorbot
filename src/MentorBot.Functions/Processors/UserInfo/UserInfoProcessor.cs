@@ -10,6 +10,7 @@ using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
+
 using CardBody = Google.Apis.HangoutsChat.v1.Data.KeyValue;
 
 namespace MentorBot.Functions.Processors.UserInfo
@@ -30,7 +31,7 @@ namespace MentorBot.Functions.Processors.UserInfo
 
         /// <inheritdoc/>
 #pragma warning disable CC0021
-        public string Subject => "User";
+        public string Subject => @"User";
 #pragma warning restore CC0021
 
         /// <inheritdoc/>
