@@ -167,7 +167,7 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<User> GetUserByEmailAsync(string email) =>
-            _tableClientService.QueryAsync<User>($"Email eq '{email}'", 1)
+            _tableClientService.QueryAsync<User>($"Email eq '{email.ToLower()}'", 1)
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>

@@ -141,6 +141,11 @@ namespace MentorBot.Functions.Connectors
         {
             var storedUsers = await _storageService.GetAllUsersAsync();
             var openAirModelUsers = await _client.GetAllUsersAsync();
+            foreach (var user in openAirModelUsers)
+            {
+                user.Name = user.Name.ToLower();
+            }
+
             var openAirDepartments = await _client.GetAllDepartmentsAsync();
             var openAirCustomers = await _client.GetAllActiveCustomersAsync();
             var openAirBookings = await _client.GetAllActiveBookingsAsync(Contract.LocalDateTime.Date);
