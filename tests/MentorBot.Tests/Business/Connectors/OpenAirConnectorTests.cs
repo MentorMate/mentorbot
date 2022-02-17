@@ -558,8 +558,7 @@ namespace MentorBot.Tests.Business.Processors
             storageService
                 .Received()
                 .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it =>
-                it.All(user => user.Email == user.Email.ToLower())
-                && it.All(user => user.Name == user.Name.ToLower())));
+                it.All(user => user.Email == user.Email.ToLower())));
         }
 
 #pragma warning restore CS4014

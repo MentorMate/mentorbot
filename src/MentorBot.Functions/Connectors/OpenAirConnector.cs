@@ -149,7 +149,6 @@ namespace MentorBot.Functions.Connectors
             var usersListToAdd = new List<User>();
             foreach (var user in openAirModelUsers)
             {
-                user.Name = user.Name.ToLower();
                 user.Address.FirstOrDefault().Email = user.Address.FirstOrDefault().Email.ToLower();
                 var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
                 var department = user.DepartmentId.HasValue ?
