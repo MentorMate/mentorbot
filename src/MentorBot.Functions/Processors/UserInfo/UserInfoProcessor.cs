@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Processor;
@@ -30,7 +31,7 @@ namespace MentorBot.Functions.Processors.UserInfo
 
         /// <inheritdoc/>
 #pragma warning disable CC0021
-        public string Subject => "User";
+        public string Subject => @"User";
 #pragma warning restore CC0021
 
         /// <inheritdoc/>
@@ -96,9 +97,11 @@ namespace MentorBot.Functions.Processors.UserInfo
                 case 1:
                     return names[0].Equals(name, StringComparison.InvariantCultureIgnoreCase);
                 case 2:
-                    return name.Equals(string.Concat(names[0], " ", names[1]), StringComparison.InvariantCultureIgnoreCase) ||
-                        name.Equals(string.Concat(names[1], " ", names[0]), StringComparison.InvariantCultureIgnoreCase) ||
-                        name.Equals(string.Concat(names[0], ", ", names[1]), StringComparison.InvariantCultureIgnoreCase);
+                    var firstOrLastName = $"({names[0]}|{names[1]})";
+                    var startWithFirstNameMatch =
+                        new Regex($"{firstOrLastName}( , | . | ){firstOrLastName}( @ mentormate \\. (com|net)|)$", RegexOptions.IgnoreCase);
+                    return startWithFirstNameMatch.IsMatch(name);
+
                 default:
                     return false;
             }

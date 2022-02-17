@@ -55,6 +55,7 @@ jobs:
   # for some reason the 'az functionapp deployment' do not work correctly in linux. So just deploy from windows.
   dotnet-deploy:
     needs: dotnet-build
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: windows-latest
     env:
       AZURE_FUNCTIONAPP_NAME: mentorbot-app
@@ -72,6 +73,7 @@ jobs:
           -g ${{ env.AZURE_GROUP_NAME }} --src app.zip --subscription ${{ secrets.AZ_SUB }}
   ng-build-and-deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v2
       - name: Cache node modules
