@@ -499,7 +499,7 @@ namespace MentorBot.Tests.Business.Processors
                 Active = true,
                 Address = new[]
                  {
-                    new OpenAirClient.Address { Email = "jhon.doe@mentormate.com" }
+                    new OpenAirClient.Address { Email = "jhon.dOe@mentormate.com" }
                 },
                 ManagerId = 1010
             };
@@ -511,7 +511,7 @@ namespace MentorBot.Tests.Business.Processors
                 Active = true,
                 Address = new[]
                 {
-                    new OpenAirClient.Address { Email = "bill.manager@mentormate.com" }
+                    new OpenAirClient.Address { Email = "bill.Manager@mentormate.com" }
                 }
             };
             var dep = new OpenAirClient.Department
@@ -558,7 +558,8 @@ namespace MentorBot.Tests.Business.Processors
             storageService
                 .Received()
                 .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it =>
-                it.All(user => user.Name == user.Name.ToLower())));
+                it.All(user => user.Email == user.Email.ToLower())
+                && it.All(user => user.Name == user.Name.ToLower())));
         }
 
 #pragma warning restore CS4014
