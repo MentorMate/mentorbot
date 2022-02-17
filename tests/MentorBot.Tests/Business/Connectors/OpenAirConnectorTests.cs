@@ -488,6 +488,79 @@ namespace MentorBot.Tests.Business.Processors
                 list.Any(u => u.OpenAirUserId == 1000 && u.Department.Name == "Test")));
         }
 
+        [TestMethod]
+        public async Task OpenAirShouldSyncUsersAndReturnNamesToLower()
+        {
+            var user1 = new OpenAirClient.User
+            {
+                Id = 1000,
+                Name = "A",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "jhon.dOe@mentormate.com" }
+                },
+                ManagerId = 1010
+            };
+            var user2 = new OpenAirClient.User
+            {
+                Id = 1010,
+                Name = "B",
+                DepartmentId = 2000,
+                Active = true,
+                Address = new[]
+                {
+                    new OpenAirClient.Address { Email = "bill.Manager@mentormate.com" }
+                }
+            };
+            var dep = new OpenAirClient.Department
+            {
+                Id = 2000,
+                Name = "QA",
+                UserId = 1010
+            };
+            var customer = new OpenAirClient.Customer
+            {
+                Id = 3000,
+                Name = "MM"
+            };
+            var booking = new OpenAirClient.Booking
+            {
+                Id = 4000,
+                UserId = 1000,
+                CustomerId = 3000,
+                ProjectId = 6000,
+                OwnerId = 1010
+            };
+            var client = Substitute.For<IOpenAirClient>();
+
+            client.GetAllUsersAsync().Returns(new[] { user1, user2 });
+            client.GetAllDepartmentsAsync().Returns(new[] { dep });
+            client.GetAllActiveCustomersAsync().Returns(new[] { customer });
+            client.GetAllActiveBookingsAsync(DateTime.MinValue).ReturnsForAnyArgs(new[] { booking });
+
+            var options = new OpenAirOptions("http://localhost/", "MM", "K", "R", "P");
+            var storageService = Substitute.For<IStorageService>();
+            var connector = new OpenAirConnector(client, storageService);
+
+            storageService
+                .GetAllUsersAsync()
+                .ReturnsForAnyArgs(new[]
+                {
+                    CreateUser(1000, "A", ".NET", "bill.manager@mentormate.com", 1),
+                    CreateUser(1011, "B", ".NET", "bill.manager@mentormate.com", 2)
+                });
+
+            // Act
+            await connector.SyncUsersAsync();
+
+            storageService
+                .Received()
+                .UpdateUsersAsync(Arg.Is<IReadOnlyList<User>>(it =>
+                it.All(user => user.Email == user.Email.ToLower())));
+        }
+
 #pragma warning restore CS4014
 
         private static Dictionary<string, Functions.Models.Domains.Plugins.PluginPropertyValue[][]> CreateUserHoursProperty(int hours)

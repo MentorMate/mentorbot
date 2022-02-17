@@ -141,6 +141,7 @@ namespace MentorBot.Functions.Connectors
         {
             var storedUsers = await _storageService.GetAllUsersAsync();
             var openAirModelUsers = await _client.GetAllUsersAsync();
+
             var openAirDepartments = await _client.GetAllDepartmentsAsync();
             var openAirCustomers = await _client.GetAllActiveCustomersAsync();
             var openAirBookings = await _client.GetAllActiveBookingsAsync(Contract.LocalDateTime.Date);
@@ -148,6 +149,7 @@ namespace MentorBot.Functions.Connectors
             var usersListToAdd = new List<User>();
             foreach (var user in openAirModelUsers)
             {
+                user.Address.FirstOrDefault().Email = user.Address.FirstOrDefault().Email.ToLower();
                 var storedUser = storedUsers.FirstOrDefault(it => it.OpenAirUserId == user.Id);
                 var department = user.DepartmentId.HasValue ?
                     CreateDepartment(openAirDepartments.FirstOrDefault(it => it.Id == user.DepartmentId.Value), openAirModelUsers) :
