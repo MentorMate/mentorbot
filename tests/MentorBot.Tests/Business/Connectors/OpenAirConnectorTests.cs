@@ -498,7 +498,7 @@ namespace MentorBot.Tests.Business.Processors
                 DepartmentId = 2000,
                 Active = true,
                 Address = new[]
-                 {
+                {
                     new OpenAirClient.Address { Email = "jhon.dOe@mentormate.com" }
                 },
                 ManagerId = 1010
