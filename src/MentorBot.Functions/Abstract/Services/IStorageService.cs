@@ -57,5 +57,17 @@ namespace MentorBot.Functions.Abstract.Services
         /// <summary>Gets all statistics asynchronous.</summary>
         /// <typeparam name="T">Statistic type.</typeparam>
         Task<IReadOnlyList<Statistics<T>>> GetStatisticsAsync<T>(string date, string time);
+
+        /// <summary>Gets a state asynchronous.</summary>
+        Task<State> GetStateAsync(string email);
+
+        /// <summary>Adds or updates a state asynchronous.</summary>
+        Task<bool> AddOrUpdateStateAsync(State state);
+
+        /// <summary>Gets a question or an answer based on parentId and index asynchronous.</summary>
+        Task<QuestionAnswer> GetQuestionOrAnswerAsync(int? parentId, int index);
+
+        /// <summary>Gets a question or an answer based on parentId and index asynchronous.</summary>
+        Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId);
     }
 }

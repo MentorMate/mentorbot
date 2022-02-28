@@ -58,7 +58,7 @@ namespace MentorBot.Functions.Processors.Timesheets
 
             var customersValue = info.Entities.GetValueOrDefault(nameof(Customer), new string[0]);
             var period = OpenAirText.GetPeriod(info.Entities.GetValueOrDefault("Period")?.FirstOrDefault());
-            var state = OpenAirText.GetTimesheetState(info.Entities.GetValueOrDefault("State")?.FirstOrDefault());
+            var state = OpenAirText.GetTimesheetState(info.Entities.GetValueOrDefault(nameof(State))?.FirstOrDefault());
             var today = Contract.LocalDateTime.Date;
             var date = period == OpenAirPeriodTypes.LastWeek ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
             var senderEmail = originalChatEvent.Message.Sender.Email;

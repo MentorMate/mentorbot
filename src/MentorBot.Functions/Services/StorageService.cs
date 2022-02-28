@@ -105,6 +105,29 @@ namespace MentorBot.Functions.Services
                 $"SELECT TOP 1000 * FROM {StatisticsDocumentName} s WHERE s.Data == '{date}' AND s.Time == '{time}'",
                 StatisticsDocumentName));
 
+        /// <inheritdoc/>
+        public Task<State> GetStateAsync(string email) =>
+            Task.FromResult(
+                QueryWhenConnected<State>($"SELECT TOP 1 * FROM states s WHERE s.email == '{email}'", UserDocumentName).FirstOrDefault());
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateStateAsync(State state) =>
+            ExecuteIfConnectedAsync<State, bool>(doc => doc.AddOrUpdateAsync(state), UserDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(int? parentId, int index) =>
+            Task.FromResult(
+                QueryWhenConnected<QuestionAnswer>(
+                    $"SELECT TOP 1 * FROM QuestionsAndAnswers qa WHERE qa.parentId == '{parentId}' AND qa.index == '{index}'",
+                    UserDocumentName).FirstOrDefault());
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId) =>
+            Task.FromResult(
+                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
+                    $"SELECT * FROM QuestionsAndAnswers qa WHERE qa.parentId == '{parentId}'",
+                    UserDocumentName).FirstOrDefault());
+
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {
             if (_documentClientService.IsConnected)

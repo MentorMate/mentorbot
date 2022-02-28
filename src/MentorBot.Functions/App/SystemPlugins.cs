@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Processors.BuildInfo;
 using MentorBot.Functions.Processors.Issues;
+using MentorBot.Functions.Processors.Searches;
 using MentorBot.Functions.Processors.Timesheets;
 
 namespace MentorBot.Functions.App
@@ -241,6 +242,46 @@ namespace MentorBot.Functions.App
                 },
             };
 
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
+        private static readonly Plugin Confluence = new()
+        {
+            Id = "61710ba2-e2c8-4140-9867-6bd3a7b2f282",
+            Name = "Confluence",
+            ProcessorTypeName = "MentorBot.Functions.Processors.Searches.SearchesProcessor",
+            Enabled = true,
+            Groups =
+                new[]
+                {
+                    new PluginPropertyGroup
+                    {
+                        Name = "Confluence Hosts",
+                        UniqueName = SearchesProperties.HostsGroup,
+                        Multi = false,
+                        ObjectType = PropertyObjectTypes.Settings,
+                        Properties = new[]
+                        {
+                            new PluginProperty
+                            {
+                                Name = "Username",
+                                UniqueName = SearchesProperties.User,
+                                ValueType = PropertyValueTypes.String,
+                            },
+                            new PluginProperty
+                            {
+                                Name = "Token",
+                                UniqueName = SearchesProperties.Token,
+                                ValueType = PropertyValueTypes.String,
+                            },
+                        },
+                    },
+                },
+            Examples = new[]
+            {
+                "Who are the Beatles",
+                "What is Sun",
+            },
+        };
+
         /// <summary>Gets the system plugins.</summary>
         public static Plugin[] GetSystemPlugins() =>
             new[]
@@ -330,6 +371,7 @@ namespace MentorBot.Functions.App
                             "Show user Jhon Doe",
                         },
                     },
+                    Confluence
                 };
     }
 }
