@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
+using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors;
+using MentorBot.Functions.Processors.UserFlow;
 
 using Microsoft.Extensions.Caching.Memory;
 
@@ -52,6 +54,33 @@ namespace MentorBot.Functions.Services
             text = BotSelfPoint.Replace(text, string.Empty).Trim();
 
             var query = text.TrimStart(' ').TrimEnd('?', '.', '!');
+
+            var state = await _storageService.GetStateAsync(chatEvent.Message.Sender.Email);
+            if (state == null)
+            {
+                var newState = new State
+                {
+                    UserEmail = chatEvent.Message.Sender.Email,
+                };
+
+                await _storageService.AddOrUpdateStateAsync(newState);
+                state = await _storageService.GetStateAsync(chatEvent.Message.Sender.Email);
+            }
+
+            if (text == "Frequently asked questions" || state.Active)
+            {
+                var userFlowProcessor = typeof(UserFlowProcessor).FullName;
+                var plugins = await GetPluginsAsync();
+                var processor = _commandProcessors.FirstOrDefault(p => p.Name == userFlowProcessor);
+                var plugin = plugins.FirstOrDefault(
+                        it => it.ProcessorTypeName.Equals(userFlowProcessor, StringComparison.InvariantCulture));
+                var accessor = PluginPropertiesAccessor.GetInstance(chatEvent.Message.Sender.Email, plugin, _storageService);
+                var information = new TextDeconstructionInformation(query, string.Empty);
+                return new CognitiveTextAnalysisResult(
+                            information,
+                            processor,
+                            accessor);
+            }
 
             var definition = await _connector.DeconstructAsync(query) ??
                 new TextDeconstructionInformation(query, string.Empty);

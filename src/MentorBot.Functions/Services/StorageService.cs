@@ -108,7 +108,7 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<State> GetStateAsync(string email) =>
             Task.FromResult(
-                QueryWhenConnected<State>($"SELECT TOP 1 * FROM states s WHERE s.email == '{email}'", UserDocumentName).FirstOrDefault());
+                QueryWhenConnected<State>($"SELECT TOP 1 * FROM states s WHERE s.useremail == '{email}'", UserDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
         public Task<bool> AddOrUpdateStateAsync(State state) =>
@@ -126,6 +126,13 @@ namespace MentorBot.Functions.Services
             Task.FromResult(
                 QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
                     $"SELECT * FROM QuestionsAndAnswers qa WHERE qa.parentId == '{parentId}'",
+                    UserDocumentName).FirstOrDefault());
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
+            Task.FromResult(
+                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
+                    $"SELECT * FROM QuestionsAndAnswers qa WHERE qa.parentId == null",
                     UserDocumentName).FirstOrDefault());
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)

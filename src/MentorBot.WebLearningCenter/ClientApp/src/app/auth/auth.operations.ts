@@ -3,6 +3,7 @@ const routes: Record<string, string | string[] | null> = {
   '/app/settings': 'administrator',
   '/app/users': 'administrator',
   '/app/about': null,
+  '/app/questions': 'administrator',
 };
 
 export interface UserInfo {

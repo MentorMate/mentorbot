@@ -46,6 +46,10 @@ export const appRoutes: Routes = [
         path: 'about',
         loadChildren: () => import('./about/about.module').then(m => m.AboutModule),
       },
+      {
+        path: 'questions',
+        loadChildren: () => import('./questions/question.module').then(m => m.QuestionsModule),
+      },
       { path: '**', component: NotFoundPageComponent },
     ],
   },

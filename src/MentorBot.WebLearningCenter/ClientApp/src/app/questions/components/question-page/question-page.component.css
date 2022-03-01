@@ -1,0 +1,7 @@
+.example-tree-invisible {
+  display: none;
+}
+.tree-customising {
+  display: flex;
+  justify-content: space-between;
+}

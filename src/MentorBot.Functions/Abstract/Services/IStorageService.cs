@@ -69,5 +69,8 @@ namespace MentorBot.Functions.Abstract.Services
 
         /// <summary>Gets a question or an answer based on parentId and index asynchronous.</summary>
         Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId);
+
+        /// <summary>Gets the initial questions asynchronous.</summary>
+        Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions();
     }
 }

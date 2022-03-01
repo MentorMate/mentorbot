@@ -20,6 +20,7 @@ using MentorBot.Functions.Processors.BuildInfo;
 using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Searches;
 using MentorBot.Functions.Processors.Timesheets;
+using MentorBot.Functions.Processors.UserFlow;
 using MentorBot.Functions.Processors.UserInfo;
 using MentorBot.Functions.Services;
 using MentorBot.Functions.Services.AzureStorage;
@@ -95,6 +96,7 @@ namespace MentorBot.Functions.App.Extensions
             services.AddTransient<ICommandProcessor, IssuesProcessor>();
             services.AddTransient<ICommandProcessor, UserInfoProcessor>();
             services.AddTransient<ICommandProcessor, SearchesProcessor>();
+            services.AddTransient<ICommandProcessor, UserFlowProcessor>();
             services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();

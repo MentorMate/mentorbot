@@ -182,7 +182,7 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<State> GetStateAsync(string email) =>
-            _tableClientService.QueryAsync<State>($"Email eq '{email.ToLower()}'", 1)
+            _tableClientService.QueryAsync<State>($"UserEmail eq '{email.ToLower()}'", 1)
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>
@@ -205,7 +205,12 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId) =>
-            _tableClientService.QueryAsync<QuestionAnswer>(3000)
+            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}'", 3000)
+                .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
+            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq null", 3000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
     }
 }

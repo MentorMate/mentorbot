@@ -16,6 +16,10 @@ namespace MentorBot.Functions.Models.Domains
         [RowKey]
         public string UserEmail { get; set; }
 
+        /// <summary>Gets the partition key for this record.</summary>
+        [PartitionKey]
+        public string PartitionKey { get; } = "System";
+
         /// <summary>Gets or sets the answered questions.</summary>
         public List<int> AnsweredQuestions { get; set; }
 

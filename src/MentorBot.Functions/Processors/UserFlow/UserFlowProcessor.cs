@@ -44,16 +44,27 @@ namespace MentorBot.Functions.Processors.UserFlow
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var hosts = accessor.GetPluginPropertyGroup(SearchesProperties.HostsGroup).FirstOrDefault();
+            var hosts = accessor.GetPluginPropertyGroup(UserFlowProperties.HostsGroup).FirstOrDefault();
             if (hosts == null)
             {
                 return new ChatEventResult("No Confluence hosts are configured.");
             }
 
-            var user = hosts.GetValue<string>(SearchesProperties.User);
+            var user = hosts.GetValue<string>(UserFlowProperties.User);
 
             var state = await _storageService.GetStateAsync(user);
-            var index = info.Entities.GetValueOrDefault("Query", null).First();
+
+            if (info.TextSentenceChunk == "Frequently asked questions")
+            {
+                var initialQuestions = await _storageService.GetInitialQuestions();
+                var initialQuestionsCard = CreateCard(initialQuestions);
+                state.Active = true;
+                await _storageService.AddOrUpdateStateAsync(state);
+
+                return new ChatEventResult(initialQuestionsCard);
+            }
+
+            var index = info.TextSentenceChunk;
 
             var parentId = state.AnsweredQuestions.Count == 0 ? (int?)null : state.AnsweredQuestions.Last();
 
@@ -69,7 +80,14 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             await _storageService.AddOrUpdateStateAsync(state);
 
-            var card = new Card
+            var card = CreateCard(nextQuestionsOrAnswer);
+
+            return new ChatEventResult(card);
+        }
+
+        private static Card CreateCard(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
+        {
+            return new Card
             {
                 Header = new CardHeader
                 {
@@ -89,8 +107,6 @@ namespace MentorBot.Functions.Processors.UserFlow
                         }
                     },
             };
-
-            return new ChatEventResult(card);
         }
     }
 }

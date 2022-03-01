@@ -6,6 +6,7 @@ using MentorBot.Functions.Processors.BuildInfo;
 using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Searches;
 using MentorBot.Functions.Processors.Timesheets;
+using MentorBot.Functions.Processors.UserFlow;
 
 namespace MentorBot.Functions.App
 {
@@ -282,6 +283,39 @@ namespace MentorBot.Functions.App
             },
         };
 
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000", Justification = "new format")]
+        private static readonly Plugin UserFlow = new()
+        {
+            Id = "d5f3bb5a-a5cc-422a-91ab-f7882fc1cda0",
+            Name = "UserFlow",
+            ProcessorTypeName = "MentorBot.Functions.Processors.UserFlow.UserFlowProcessor",
+            Enabled = true,
+            Groups =
+                new[]
+                {
+                    new PluginPropertyGroup
+                    {
+                        Name = "UserFlow Hosts",
+                        UniqueName = UserFlowProperties.HostsGroup,
+                        Multi = false,
+                        ObjectType = PropertyObjectTypes.Settings,
+                        Properties = new[]
+                        {
+                            new PluginProperty
+                            {
+                                Name = "Username",
+                                UniqueName = UserFlowProperties.User,
+                                ValueType = PropertyValueTypes.String,
+                            },
+                        },
+                    },
+                },
+            Examples = new[]
+            {
+                "Frequently asked questions"
+            },
+        };
+
         /// <summary>Gets the system plugins.</summary>
         public static Plugin[] GetSystemPlugins() =>
             new[]
@@ -371,7 +405,8 @@ namespace MentorBot.Functions.App
                             "Show user Jhon Doe",
                         },
                     },
-                    Confluence
+                    Confluence,
+                    UserFlow
                 };
     }
 }
