@@ -85,6 +85,21 @@ namespace MentorBot.Functions
             await storageService.AddOrUpdateUserAsync(user);
         }
 
+        /// <summary>Sets the questions. </summary>
+        [Function("save-questions")]
+        public static async Task SaveQuestionsAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Post), Route = null)] HttpRequestData req,
+            FunctionContext context)
+        {
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
+
+            var storageService = context.Get<IStorageService>();
+
+            var questions = await req.ReadAsAsync<QuestionAnswer[]>();
+
+            await storageService.AddOrUpdateQuestionsAsync(questions);
+        }
+
         private static DateTime GetLocalDateTime(FunctionContext context) =>
             TimeZoneInfo.ConvertTime(
                 context.Get<Func<DateTime>>()(),

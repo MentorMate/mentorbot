@@ -65,12 +65,18 @@ namespace MentorBot.Functions.Abstract.Services
         Task<bool> AddOrUpdateStateAsync(State state);
 
         /// <summary>Gets a question or an answer based on parentId and index asynchronous.</summary>
-        Task<QuestionAnswer> GetQuestionOrAnswerAsync(int? parentId, int index);
+        Task<QuestionAnswer> GetQuestionOrAnswerAsync(string parentId, int index);
 
         /// <summary>Gets a question or an answer based on parentId and index asynchronous.</summary>
-        Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId);
+        Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId);
 
         /// <summary>Gets the initial questions asynchronous.</summary>
         Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions();
+
+        /// <summary>Adds or updates questions asynchronous.</summary>
+        Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers);
+
+        /// <summary>Gets all questions and answers asynchronous.</summary>
+        Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions();
     }
 }

@@ -199,18 +199,36 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(int? parentId, int index) =>
+        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(string parentId, int index) =>
             _tableClientService.QueryAsync<QuestionAnswer>($"Index eq '{index}' AND parentId eq '{parentId}'", 1)
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId) =>
+        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId) =>
             _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}'", 3000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
             _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq null", 3000)
+                .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers)
+        {
+            if (!_tableClientService.IsConnected)
+            {
+                return false;
+            }
+
+            await _tableClientService.MergeOrInsertListAsync<QuestionAnswer>(questionAnswers);
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions() =>
+            _tableClientService.QueryAsync<QuestionAnswer>(1000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
     }
 }

@@ -188,6 +188,23 @@ namespace MentorBot.Functions
             return data;
         }
 
+        /// <summary>Gets all questions and answers asynchronous.</summary>
+        [Function("get-questions")]
+        public static async Task<IEnumerable<QuestionAnswer>> GetQuestionsAnswersAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
+        {
+            Contract.Ensures(req != null, "Request is not instanciated");
+
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
+
+            var storageService = context.Get<IStorageService>() ?? throw new NullReferenceException();
+
+            var data = await storageService.GetAllQuestions();
+
+            return data;
+        }
+
         private static DateTime GetLastDateTime(DateTime now, DayOfWeek dayOfWeek, int hour)
         {
             var startDateTime = now.Hour < hour ? now.AddDays(-1) : now;

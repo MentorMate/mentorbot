@@ -18,6 +18,8 @@ namespace MentorBot.Functions.Services
         private const string AddressDocumentName = "addresses";
         private const string MessagesDocumentName = "messages";
         private const string PluginsDocumentName = "plugins";
+        private const string StatesDocumentName = "states";
+        private const string QuestionsDocumentName = "QuestionsAndAnswers";
 
         private readonly IDocumentClientService _documentClientService;
 
@@ -108,32 +110,41 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<State> GetStateAsync(string email) =>
             Task.FromResult(
-                QueryWhenConnected<State>($"SELECT TOP 1 * FROM states s WHERE s.useremail == '{email}'", UserDocumentName).FirstOrDefault());
+                QueryWhenConnected<State>($"SELECT TOP 1 * FROM {StatesDocumentName} s WHERE s.useremail == '{email}'", StatesDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
         public Task<bool> AddOrUpdateStateAsync(State state) =>
-            ExecuteIfConnectedAsync<State, bool>(doc => doc.AddOrUpdateAsync(state), UserDocumentName, false);
+            ExecuteIfConnectedAsync<State, bool>(doc => doc.AddOrUpdateAsync(state), StatesDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(int? parentId, int index) =>
+        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(string parentId, int index) =>
             Task.FromResult(
                 QueryWhenConnected<QuestionAnswer>(
-                    $"SELECT TOP 1 * FROM QuestionsAndAnswers qa WHERE qa.parentId == '{parentId}' AND qa.index == '{index}'",
-                    UserDocumentName).FirstOrDefault());
+                    $"SELECT TOP 1 * FROM {QuestionsDocumentName} qa WHERE qa.parentId == '{parentId}' AND qa.index == '{index}'",
+                    QuestionsDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(int parentId) =>
+        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId) =>
             Task.FromResult(
                 QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
-                    $"SELECT * FROM QuestionsAndAnswers qa WHERE qa.parentId == '{parentId}'",
-                    UserDocumentName).FirstOrDefault());
+                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.parentId == '{parentId}'",
+                    QuestionsDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
             Task.FromResult(
                 QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
-                    $"SELECT * FROM QuestionsAndAnswers qa WHERE qa.parentId == null",
-                    UserDocumentName).FirstOrDefault());
+                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.parentId == null",
+                    QuestionsDocumentName).FirstOrDefault());
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers) =>
+            ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions() =>
+            Task.FromResult(
+                QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

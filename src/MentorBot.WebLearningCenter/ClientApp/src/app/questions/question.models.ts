@@ -1,6 +1,8 @@
-import { PluginValue } from '../settings/settings.models';
-
 export interface Question {
-  name: string;
+  id?: string;
+  questionId?: string;
+  index: number;
+  content: string;
+  type: number;
   subQuestions: Question[];
 }

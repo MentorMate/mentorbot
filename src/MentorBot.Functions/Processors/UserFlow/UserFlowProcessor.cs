@@ -66,7 +66,7 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var index = info.TextSentenceChunk;
 
-            var parentId = state.AnsweredQuestions.Count == 0 ? (int?)null : state.AnsweredQuestions.Last();
+            var parentId = state.AnsweredQuestions.Count == 0 ? null : state.AnsweredQuestions.Last();
 
             var question = await _storageService.GetQuestionOrAnswerAsync(parentId, int.Parse(index));
 

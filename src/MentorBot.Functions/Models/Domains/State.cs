@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
@@ -21,7 +17,7 @@ namespace MentorBot.Functions.Models.Domains
         public string PartitionKey { get; } = "System";
 
         /// <summary>Gets or sets the answered questions.</summary>
-        public List<int> AnsweredQuestions { get; set; }
+        public List<string> AnsweredQuestions { get; set; }
 
         /// <summary>Gets or sets a value indicating whether gets or sets the active status.</summary>
         public bool Active { get; set; }

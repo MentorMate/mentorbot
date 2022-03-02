@@ -16,7 +16,8 @@ export class QuestionService {
     return this.http.get<Question[]>(QuestionService.url);
   }
 
-  saveQuestions(question: Question): Observable<Object> {
-    return this.http.post(QuestionService.saveQuestions, question);
+  saveQuestions(questions: Question[]): Observable<Object> {
+    console.log('im here but...');
+    return this.http.post(QuestionService.saveQuestions, questions);
   }
 }
