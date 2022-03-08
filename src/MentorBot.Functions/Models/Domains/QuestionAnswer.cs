@@ -1,5 +1,7 @@
 ﻿using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
+using Newtonsoft.Json;
+
 namespace MentorBot.Functions.Models.Domains
 {
     /// <summary> Either a question or an answer. </summary>
@@ -15,18 +17,22 @@ namespace MentorBot.Functions.Models.Domains
         public string PartitionKey { get; } = "System";
 
         /// <summary> Gets or sets the parent id. </summary>
-        public string QuestionId { get; set; }
+        public string ParentId { get; set; }
 
         /// <summary> Gets or sets the index. </summary>
         public int Index { get; set; }
+
+        /// <summary> Gets or sets the title. </summary>
+        public string Title { get; set; }
 
         /// <summary> Gets or sets the content. </summary>
         public string Content { get; set; }
 
         /// <summary> Gets or sets the type. </summary>
-        public QuestionAnswerType Type { get; set; }
+        public int Type { get; set; }
 
         /// <summary> Gets or sets the subquestions. </summary>
+        [StoreAsJsonObject]
         public QuestionAnswer[] SubQuestions { get; set; }
     }
 }

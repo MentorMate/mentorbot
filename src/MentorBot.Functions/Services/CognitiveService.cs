@@ -67,7 +67,7 @@ namespace MentorBot.Functions.Services
                 state = await _storageService.GetStateAsync(chatEvent.Message.Sender.Email);
             }
 
-            if (text == "Frequently asked questions" || state.Active)
+            if (state != null && state.Active)
             {
                 var userFlowProcessor = typeof(UserFlowProcessor).FullName;
                 var plugins = await GetPluginsAsync();

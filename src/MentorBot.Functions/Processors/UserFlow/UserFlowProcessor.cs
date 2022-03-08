@@ -73,7 +73,7 @@ namespace MentorBot.Functions.Processors.UserFlow
             var nextQuestionsOrAnswer = await _storageService.GetQuestionsOrAnswerAsync(question.Id);
             state.AnsweredQuestions.Add(question.Id);
 
-            if (nextQuestionsOrAnswer.Count == 1 && nextQuestionsOrAnswer.First().Type == QuestionAnswerType.Answer)
+            if (nextQuestionsOrAnswer.Count == 1 && nextQuestionsOrAnswer.First().Type == (int)QuestionAnswerType.Answer)
             {
                 state.Active = false;
             }
