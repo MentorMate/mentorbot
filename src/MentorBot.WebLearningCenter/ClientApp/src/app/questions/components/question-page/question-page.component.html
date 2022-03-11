@@ -1,66 +1,96 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-        <button mat-icon-button matTreeNodeToggle
-                [attr.aria-label]="'toggle ' + node.filename">
-            <mat-icon class="mat-icon-rtl-mirror">
-                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-            </mat-icon>
-        </button>
-        {{node.item}}
-        <button mat-icon-button (click)="addNewItem(node)">
-            <mat-icon>add</mat-icon>
-        </button>
-    </mat-tree-node>
 
     <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
-        <button mat-icon-button disabled></button>
-        <mat-form-field>
-            <input matInput #itemValue placeholder="">
-        </mat-form-field>
-        <mat-form-field>
-            <select matInput #typeValue>
-                <option *ngFor="let type of nodeType" [value]="type">{{type}}</option>
-            </select>
-            <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}">
-        </mat-form-field>
-        <button mat-button
-                (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value)">Save</button>
+        <div class="column">
+            <button mat-icon-button disabled></button>
+            <mat-form-field>
+                <input matInput #itemValue placeholder="">
+            </mat-form-field>
+            <mat-form-field>
+                <div>
+                    <input id="home" type="checkbox" #home>
+                    <label for="home">Office + Home/Home</label>
+                </div>
+                <div>
+                    <input id="remote" type="checkbox" #remote>
+                    <label for="remote">Flexible Remote</label>
+                </div>
+                <div>
+                    <input id="contractor" type="checkbox" #contractor>
+                    <label for="contractor">Contractor</label>
+                </div>
+                <div>
+                    <input id="devCamps" type="checkbox" #devCamps>
+                    <label for="devCamps">DevCampers -> Q&A</label>
+                </div>
+                <select matInput #typeValue>
+                    <option *ngFor="let type of nodeType" [value]="type">{{type}}</option>
+                </select>
+                <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}">
+            </mat-form-field>
+            <button mat-button
+                    (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value, home.checked, remote.checked, contractor.checked, devCamps.checked)">Save</button>
+        </div>
     </mat-tree-node>
 
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-        <button *ngIf="node.type != 2" mat-icon-button matTreeNodeToggle
+        <button *ngIf="node.type != '2'" mat-icon-button matTreeNodeToggle
                 [attr.aria-label]="'toggle ' + node.filename">
             <mat-icon class="mat-icon-rtl-mirror">
                 {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
             </mat-icon>
         </button>
-        {{node.item}}
-        <br>
-        <div *ngIf="node.type === 2">
-            <p> Answer content: {{node.content}}</p>
+        <div class="column">
+            <div>
+                {{node.item}}
+            </div>
+            <div *ngIf="node.type === '2'">
+                <p> Answer content: {{node.content}}</p>
+            </div>
         </div>
-        <button *ngIf="node.type != 2" mat-icon-button (click)="addNewItem(node)">
+        <button *ngIf="node.type != '2'" mat-icon-button (click)="addNewItem(node)">
             <mat-icon>add</mat-icon>
         </button>
         <button mat-icon-button (click)="editItem(node)">
             <mat-icon>edit</mat-icon>
         </button>
-        <div *ngIf="node.editMode">
-            <button mat-icon-button disabled></button>
+        <div *ngIf="node.editMode" class="column">
+            <div>
+                <input id="home" type="checkbox" #home [checked]="node.mentorMaterType[0]">
+                <label for="home">Office + Home/Home</label>
+            </div>
+            <div>
+                <input id="remote" type="checkbox" #remote [checked]="node.mentorMaterType[1]">
+                <label for="remote">Flexible Remote</label>
+            </div>
+            <div>
+                <input id="contractor" type="checkbox" #contractor [checked]="node.mentorMaterType[2]">
+                <label for="contractor">Contractor</label>
+            </div>
+            <div>
+                <input id="devCamps" type="checkbox" #devCamps [checked]="node.mentorMaterType[3]">
+                <label for="devCamps">DevCampers -> Q&A</label>
+            </div>
             <mat-form-field>
-                <input matInput #itemValue [value]="node.item">
+                <input type="text" matInput #itemValue [value]="node.item">
             </mat-form-field>
             <mat-form-field>
                 <select matInput #typeValue>
                     <option *ngFor="let type of nodeType; let i = index" [selected]="i + 1 === node.type" [value]="type">{{type}}</option>
                 </select>
-                <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}"
-                       [value]="node.content">
+                <div>
+                    {{typeValue.value==='Answer' ? 'Answer' : ''}}
+                    <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}"
+                           [value]="node.content">
+                </div>
             </mat-form-field>
             <button mat-button
-                    (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value)">Save</button>
+                    (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value, home.checked, remote.checked, contractor.checked, devCamps.checked)">Save</button>
+            <button mat-icon-button (click)="cancelEdit(node)">
+                Cancel
+            </button>
         </div>
     </mat-tree-node>
 </mat-tree>

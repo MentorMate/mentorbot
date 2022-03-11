@@ -1,15 +1,15 @@
 export class Question {
   id?: string;
   parentId?: string;
-  index?: number;
+  index?: string;
   title: string = '';
   content?: string;
-  type?: number;
+  type?: string;
+  mentorMaterType: boolean[] = [false, false, false, false];
   subQuestions: Question[] = [];
 }
 
 export enum NodeType {
   'Question' = 1,
   'Answer' = 2,
-  'Category' = 3,
 }

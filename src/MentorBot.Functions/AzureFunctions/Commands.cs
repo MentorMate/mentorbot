@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -97,7 +98,38 @@ namespace MentorBot.Functions
 
             var questions = await req.ReadAsAsync<QuestionAnswer[]>();
 
-            await storageService.AddOrUpdateQuestionsAsync(questions);
+            var questionsToList = questions.ToList();
+
+            var parentId = string.Empty;
+
+            var index = 1;
+
+            for (int i = 0; i < questionsToList.Count; i++)
+            {
+                if (questionsToList[i].ParentId != parentId)
+                {
+                    index = 1;
+                    parentId = questionsToList[i].ParentId;
+                }
+
+                questionsToList[i].Index = index.ToString();
+                index++;
+
+                if (questionsToList[i].SubQuestions.Length != 0)
+                {
+                    var subQuestions = questionsToList[i].SubQuestions;
+                    for (int j = 0; j < subQuestions.Length; j++)
+                    {
+                        subQuestions[j].Index = (j + 1).ToString();
+                        subQuestions[j].ParentId = questionsToList[i].Id;
+                    }
+
+                    questionsToList[i].SubQuestions = null;
+                    questionsToList.AddRange(subQuestions);
+                }
+            }
+
+            await storageService.AddOrUpdateQuestionsAsync(questionsToList);
         }
 
         private static DateTime GetLocalDateTime(FunctionContext context) =>

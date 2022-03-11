@@ -182,7 +182,7 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<State> GetStateAsync(string email) =>
-            _tableClientService.QueryAsync<State>($"UserEmail eq '{email.ToLower()}'", 1)
+            _tableClientService.QueryAsync<State>($"UserEmail eq {email.ToLower()}", 1)
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>
@@ -200,17 +200,17 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<QuestionAnswer> GetQuestionOrAnswerAsync(string parentId, int index) =>
-            _tableClientService.QueryAsync<QuestionAnswer>($"Index eq '{index}' AND parentId eq '{parentId}'", 1)
+            _tableClientService.QueryAsync<QuestionAnswer>($"Index eq {index} AND ParentId eq '{parentId}'", 1)
                 .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId) =>
-            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}'", 3000)
+            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}' AND Type ne '3'", 3000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
-            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq null", 3000)
+        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestionsAsync() =>
+            _tableClientService.QueryAsync<QuestionAnswer>($"Type ne '3'", 3000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
@@ -227,8 +227,13 @@ namespace MentorBot.Functions.Services
         }
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions() =>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
             _tableClientService.QueryAsync<QuestionAnswer>(1000)
+                .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetMentorMaterTypes() =>
+            _tableClientService.QueryAsync<QuestionAnswer>($"Type eq 3", 10)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
     }
 }

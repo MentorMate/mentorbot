@@ -71,12 +71,15 @@ namespace MentorBot.Functions.Abstract.Services
         Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId);
 
         /// <summary>Gets the initial questions asynchronous.</summary>
-        Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions();
+        Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestionsAsync();
+
+        /// <summary>Gets the mentormater types asynchronous.</summary>
+        Task<IReadOnlyList<QuestionAnswer>> GetMentorMaterTypes();
 
         /// <summary>Adds or updates questions asynchronous.</summary>
         Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers);
 
         /// <summary>Gets all questions and answers asynchronous.</summary>
-        Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions();
+        Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync();
     }
 }

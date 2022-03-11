@@ -200,9 +200,44 @@ namespace MentorBot.Functions
 
             var storageService = context.Get<IStorageService>() ?? throw new NullReferenceException();
 
-            var data = await storageService.GetAllQuestions();
+            var data = await storageService.GetAllQuestionsAsync();
 
-            return data;
+            var questionViewModels = data
+                .Where(q => q.Type != "3")
+                .Select(q => new QuestionAnswer
+                {
+                    Id = q.Id,
+                    Content = q.Content,
+                    Index = q.Index,
+                    MentorMaterType = q.MentorMaterType,
+                    ParentId = q.ParentId,
+                    Title = q.Title,
+                    Type = q.Type,
+                    SubQuestions = data.Where(d => d.ParentId == q.Id).ToArray(),
+                });
+
+            var result = questionViewModels.ToList();
+
+            var questionsToDelete = new List<QuestionAnswer>();
+
+            foreach (var question in questionViewModels)
+            {
+                if (question.SubQuestions != null && result.Where(q => q.SubQuestions != null).Any(q => q.SubQuestions.Any(sq => sq.ParentId == question.Id)))
+                {
+                    result.First(q => q.Id == question.Id).SubQuestions =
+                        result.Where(q => q.ParentId == question.Id).ToArray();
+
+                    questionsToDelete.AddRange(result.Where(q => q.ParentId == question.Id));
+                }
+                else if (result.Where(q => q.SubQuestions != null).Any(q => q.SubQuestions.Any(sq => sq.ParentId == question.Id)))
+                {
+                    questionsToDelete.AddRange(result.Where(q => q.ParentId == question.Id));
+                }
+            }
+
+            result.RemoveAll(q => questionsToDelete.Any(qtd => qtd.Id == q.Id));
+
+            return result;
         }
 
         private static DateTime GetLastDateTime(DateTime now, DayOfWeek dayOfWeek, int hour)

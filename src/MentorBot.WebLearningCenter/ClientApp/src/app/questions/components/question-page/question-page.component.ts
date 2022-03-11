@@ -11,8 +11,9 @@ export class TodoItemFlatNode {
   item?: string;
   content?: string;
   level!: number;
-  type?: number;
+  type?: string;
   expandable!: boolean;
+  mentorMaterType: boolean[] = [false, false, false, false];
   editMode: boolean = false;
 }
 
@@ -63,24 +64,37 @@ export class ChecklistDatabase {
   /** Add an item to to-do list */
   insertItem(parent: Question, name: string) {
     if (parent.subQuestions) {
-      parent.subQuestions.push({ title: name, subQuestions: [] } as Question);
+      parent.subQuestions.push({ title: name, subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
       this.dataChange.next(this.data);
     } else {
       parent.subQuestions = new Array<Question>();
-      parent.subQuestions.push({ title: name, subQuestions: [] } as Question);
+      parent.subQuestions.push({ title: name, subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
       this.dataChange.next(this.data);
     }
   }
 
   insertTopItem() {
-    this.dataChange.value.push({ title: '', subQuestions: [] } as Question);
+    this.dataChange.value.push({ title: '', subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
     this.dataChange.next(this.data);
   }
 
-  updateItem(node: Question, name: string, type: number, content: string) {
+  updateItem(
+    node: Question,
+    name: string,
+    type: number,
+    content: string,
+    isHome: boolean,
+    isFlexible: boolean,
+    isContractor: boolean,
+    isDevCamp: boolean
+  ) {
     node.title = name;
-    node.type = type;
+    node.type = type.toString();
     node.content = content;
+
+    console.log(node);
+
+    node.mentorMaterType = [isHome, isFlexible, isContractor, isDevCamp];
     this.dataChange.next(this.data);
   }
 }
@@ -146,6 +160,10 @@ export class QuestionPageComponent {
     const flatNode = existingNode && existingNode.item === node.title ? existingNode : new TodoItemFlatNode();
     flatNode.item = node.title;
     flatNode.content = node.content;
+    if (!!node.mentorMaterType) {
+      flatNode.mentorMaterType = node.mentorMaterType;
+    }
+    console.log(node);
     flatNode.level = level;
     flatNode.expandable = !!node.subQuestions;
     flatNode.type = node.type;
@@ -180,9 +198,6 @@ export class QuestionPageComponent {
   addNewItem(node: TodoItemFlatNode) {
     const parentNode = this.flatNodeMap.get(node);
     this.database.insertItem(parentNode!, '');
-    // if (!this.treeControl.isExpandable(node)) {
-    //   node.expandable = true;
-    // }
     this.treeControl.expand(node);
   }
 
@@ -191,22 +206,33 @@ export class QuestionPageComponent {
   }
 
   /** Save the node to database */
-  saveNode(node: TodoItemFlatNode, itemValue: string, itemType: string, itemContent: string) {
+  saveNode(
+    node: TodoItemFlatNode,
+    itemValue: string,
+    itemType: string,
+    itemContent: string,
+    isHome: boolean,
+    isFlexible: boolean,
+    isContractor: boolean,
+    isDevCamp: boolean
+  ) {
     if (itemType != 'Answer') {
       itemContent = '';
     }
     node.expandable = true;
+    console.log(node);
     const nestedNode = this.flatNodeMap.get(node);
     var type: NodeType = (<any>NodeType)[itemType];
     node.editMode = false;
-    this.database.updateItem(nestedNode!, itemValue, type, itemContent);
+    this.database.updateItem(nestedNode!, itemValue, type, itemContent, isHome, isFlexible, isContractor, isDevCamp);
   }
 
   editItem(node: TodoItemFlatNode) {
-    console.log(node);
-    console.log(this.hasNoContent(1, node));
     node.editMode = true;
-    console.log(this.hasNoContent(1, node));
+  }
+
+  cancelEdit(node: TodoItemFlatNode) {
+    node.editMode = false;
   }
 
   save() {

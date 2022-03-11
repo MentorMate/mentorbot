@@ -20,16 +20,20 @@ namespace MentorBot.Functions.Models.Domains
         public string ParentId { get; set; }
 
         /// <summary> Gets or sets the index. </summary>
-        public int Index { get; set; }
+        public string Index { get; set; }
 
         /// <summary> Gets or sets the title. </summary>
         public string Title { get; set; }
+
+        /// <summary> Gets or sets the mentormater type. </summary>
+        [StoreAsJsonObject]
+        public bool[] MentorMaterType { get; set; }
 
         /// <summary> Gets or sets the content. </summary>
         public string Content { get; set; }
 
         /// <summary> Gets or sets the type. </summary>
-        public int Type { get; set; }
+        public string Type { get; set; }
 
         /// <summary> Gets or sets the subquestions. </summary>
         [StoreAsJsonObject]

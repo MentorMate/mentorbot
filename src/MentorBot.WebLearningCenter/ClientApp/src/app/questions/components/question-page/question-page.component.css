@@ -5,3 +5,13 @@
   display: flex;
   justify-content: space-between;
 }
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  border-style: solid;
+  border-width: 1px;
+}

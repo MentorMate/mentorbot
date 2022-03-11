@@ -56,16 +56,6 @@ namespace MentorBot.Functions.Services
             var query = text.TrimStart(' ').TrimEnd('?', '.', '!');
 
             var state = await _storageService.GetStateAsync(chatEvent.Message.Sender.Email);
-            if (state == null)
-            {
-                var newState = new State
-                {
-                    UserEmail = chatEvent.Message.Sender.Email,
-                };
-
-                await _storageService.AddOrUpdateStateAsync(newState);
-                state = await _storageService.GetStateAsync(chatEvent.Message.Sender.Email);
-            }
 
             if (state != null && state.Active)
             {

@@ -131,7 +131,7 @@ namespace MentorBot.Functions.Services
                     QuestionsDocumentName).FirstOrDefault());
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestions() =>
+        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestionsAsync() =>
             Task.FromResult(
                 QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
                     $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.parentId == null",
@@ -142,9 +142,16 @@ namespace MentorBot.Functions.Services
             ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestions() =>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
             Task.FromResult(
                 QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetMentorMaterTypes() =>
+            Task.FromResult(
+                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
+                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.type == 3",
+                    QuestionsDocumentName).FirstOrDefault());
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

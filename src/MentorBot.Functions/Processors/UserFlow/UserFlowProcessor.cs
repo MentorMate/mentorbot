@@ -35,7 +35,7 @@ namespace MentorBot.Functions.Processors.UserFlow
         public string Name => GetType().FullName;
 
         /// <inheritdoc/>
-        public string Subject => nameof(UserFlow);
+        public string Subject => "Userflow";
 
         /// <inheritdoc/>
         public async ValueTask<ChatEventResult> ProcessCommandAsync(
@@ -47,51 +47,101 @@ namespace MentorBot.Functions.Processors.UserFlow
             var hosts = accessor.GetPluginPropertyGroup(UserFlowProperties.HostsGroup).FirstOrDefault();
             if (hosts == null)
             {
-                return new ChatEventResult("No Confluence hosts are configured.");
+                return new ChatEventResult("No UserFlow hosts are configured.");
             }
 
             var user = hosts.GetValue<string>(UserFlowProperties.User);
 
             var state = await _storageService.GetStateAsync(user);
 
-            if (info.TextSentenceChunk == "Frequently asked questions")
+            if (state == null)
             {
-                var initialQuestions = await _storageService.GetInitialQuestions();
-                var initialQuestionsCard = CreateCard(initialQuestions);
+                var newState = new State
+                {
+                    UserEmail = user,
+                };
+
+                await _storageService.AddOrUpdateStateAsync(newState);
+                state = await _storageService.GetStateAsync(user);
+            }
+
+            if (!state.Active)
+            {
+                var mentorMaterTypes = await _storageService.GetMentorMaterTypes();
+                var mentorMaterTypesCard = CreateCard(mentorMaterTypes, "Select your Mentor Mater Type.");
                 state.Active = true;
                 await _storageService.AddOrUpdateStateAsync(state);
 
-                return new ChatEventResult(initialQuestionsCard);
+                return new ChatEventResult(mentorMaterTypesCard);
             }
 
             var index = info.TextSentenceChunk;
 
-            var parentId = state.AnsweredQuestions.Count == 0 ? null : state.AnsweredQuestions.Last();
+            if (state.AnsweredQuestions == null || state.AnsweredQuestions.Count == 0)
+            {
+                state.AnsweredQuestions = new List<string>();
+                state.AnsweredQuestions.Add(index);
+                await _storageService.AddOrUpdateStateAsync(state);
+                var initialQuestions = await _storageService.GetInitialQuestionsAsync();
+                var relativeInitialQuestions = initialQuestions.Where(q => q.MentorMaterType[int.Parse(index) - 1]).ToList();
+                relativeInitialQuestions = relativeInitialQuestions.Where(q => q.ParentId == null).ToList();
+                var initialQuestionsCard = CreateCard(relativeInitialQuestions, "Select a category.");
 
-            var question = await _storageService.GetQuestionOrAnswerAsync(parentId, int.Parse(index));
+                return new ChatEventResult(initialQuestionsCard);
+            }
 
-            var nextQuestionsOrAnswer = await _storageService.GetQuestionsOrAnswerAsync(question.Id);
+            var parentId = state.AnsweredQuestions.Count == 1 ? null : state.AnsweredQuestions.Last();
+
+            var questions = await _storageService.GetQuestionsOrAnswerAsync(parentId);
+
+            var relativeQuestions = questions.Where(q => q.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]).ToList();
+
+            if (parentId == null)
+            {
+                relativeQuestions = relativeQuestions.Where(q => q.ParentId == null).ToList();
+            }
+
+            var question = relativeQuestions[int.Parse(index) - 1];
+
+            var nextQuestionsOrAnswerQuery = await _storageService.GetQuestionsOrAnswerAsync(question.Id);
             state.AnsweredQuestions.Add(question.Id);
 
-            if (nextQuestionsOrAnswer.Count == 1 && nextQuestionsOrAnswer.First().Type == (int)QuestionAnswerType.Answer)
+            var nextQuestionsOrAnswer = nextQuestionsOrAnswerQuery.Where(q => q.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]).ToList();
+
+            if (nextQuestionsOrAnswer.Any(x => x.Type == "2" && x.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]))
             {
                 state.Active = false;
+                var answer = nextQuestionsOrAnswer
+                    .First(x => x.Type == "2"
+                    && x.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]);
+
+                state.AnsweredQuestions.RemoveAll(s => s != null);
+
+                await _storageService.AddOrUpdateStateAsync(state);
+
+                var result = new List<QuestionAnswer>();
+
+                result.Add(answer);
+
+                var answerCard = CreateCard(result, answer.Title);
+
+                return new ChatEventResult(answerCard);
             }
 
             await _storageService.AddOrUpdateStateAsync(state);
 
-            var card = CreateCard(nextQuestionsOrAnswer);
+            var card = CreateCard(nextQuestionsOrAnswer, "Select a category/question.");
 
             return new ChatEventResult(card);
         }
 
-        private static Card CreateCard(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
+        private static Card CreateCard(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer, string title)
         {
             return new Card
             {
                 Header = new CardHeader
                 {
-                    Title = "Frequently asked questions"
+                    Title = title,
                 },
                 Sections = new List<Section>
                     {
@@ -101,7 +151,8 @@ namespace MentorBot.Functions.Processors.UserFlow
                             {
                                 TextParagraph = new TextParagraph
                                 {
-                                    Text = $"{index}.{qa.Content}",
+                                    Text = $"{(nextQuestionsOrAnswer.Any(q => q.Type == "2") ? string.Empty : index + 1 + ".")}" +
+                                    $"{(string.IsNullOrWhiteSpace(qa.Content) ? qa.Title : qa.Content)}",
                                 }
                             }).ToList(),
                         }
