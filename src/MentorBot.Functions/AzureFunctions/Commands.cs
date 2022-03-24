@@ -11,6 +11,7 @@ using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.ViewModels;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -96,23 +97,31 @@ namespace MentorBot.Functions
 
             var storageService = context.Get<IStorageService>();
 
-            var questions = await req.ReadAsAsync<QuestionAnswer[]>();
+            var questionsToList = new List<QuestionAnswerViewModel>();
 
-            var questionsToList = questions.ToList();
+            try
+            {
+                var questions = await req.ReadAsAsync<QuestionAnswerViewModel[]>();
+                questionsToList = questions.ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
-            var parentId = string.Empty;
+            var parentIds = new List<string>();
 
             var index = 1;
 
             for (int i = 0; i < questionsToList.Count; i++)
             {
-                if (questionsToList[i].ParentId != parentId)
+                if (!questionsToList[i].Parents.Keys.Any(p => parentIds.FirstOrDefault(pi => pi == p) != null))
                 {
                     index = 1;
-                    parentId = questionsToList[i].ParentId;
+                    parentIds.AddRange(questionsToList[i].Parents.Keys);
                 }
 
-                questionsToList[i].Index = index.ToString();
+                questionsToList[i].Index = index;
                 index++;
 
                 if (questionsToList[i].SubQuestions.Length != 0)
@@ -120,8 +129,7 @@ namespace MentorBot.Functions
                     var subQuestions = questionsToList[i].SubQuestions;
                     for (int j = 0; j < subQuestions.Length; j++)
                     {
-                        subQuestions[j].Index = (j + 1).ToString();
-                        subQuestions[j].ParentId = questionsToList[i].Id;
+                        subQuestions[j].Index = j + 1;
                     }
 
                     questionsToList[i].SubQuestions = null;
@@ -129,7 +137,36 @@ namespace MentorBot.Functions
                 }
             }
 
-            await storageService.AddOrUpdateQuestionsAsync(questionsToList);
+            foreach (var question in questionsToList)
+            {
+                for (int i = 0; i < question.Parents.Count; i++)
+                {
+                    if (questionsToList.Any(q => q.Title == question.Parents.ElementAt(i).Key.Trim()))
+                    {
+                        var parentTitle = question.Parents.ElementAt(i).Key;
+                        var parentId = questionsToList.First(q => q.Title == question.Parents.ElementAt(i).Key.Trim()).Id;
+                        question.Parents.Remove(parentTitle);
+                        question.Parents[parentId] = parentTitle.Trim();
+                    }
+                }
+            }
+
+            var result = questionsToList.GroupBy(x => x.Id)
+                .Select(x => x.OrderByDescending(x => x.IsEdited))
+                .Select(x => new QuestionAnswer
+                {
+                    Id = x.First().Id,
+                    AcquireTraits = x.First().AcquireTraits,
+                    RequiredTraits = x.First().RequiredTraits,
+                    Parents = x.First().Parents,
+                    IsAnswer = x.First().IsAnswer,
+                    Content = x.First().Content,
+                    Index = x.First().Index,
+                    Title = x.First().Title,
+                })
+                .ToList();
+
+            await storageService.AddOrUpdateQuestionsAsync(result);
         }
 
         private static DateTime GetLocalDateTime(FunctionContext context) =>

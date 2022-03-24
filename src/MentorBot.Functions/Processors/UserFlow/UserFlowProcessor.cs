@@ -21,13 +21,11 @@ namespace MentorBot.Functions.Processors.UserFlow
     /// <seealso cref="ICommandProcessor" />
     public sealed class UserFlowProcessor : ICommandProcessor
     {
-        private readonly IConfluenceClient _client;
         private readonly IStorageService _storageService;
 
         /// <summary>Initializes a new instance of the <see cref="UserFlowProcessor"/> class.</summary>
-        public UserFlowProcessor(IConfluenceClient confluenceClient, IStorageService storageService)
+        public UserFlowProcessor(IStorageService storageService)
         {
-            _client = confluenceClient;
             _storageService = storageService;
         }
 
@@ -65,10 +63,14 @@ namespace MentorBot.Functions.Processors.UserFlow
                 state = await _storageService.GetStateAsync(user);
             }
 
+            var questions = await _storageService.GetAllQuestionsAsync();
+
+            var relativeQuestions = questions.ToList();
+
             if (!state.Active)
             {
-                var mentorMaterTypes = await _storageService.GetMentorMaterTypes();
-                var mentorMaterTypesCard = CreateCard(mentorMaterTypes, "Select your Mentor Mater Type.");
+                relativeQuestions = relativeQuestions.Where(q => q.Parents == null || q.Parents.Count == 0).OrderBy(q => q.Index).ToList();
+                var mentorMaterTypesCard = CreateCard(relativeQuestions, "Select your Mentor Mater Type.");
                 state.Active = true;
                 await _storageService.AddOrUpdateStateAsync(state);
 
@@ -77,45 +79,42 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var index = info.TextSentenceChunk;
 
-            if (state.AnsweredQuestions == null || state.AnsweredQuestions.Count == 0)
-            {
-                state.AnsweredQuestions = new List<string>();
-                state.AnsweredQuestions.Add(index);
-                await _storageService.AddOrUpdateStateAsync(state);
-                var initialQuestions = await _storageService.GetInitialQuestionsAsync();
-                var relativeInitialQuestions = initialQuestions.Where(q => q.MentorMaterType[int.Parse(index) - 1]).ToList();
-                relativeInitialQuestions = relativeInitialQuestions.Where(q => q.ParentId == null).ToList();
-                var initialQuestionsCard = CreateCard(relativeInitialQuestions, "Select a category.");
+            var parentId = state.CurrentQuestionId;
 
-                return new ChatEventResult(initialQuestionsCard);
+            if (string.IsNullOrEmpty(parentId) || parentId == "null")
+            {
+                relativeQuestions = relativeQuestions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
             }
-
-            var parentId = state.AnsweredQuestions.Count == 1 ? null : state.AnsweredQuestions.Last();
-
-            var questions = await _storageService.GetQuestionsOrAnswerAsync(parentId);
-
-            var relativeQuestions = questions.Where(q => q.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]).ToList();
-
-            if (parentId == null)
+            else if (state.Traits.Count == 0)
             {
-                relativeQuestions = relativeQuestions.Where(q => q.ParentId == null).ToList();
+                relativeQuestions = relativeQuestions.Where(q => q.Parents.ContainsKey(parentId)).ToList();
+            }
+            else
+            {
+                relativeQuestions = questions
+                .Where(q => q.RequiredTraits.Any(t => state.Traits.FirstOrDefault(st => st == t) != null)
+                && q.Parents.ContainsKey(parentId)).ToList();
             }
 
             var question = relativeQuestions[int.Parse(index) - 1];
 
-            var nextQuestionsOrAnswerQuery = await _storageService.GetQuestionsOrAnswerAsync(question.Id);
-            state.AnsweredQuestions.Add(question.Id);
+            state.Traits.AddRange(question.AcquireTraits);
 
-            var nextQuestionsOrAnswer = nextQuestionsOrAnswerQuery.Where(q => q.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]).ToList();
+            var nextQuestionsOrAnswer = questions
+                .Where(q => q.Parents.ContainsKey(question.Id)
+            && q.RequiredTraits.Any(t => state.Traits.FirstOrDefault(st => st == t) != null))
+                .ToList();
 
-            if (nextQuestionsOrAnswer.Any(x => x.Type == "2" && x.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]))
+            state.CurrentQuestionId = question.Id;
+
+            if (nextQuestionsOrAnswer.Any(x => x.IsAnswer))
             {
                 state.Active = false;
                 var answer = nextQuestionsOrAnswer
-                    .First(x => x.Type == "2"
-                    && x.MentorMaterType[int.Parse(state.AnsweredQuestions.First()) - 1]);
+                    .First(x => x.IsAnswer);
 
-                state.AnsweredQuestions.RemoveAll(s => s != null);
+                state.CurrentQuestionId = string.Empty;
+                state.Traits.RemoveAll(t => t != null);
 
                 await _storageService.AddOrUpdateStateAsync(state);
 
@@ -151,7 +150,7 @@ namespace MentorBot.Functions.Processors.UserFlow
                             {
                                 TextParagraph = new TextParagraph
                                 {
-                                    Text = $"{(nextQuestionsOrAnswer.Any(q => q.Type == "2") ? string.Empty : index + 1 + ".")}" +
+                                    Text = $"{(nextQuestionsOrAnswer.Any(q => q.IsAnswer) ? string.Empty : index + 1 + ".")}" +
                                     $"{(string.IsNullOrWhiteSpace(qa.Content) ? qa.Title : qa.Content)}",
                                 }
                             }).ToList(),

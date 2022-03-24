@@ -12,6 +12,7 @@ using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.ViewModels;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -190,7 +191,7 @@ namespace MentorBot.Functions
 
         /// <summary>Gets all questions and answers asynchronous.</summary>
         [Function("get-questions")]
-        public static async Task<IEnumerable<QuestionAnswer>> GetQuestionsAnswersAsync(
+        public static async Task<IEnumerable<QuestionAnswerViewModel>> GetQuestionsAnswersAsync(
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
@@ -203,35 +204,51 @@ namespace MentorBot.Functions
             var data = await storageService.GetAllQuestionsAsync();
 
             var questionViewModels = data
-                .Where(q => q.Type != "3")
-                .Select(q => new QuestionAnswer
+                .Select(q => new QuestionAnswerViewModel
                 {
                     Id = q.Id,
                     Content = q.Content,
                     Index = q.Index,
-                    MentorMaterType = q.MentorMaterType,
-                    ParentId = q.ParentId,
+                    AcquireTraits = q.AcquireTraits,
+                    RequiredTraits = q.RequiredTraits,
+                    Parents = q.Parents,
                     Title = q.Title,
-                    Type = q.Type,
-                    SubQuestions = data.Where(d => d.ParentId == q.Id).ToArray(),
+                    IsAnswer = q.IsAnswer,
+                    SubQuestions = data
+                    .Where(d => d.Parents != null && d.Parents.Keys.Contains(q.Id))
+                    .Select(d => new QuestionAnswerViewModel
+                    {
+                        Id = d.Id,
+                        Content = d.Content,
+                        Index = d.Index,
+                        AcquireTraits = d.AcquireTraits,
+                        RequiredTraits = d.RequiredTraits,
+                        Parents = d.Parents,
+                        Title = d.Title,
+                        IsAnswer = d.IsAnswer,
+                    })
+                    .ToArray(),
                 });
 
             var result = questionViewModels.ToList();
 
-            var questionsToDelete = new List<QuestionAnswer>();
+            var questionsToDelete = new List<QuestionAnswerViewModel>();
 
             foreach (var question in questionViewModels)
             {
-                if (question.SubQuestions != null && result.Where(q => q.SubQuestions != null).Any(q => q.SubQuestions.Any(sq => sq.ParentId == question.Id)))
+                if (question.SubQuestions != null && question.SubQuestions.Length
+                    != 0 && result.Where(q => q.SubQuestions != null)
+                    .Any(q => q.SubQuestions.Any(sq => sq.Parents != null && sq.Parents.Keys.Contains(question.Id))))
                 {
                     result.First(q => q.Id == question.Id).SubQuestions =
-                        result.Where(q => q.ParentId == question.Id).ToArray();
+                        result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)).ToArray();
 
-                    questionsToDelete.AddRange(result.Where(q => q.ParentId == question.Id));
+                    questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
                 }
-                else if (result.Where(q => q.SubQuestions != null).Any(q => q.SubQuestions.Any(sq => sq.ParentId == question.Id)))
+                else if (result.Where(q => q.SubQuestions != null)
+                    .Any(q => q.SubQuestions.Any(sq => sq.Parents != null && sq.Parents.Keys.Contains(question.Id))))
                 {
-                    questionsToDelete.AddRange(result.Where(q => q.ParentId == question.Id));
+                    questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
                 }
             }
 

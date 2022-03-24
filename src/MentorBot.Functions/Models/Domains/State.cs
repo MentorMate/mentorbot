@@ -18,9 +18,16 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary>Gets or sets the answered questions.</summary>
         [StoreAsJsonObject]
-        public List<string> AnsweredQuestions { get; set; }
+        public List<string> ShownQuestionIds { get; set; } = new List<string>();
 
-        /// <summary>Gets or sets a value indicating whether gets or sets the active status.</summary>
+        /// <summary>Gets or sets the traits.</summary>
+        [StoreAsJsonObject]
+        public List<string> Traits { get; set; } = new List<string>();
+
+        /// <summary>Gets or sets the current question's id.</summary>
+        public string CurrentQuestionId { get; set; }
+
+        /// <summary>Gets or sets a value indicating whether the status is active.</summary>
         public bool Active { get; set; }
     }
 }

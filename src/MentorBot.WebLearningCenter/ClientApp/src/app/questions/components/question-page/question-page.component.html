@@ -1,106 +1,190 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+<div class="split left">
+    <div>
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
 
-    <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
-        <div class="column">
-            <button mat-icon-button disabled></button>
-            <mat-form-field>
-                <input matInput #itemValue placeholder="">
-            </mat-form-field>
-            <mat-form-field>
-                <div>
-                    <input id="home" type="checkbox" #home>
-                    <label for="home">Office + Home/Home</label>
+            <mat-tree-node class="node" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                <div class="node-content">
+                    <button class="icon-button node-element-height centered" *ngIf="node.type != '2' && !node.editMode" mat-icon-button
+                            matTreeNodeToggle
+                            [attr.aria-label]="'toggle ' + node.filename">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                            {{treeControl.isExpanded(node) ? 'indeterminate_check_box_icon' : 'add_box'}}
+                        </mat-icon>
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
+                    <div class="centered node-element-height centered" draggable="true" (dragend)="handleDragEnd($event)"
+                         ondrop="handleDropEvent($event)">
+                        {{node.item}}
+                    </div>
+                    <button class="icon-button node-element-height centered" *ngIf="!node.editMode" mat-icon-button
+                            (click)="editItem(node)">
+                        <p class="blue-text">Edit</p>
+                    </button>
                 </div>
-                <div>
-                    <input id="remote" type="checkbox" #remote>
-                    <label for="remote">Flexible Remote</label>
+                <div class="short">
+                    <span *ngFor="let trait of node.acquireTraits" class="badge badge-success">{{trait}}</span>
+                    <span *ngFor="let trait of node.requiredTraits" class="badge badge-danger">{{trait}}</span>
                 </div>
-                <div>
-                    <input id="contractor" type="checkbox" #contractor>
-                    <label for="contractor">Contractor</label>
-                </div>
-                <div>
-                    <input id="devCamps" type="checkbox" #devCamps>
-                    <label for="devCamps">DevCampers -> Q&A</label>
-                </div>
-                <select matInput #typeValue>
-                    <option *ngFor="let type of nodeType" [value]="type">{{type}}</option>
-                </select>
-                <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}">
-            </mat-form-field>
-            <button mat-button
-                    (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value, home.checked, remote.checked, contractor.checked, devCamps.checked)">Save</button>
-        </div>
-    </mat-tree-node>
-
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-        <button *ngIf="node.type != '2'" mat-icon-button matTreeNodeToggle
-                [attr.aria-label]="'toggle ' + node.filename">
-            <mat-icon class="mat-icon-rtl-mirror">
-                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-            </mat-icon>
+                <span *ngIf="node.content">{{node.content}}</span>
+            </mat-tree-node>
+        </mat-tree>
+        <button class="icon-button" mat-icon-button (click)="addNewTopItem()">
+            Add
         </button>
-        <div class="column">
-            <div>
-                {{node.item}}
-            </div>
-            <div *ngIf="node.type === '2'">
-                <p> Answer content: {{node.content}}</p>
-            </div>
-        </div>
-        <button *ngIf="node.type != '2'" mat-icon-button (click)="addNewItem(node)">
-            <mat-icon>add</mat-icon>
-        </button>
-        <button mat-icon-button (click)="editItem(node)">
-            <mat-icon>edit</mat-icon>
-        </button>
-        <div *ngIf="node.editMode" class="column">
-            <div>
-                <input id="home" type="checkbox" #home [checked]="node.mentorMaterType[0]">
-                <label for="home">Office + Home/Home</label>
-            </div>
-            <div>
-                <input id="remote" type="checkbox" #remote [checked]="node.mentorMaterType[1]">
-                <label for="remote">Flexible Remote</label>
-            </div>
-            <div>
-                <input id="contractor" type="checkbox" #contractor [checked]="node.mentorMaterType[2]">
-                <label for="contractor">Contractor</label>
-            </div>
-            <div>
-                <input id="devCamps" type="checkbox" #devCamps [checked]="node.mentorMaterType[3]">
-                <label for="devCamps">DevCampers -> Q&A</label>
-            </div>
-            <mat-form-field>
-                <input type="text" matInput #itemValue [value]="node.item">
-            </mat-form-field>
-            <mat-form-field>
-                <select matInput #typeValue>
-                    <option *ngFor="let type of nodeType; let i = index" [selected]="i + 1 === node.type" [value]="type">{{type}}</option>
-                </select>
+
+        <a (click)="save()">SAVE</a>
+    </div>
+</div>
+
+<div *ngIf="editedNode" class="split right">
+    <div *ngIf="editedNode?.item">
+        <h4>Title: {{editedNode?.item}}</h4>
+    </div>
+    <hr *ngIf="editedNode?.item">
+    <div class="edit-content">
+        <div>
+            <div class="top-spacing">
+                Assign Traits
                 <div>
-                    {{typeValue.value==='Answer' ? 'Answer' : ''}}
-                    <input matInput #contentValue type="text" [ngStyle]="{'display': (typeValue.value==='Answer') ? 'block' : 'none'}"
-                           [value]="node.content">
+                    <span *ngFor="let trait of editedNode?.acquireTraits" class="badge badge-success">{{trait}} <span
+                              (click)="prepareForDelete(trait, deletedAcquireTratsList)" aria-hidden="true">&times;</span></span>
                 </div>
-            </mat-form-field>
-            <button mat-button
-                    (click)="saveNode(node, itemValue.value, typeValue.value, contentValue.value, home.checked, remote.checked, contractor.checked, devCamps.checked)">Save</button>
-            <button mat-icon-button (click)="cancelEdit(node)">
-                Cancel
-            </button>
+                <div class="traits-div">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Added</div>
+                        <ul class="bulletless-list panel-body" #addedAcquireTratsList>
+                        </ul>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Removed</div>
+                        <ul class="bulletless-list panel-body" #deletedAcquireTratsList>
+                        </ul>
+                    </div>
+                </div>
+                <div #addAcquireTraits class="top-spacing">
+                    <!-- <div class="input-group">
+                        <input #AcqTraitsInput type="text">
+                        <button (click)="addTrait(addedAcquireTratsList, AcqTraitsInput)" class="input-group-text"
+                                type="button">Add</button>
+                        <button (click)="resetTraitFieldInput(AcqTraitsInput)" class="input-group-text" type="button">Cancel</button>
+                    </div> -->
+                    <!-- <div class="col-lg-6"> -->
+                    <div class="input-group">
+                        <input #AcqTraitsInput type="text" class="form-control" placeholder="">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default input-group-text" (click)="addTrait(addedAcquireTratsList, AcqTraitsInput)"
+                                    type="button">Add</button>
+                            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(AcqTraitsInput)"
+                                    type="button">Cancel</button>
+                        </span>
+                    </div><!-- /input-group -->
+                    <!-- </div>/.col-lg-6 -->
+                </div>
+            </div>
+            <div class="top-spacing">
+                Require Traits
+                <div>
+                    <span *ngFor="let trait of editedNode?.requiredTraits" class="badge badge-danger">{{trait}} <span
+                              (click)="prepareForDelete(trait, deletedRequireTratsList)" aria-hidden="true">&times;</span></span>
+                </div>
+                <div class="traits-div">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Added</div>
+                        <ul class="bulletless-list panel-body" #addedRequireTratsList>
+                        </ul>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Removed</div>
+                        <ul class="bulletless-list panel-body" #deletedRequireTratsList>
+                        </ul>
+                    </div>
+                </div>
+                <div #addRequireTraits class="top-spacing">
+                    <div class="input-group">
+                        <input #ReqTraitsInput type="text" class="form-control" placeholder="">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default input-group-text" (click)="addTrait(addedRequireTratsList, ReqTraitsInput)"
+                                    type="button">Add</button>
+                            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(ReqTraitsInput)"
+                                    type="button">Cancel</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="top-spacing" (dragover)="handleDropEvent($event)">
+                Parent Questions
+                <div>
+                    <span *ngFor="let parent of editedNode?.parents | keyvalue" class="badge badge-parent">{{parent.value}} <span
+                              (click)="prepareForDelete(parent.value, deletedParentQuestions)" aria-hidden="true">&times;</span></span>
+                </div>
+                <div class="traits-div">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Added</div>
+                        <ul id="addedParentQuestions" class="bulletless-list panel-body" #addedParentQuestions>
+                        </ul>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Removed</div>
+                        <ul class="bulletless-list panel-body" #deletedParentQuestions>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-    </mat-tree-node>
-</mat-tree>
-
-<button mat-icon-button (click)="addNewTopItem()">
-    <mat-icon>add</mat-icon>
-</button>
-<br>
-
-<a (click)="save()">SAVE</a>
+        <div>
+            <div class="top-spacing">
+                Type
+                <div>
+                    <select (change)="changeEditNodeIsAnswer($event.target)" class=" higher-input" #typeValue>
+                        <option *ngFor="let type of nodeType; let i = index" [selected]="editedNode?.isAnswer ? i === 1 : i === 0"
+                                [value]="type === 'Answer'">
+                            {{type}}
+                        </option>
+                    </select>
+                    <!-- <div class="btn-group">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                            Action
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Separated link</a>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <div class="top-spacing">
+                {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
+            </div>
+            <div>
+                <input class="form-control" matInput #itemValue placeholder=""
+                       [value]="editedNode?.item === undefined ? '' : editedNode?.item">
+            </div>
+            <div class="top-spacing">
+                Answer content
+                <div>
+                    <textarea matInput #contentValue type="text"
+                              [disabled]="!editedNode?.isAnswer"
+                              [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content">
+                              </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class=" top-spacing">
+        <button mat-button
+                (click)="saveNode(editedNode, itemValue.value, typeValue.value, contentValue.value, addedParentQuestions, addedAcquireTratsList, addedRequireTratsList, deletedParentQuestions, deletedAcquireTratsList, deletedRequireTratsList)">Save</button>
+        <button class="cancel-button" mat-button (click)="cancelEdit()">
+            Cancel
+        </button>
+    </div>
+</div>
 
 <!-- Copyright 2018 Google Inc. All Rights Reserved.
       Use of this source code is governed by an MIT-style license that

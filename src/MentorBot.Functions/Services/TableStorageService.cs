@@ -205,7 +205,7 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId) =>
-            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}' AND Type ne '3'", 3000)
+            _tableClientService.QueryAsync<QuestionAnswer>($"ParentId eq '{parentId}'", 3000)
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>

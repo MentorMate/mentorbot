@@ -1,12 +1,14 @@
 export class Question {
   id?: string;
-  parentId?: string;
+  parents: { [key: string]: string } = {};
   index?: string;
   title: string = '';
   content?: string;
-  type?: string;
-  mentorMaterType: boolean[] = [false, false, false, false];
+  requiredTraits: string[] = [];
+  acquireTraits: string[] = [];
+  isAnswer: boolean = false;
   subQuestions: Question[] = [];
+  isEdited: boolean = false;
 }
 
 export enum NodeType {

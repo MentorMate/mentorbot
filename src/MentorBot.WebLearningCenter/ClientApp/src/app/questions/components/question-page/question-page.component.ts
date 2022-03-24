@@ -8,13 +8,19 @@ import { QuestionService } from '../../question.service';
 
 /** Flat to-do item node with expandable and level information */
 export class TodoItemFlatNode {
+  id?: string;
   item?: string;
   content?: string;
   level!: number;
-  type?: string;
   expandable!: boolean;
-  mentorMaterType: boolean[] = [false, false, false, false];
   editMode: boolean = false;
+  index?: string;
+  parents: { [key: string]: string } = {};
+  requiredTraits: string[] = [];
+  acquireTraits: string[] = [];
+  isAnswer: boolean = false;
+  subQuestions: Question[] = [];
+  isEdited: boolean = false;
 }
 
 /**
@@ -35,7 +41,6 @@ export class ChecklistDatabase {
   }
 
   initialize() {
-    // this._questionService.getQuestions().subscribe(questions => this.dataChange.next(questions));
     this._questionService.getQuestions().subscribe(questions => this.dataChange.next(questions));
   }
 
@@ -62,39 +67,85 @@ export class ChecklistDatabase {
   }
 
   /** Add an item to to-do list */
-  insertItem(parent: Question, name: string) {
-    if (parent.subQuestions) {
-      parent.subQuestions.push({ title: name, subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
-      this.dataChange.next(this.data);
-    } else {
-      parent.subQuestions = new Array<Question>();
-      parent.subQuestions.push({ title: name, subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
-      this.dataChange.next(this.data);
+  insertItem(isAnswer: boolean, requiredTraits: string[], acquireTraits: string[], parents: string[], name: string, content: string) {
+    var node = {
+      title: name,
+      content: content,
+      subQuestions: [] as Question[],
+      parents: {} as { [key: string]: string },
+      requiredTraits: requiredTraits,
+      acquireTraits: acquireTraits,
+      isAnswer: isAnswer,
+      isEdited: false,
+    };
+
+    if (parents) {
+      parents.forEach(element => {
+        node.parents[element] = 'new parent';
+      });
+
+      this.dataChange.value.push(node);
     }
+    this.dataChange.next(this.data);
   }
 
-  insertTopItem() {
-    this.dataChange.value.push({ title: '', subQuestions: [], mentorMaterType: [false, false, false, false] } as Question);
+  insertTopItem(isAnswer: boolean, requiredTraits: string[], acquireTraits: string[], name: string, content: string) {
+    this.dataChange.value.push({
+      title: name,
+      subQuestions: [],
+      parents: {},
+      requiredTraits: requiredTraits,
+      acquireTraits: acquireTraits,
+      isAnswer: isAnswer,
+      isEdited: false,
+    } as Question);
     this.dataChange.next(this.data);
   }
 
   updateItem(
     node: Question,
     name: string,
-    type: number,
+    isAnswer: boolean,
     content: string,
-    isHome: boolean,
-    isFlexible: boolean,
-    isContractor: boolean,
-    isDevCamp: boolean
+    addedParents: string[],
+    addedAcquireTraits: string[],
+    addedRequiredTraits: string[],
+    deletedParents: string[],
+    deletedAcquireTraits: string[],
+    deletedRequiredTraits: string[]
   ) {
     node.title = name;
-    node.type = type.toString();
     node.content = content;
+    node.isAnswer = isAnswer;
+    node.isEdited = true;
+    addedParents.forEach(element => {
+      node.parents[element] = 'new parent';
+    });
+    addedAcquireTraits.forEach(element => {
+      if (!node.acquireTraits.some(e => e === element)) {
+        node.acquireTraits.push(element);
+      }
+    });
+    addedRequiredTraits.forEach(element => {
+      if (!node.requiredTraits.some(e => e === element)) {
+        node.requiredTraits.push(element);
+      }
+    });
+    deletedParents.forEach(element => {
+      var elementToDelete = Object.keys(node.parents).find(key => node.parents[key] === element);
+      if (elementToDelete) {
+        delete node.parents[elementToDelete];
+      }
+    });
+    deletedAcquireTraits.forEach(element => {
+      var deleteIndex = node.acquireTraits.indexOf(element);
+      node.acquireTraits.splice(deleteIndex, 1);
+    });
+    deletedRequiredTraits.forEach(element => {
+      var deleteIndex = node.requiredTraits.indexOf(element);
+      node.requiredTraits.splice(deleteIndex, 1);
+    });
 
-    console.log(node);
-
-    node.mentorMaterType = [isHome, isFlexible, isContractor, isDevCamp];
     this.dataChange.next(this.data);
   }
 }
@@ -105,7 +156,7 @@ export class ChecklistDatabase {
 @Component({
   selector: 'app-questions',
   templateUrl: 'question-page.component.html',
-  styleUrls: ['question-page.component.css'],
+  styleUrls: ['question-page.component.scss'],
   providers: [ChecklistDatabase],
 })
 export class QuestionPageComponent {
@@ -126,6 +177,12 @@ export class QuestionPageComponent {
   treeFlattener: MatTreeFlattener<Question, TodoItemFlatNode>;
 
   dataSource: MatTreeFlatDataSource<Question, TodoItemFlatNode>;
+
+  editedNode?: TodoItemFlatNode;
+
+  dragAndDrop: string = '';
+
+  dragAndDropElement: any;
 
   /** The selection for checklist */
   checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
@@ -160,13 +217,21 @@ export class QuestionPageComponent {
     const flatNode = existingNode && existingNode.item === node.title ? existingNode : new TodoItemFlatNode();
     flatNode.item = node.title;
     flatNode.content = node.content;
-    if (!!node.mentorMaterType) {
-      flatNode.mentorMaterType = node.mentorMaterType;
-    }
-    console.log(node);
+    // if (!!node.mentorMaterType) {
+    //   flatNode.mentorMaterType = node.mentorMaterType;
+    // }
+    //   if(Object.prototype.toString.call(node.parents) !== '[object Array]') {
+    //     var nodeParent = Object.assign({}, node.parents );
+    //     flatNode.parents.push(nodeParent);
+    // }
+    flatNode.id = node.id;
+    flatNode.acquireTraits = node.acquireTraits;
+    flatNode.requiredTraits = node.requiredTraits;
+    flatNode.parents = node.parents;
+    flatNode.isAnswer = node.isAnswer;
     flatNode.level = level;
     flatNode.expandable = !!node.subQuestions;
-    flatNode.type = node.type;
+    // flatNode.type = node.type;
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
@@ -195,49 +260,173 @@ export class QuestionPageComponent {
   }
 
   /** Select the category so we can insert the new item. */
-  addNewItem(node: TodoItemFlatNode) {
-    const parentNode = this.flatNodeMap.get(node);
-    this.database.insertItem(parentNode!, '');
-    this.treeControl.expand(node);
+  addNewItem() {
+    var addTraits = document.getElementsByClassName('add-trait');
+    for (var i = 0; i < addTraits.length; i++) {
+      addTraits[i].remove();
+      i--;
+    }
+    this.editedNode = {} as TodoItemFlatNode;
   }
 
   addNewTopItem() {
-    this.database.insertTopItem();
+    var addTraits = document.getElementsByClassName('add-trait');
+    for (var i = 0; i < addTraits.length; i++) {
+      addTraits[i].remove();
+      i--;
+    }
+    this.editedNode = {} as TodoItemFlatNode;
+    // this.database.insertTopItem();
   }
 
   /** Save the node to database */
+  //this will take htmlElement with paragraphs containing the newly added parents
   saveNode(
-    node: TodoItemFlatNode,
+    node: TodoItemFlatNode | undefined,
     itemValue: string,
-    itemType: string,
+    answer: string,
     itemContent: string,
-    isHome: boolean,
-    isFlexible: boolean,
-    isContractor: boolean,
-    isDevCamp: boolean
+    parentsElement: any,
+    acquireTraitsElement: any,
+    requiredTraitsElement: any,
+    deletedParentsElement: any,
+    deletedAcquireTraitsElement: any,
+    deletedRequiredTraitsElement: any
   ) {
-    if (itemType != 'Answer') {
+    var isAnswer = answer === 'true';
+    console.log(isAnswer);
+    if (!isAnswer) {
       itemContent = '';
     }
-    node.expandable = true;
-    console.log(node);
-    const nestedNode = this.flatNodeMap.get(node);
-    var type: NodeType = (<any>NodeType)[itemType];
-    node.editMode = false;
-    this.database.updateItem(nestedNode!, itemValue, type, itemContent, isHome, isFlexible, isContractor, isDevCamp);
+    this.editedNode = undefined;
+    (node as TodoItemFlatNode).expandable = true;
+    (node as TodoItemFlatNode).editMode = false;
+    var addedParents: string[] = [];
+    if (parentsElement != null) {
+      for (var i = 0; i < parentsElement.children.length; i++) {
+        addedParents.push(parentsElement.children[i].textContent ?? '');
+      }
+    }
+    var addedAcquireTraits: string[] = [];
+    if (acquireTraitsElement != null) {
+      for (var i = 0; i < acquireTraitsElement.children.length; i++) {
+        addedAcquireTraits.push(acquireTraitsElement.children[i].textContent ?? '');
+      }
+    }
+    var addedRequiredTraits: string[] = [];
+    if (requiredTraitsElement != null) {
+      for (var i = 0; i < requiredTraitsElement.children.length; i++) {
+        addedRequiredTraits.push(requiredTraitsElement.children[i].textContent ?? '');
+      }
+    }
+    var deletedParents: string[] = [];
+    if (deletedParentsElement != null) {
+      for (var i = 0; i < deletedParentsElement.children.length; i++) {
+        deletedParents.push(deletedParentsElement.children[i].textContent ?? '');
+      }
+    }
+    var deletedAcquireTraits: string[] = [];
+    if (deletedAcquireTraitsElement != null) {
+      for (var i = 0; i < deletedAcquireTraitsElement.children.length; i++) {
+        deletedAcquireTraits.push(deletedAcquireTraitsElement.children[i].textContent ?? '');
+      }
+    }
+    var deletedRequiredTraits: string[] = [];
+    if (deletedRequiredTraitsElement != null) {
+      for (var i = 0; i < deletedRequiredTraitsElement.children.length; i++) {
+        deletedRequiredTraits.push(deletedRequiredTraitsElement.children[i].textContent ?? '');
+      }
+    }
+
+    const nestedNode = this.flatNodeMap.get(node as TodoItemFlatNode);
+    if (nestedNode === undefined) {
+      if (addedParents.length === 0) {
+        this.database.insertTopItem(isAnswer, addedRequiredTraits, addedAcquireTraits, itemValue, itemContent);
+      } else {
+        this.database.insertItem(isAnswer, addedRequiredTraits, addedAcquireTraits, addedParents, itemValue, itemContent);
+      }
+    } else {
+      this.database.updateItem(
+        nestedNode!,
+        itemValue,
+        isAnswer,
+        itemContent,
+        addedParents,
+        addedAcquireTraits,
+        addedRequiredTraits,
+        deletedParents,
+        deletedAcquireTraits,
+        deletedRequiredTraits
+      );
+    }
   }
 
   editItem(node: TodoItemFlatNode) {
-    node.editMode = true;
+    this.editedNode = node;
+    var addTraits = document.getElementsByClassName('add-trait');
+    for (var i = 0; i < addTraits.length; i++) {
+      addTraits[i].remove();
+      i--;
+    }
   }
 
-  cancelEdit(node: TodoItemFlatNode) {
-    node.editMode = false;
+  cancelEdit() {
+    this.editedNode = undefined;
+  }
+
+  handleDragEnd(e: any) {
+    e.preventDefault();
+    var childNode = document.createElement('p');
+    childNode.textContent = e.toElement.textContent;
+    this.dragAndDropElement.appendChild(childNode);
+    this.dragAndDropElement = null;
+  }
+
+  handleDropEvent(e: any) {
+    e.preventDefault();
+    // this.dragAndDropElement = e.toElement;
+    this.dragAndDropElement = document.getElementById('addedParentQuestions');
+  }
+
+  prepareForDelete(value: string, element: any) {
+    var li = document.createElement('li');
+    li.className = 'list-experience-item me-2 mb-3 add-trait';
+    li.textContent = value;
+    element.appendChild(li);
+  }
+
+  addTrait(ulElement: any, input: any) {
+    var list = ulElement.childNodes as Array<any>;
+    var exists = false;
+    list.forEach(element => {
+      console.log(element);
+      if (element.textContent === input.value) {
+        exists = true;
+      }
+    });
+    if (!exists) {
+      var li = document.createElement('li');
+      li.className = 'list-experience-item me-2 mb-3 add-trait';
+      li.textContent = input.value;
+      ulElement.appendChild(li);
+    }
+
+    input.value = '';
+  }
+
+  resetTraitFieldInput(input: any) {
+    input.value = '';
+  }
+
+  changeEditNodeIsAnswer(isAnswer: any) {
+    (this.editedNode as TodoItemFlatNode).isAnswer = (isAnswer as HTMLTextAreaElement).value === 'true';
   }
 
   save() {
     console.log(this.database.data);
-    this._questionService.saveQuestions(this.database.data).subscribe();
+    this._questionService
+      .saveQuestions(this.database.data)
+      .subscribe(d => this._questionService.getQuestions().subscribe(questions => this.database.dataChange.next(questions)));
   }
 }
 

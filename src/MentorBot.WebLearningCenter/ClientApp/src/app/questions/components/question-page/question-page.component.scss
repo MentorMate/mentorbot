@@ -1,0 +1,221 @@
+.tree-customising {
+  display: flex;
+  justify-content: space-between;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.traits-div {
+  display: flex;
+  width: 240px;
+  justify-content: space-around;
+  flex-direction: row;
+  margin-top: 10px;
+}
+
+input {
+  border-style: solid;
+  border-width: 1px;
+}
+
+/* Split the screen in half */
+.split {
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  margin-top: 80px;
+}
+
+.badge {
+  margin-right: 2px;
+}
+
+.panel-heading {
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.badge-success {
+  background-color: rgb(51, 209, 64);
+}
+
+.input-group {
+  width: 280px;
+}
+
+.badge-danger {
+  background-color: red;
+}
+
+.badge-parent {
+  background-color: dodgerblue;
+}
+
+/* Control the left side */
+.left {
+  left: 0;
+  overflow-y: auto;
+  max-height: 670px;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  // border-left: solid rgb(51, 209, 64);
+}
+
+.vertical-line {
+  border-left: 4px solid black;
+  display: block;
+  height: 40px;
+  left: 30px;
+}
+
+.edit-content {
+  margin-left: 10px;
+  display: flex;
+  width: 500px;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.remove-button {
+  cursor: pointer;
+}
+
+.traits {
+  margin-top: 5px;
+  height: 100px;
+  width: 110px;
+  background-color: aqua;
+  text-align: center;
+}
+
+.no-margin {
+  margin-top: 0%;
+  margin-bottom: 0%;
+}
+
+.add-traits {
+  background-color: aqua;
+  // opacity: 0.5;
+}
+
+.delete-traits {
+  background-color: red;
+  // opacity: 0.5;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  // border-bottom: dashed rgb(51, 209, 64);
+  // background-image: linear-gradient(to bottom, rgba(240, 255, 40, 1), rgba(240, 255, 40, 1)),
+  //   linear-gradient(180deg, rgba(0, 0, 0, 0) calc(50% - 1px), rgba(192, 192, 192, 1) calc(50%), rgba(0, 0, 0, 0) calc(50% + 1px));
+  // background-clip: content-box, padding-box;
+}
+
+.node-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.node-element-height {
+  height: 25px;
+}
+
+.bulletless-list {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  margin: 0%;
+  padding: 0%;
+}
+
+// .panel {
+//   min-width: 100px;
+//   max-width: fit-content;
+// }
+
+.requiredTraits {
+  background-color: red;
+}
+
+.assignTraits {
+  background-color: orange;
+}
+
+.aligned {
+  display: flex;
+  flex-direction: row;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-spacing {
+  margin-top: 10px;
+}
+
+.short {
+  margin-left: 30px;
+  height: 20px;
+}
+
+.higher-input {
+  height: 30px;
+}
+
+.cancel-button {
+  margin-left: 10px;
+}
+
+.list-group-horizontal {
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  height: 15px;
+  margin-bottom: 0%;
+}
+
+.list-experience-item {
+  // position: relative;
+  display: flex;
+  margin-left: 2mm;
+  height: 100%;
+  // margin: auto;
+  // padding: 0.5rem 1.5rem;
+  text-decoration: none;
+  color: blueviolet;
+  // border-radius: 20px;
+  box-shadow: 0 0 5px rgb(51, 209, 64);
+}
+
+.icon-button {
+  background-color: transparent;
+}
+
+.blue-text {
+  color: blue;
+  :hover {
+    text-decoration: underline;
+  }
+  margin-bottom: 0%;
+}
+
+.node-structure {
+  display: flex;
+  flex-direction: column;
+}

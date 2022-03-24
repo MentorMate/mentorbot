@@ -4,11 +4,11 @@ using CoreHelpers.WindowsAzure.Storage.Table.Attributes;
 
 using Newtonsoft.Json;
 
-namespace MentorBot.Functions.Models.Domains
+namespace MentorBot.Functions.Models.ViewModels
 {
     /// <summary> Either a question or an answer. </summary>
     [Storable("QuestionsAnswers")]
-    public sealed class QuestionAnswer
+    public sealed class QuestionAnswerViewModel
     {
         /// <summary> Gets or sets the id. </summary>
         [RowKey]
@@ -41,5 +41,12 @@ namespace MentorBot.Functions.Models.Domains
 
         /// <summary> Gets or sets a value indicating whether the entity is an answer. </summary>
         public bool IsAnswer { get; set; }
+
+        /// <summary> Gets or sets a value indicating whether the entity is edited. </summary>
+        public bool IsEdited { get; set; }
+
+        /// <summary> Gets or sets the subquestions. </summary>
+        [StoreAsJsonObject]
+        public QuestionAnswerViewModel[] SubQuestions { get; set; }
     }
 }
