@@ -40,13 +40,7 @@ namespace MentorBot.Functions.Processors.UserFlow
             IAsyncResponder responder,
             IPluginPropertiesAccessor accessor)
         {
-            var hosts = accessor.GetPluginPropertyGroup(UserFlowProperties.HostsGroup).FirstOrDefault();
-            if (hosts == null)
-            {
-                return new ChatEventResult("No UserFlow hosts are configured.");
-            }
-
-            var user = hosts.GetValue<string>(UserFlowProperties.User);
+            var user = originalChatEvent.Message.Sender.Email;
 
             var state = await _storageService.GetStateAsync(user);
 
