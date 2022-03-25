@@ -117,27 +117,6 @@ namespace MentorBot.Functions.Services
             ExecuteIfConnectedAsync<State, bool>(doc => doc.AddOrUpdateAsync(state), StatesDocumentName, false);
 
         /// <inheritdoc/>
-        public Task<QuestionAnswer> GetQuestionOrAnswerAsync(string parentId, int index) =>
-            Task.FromResult(
-                QueryWhenConnected<QuestionAnswer>(
-                    $"SELECT TOP 1 * FROM {QuestionsDocumentName} qa WHERE qa.parentId == '{parentId}' AND qa.index == '{index}'",
-                    QuestionsDocumentName).FirstOrDefault());
-
-        /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetQuestionsOrAnswerAsync(string parentId) =>
-            Task.FromResult(
-                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
-                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.parentId == '{parentId}'",
-                    QuestionsDocumentName).FirstOrDefault());
-
-        /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetInitialQuestionsAsync() =>
-            Task.FromResult(
-                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
-                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.parentId == null",
-                    QuestionsDocumentName).FirstOrDefault());
-
-        /// <inheritdoc/>
         public Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers) =>
             ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
 
@@ -145,13 +124,6 @@ namespace MentorBot.Functions.Services
         public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
             Task.FromResult(
                 QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
-
-        /// <inheritdoc/>
-        public Task<IReadOnlyList<QuestionAnswer>> GetMentorMaterTypes() =>
-            Task.FromResult(
-                QueryWhenConnected<IReadOnlyList<QuestionAnswer>>(
-                    $"SELECT * FROM {QuestionsDocumentName} qa WHERE qa.type == 3",
-                    QuestionsDocumentName).FirstOrDefault());
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

@@ -97,17 +97,9 @@ namespace MentorBot.Functions
 
             var storageService = context.Get<IStorageService>();
 
-            var questionsToList = new List<QuestionAnswerViewModel>();
+            var questions = await req.ReadAsAsync<QuestionAnswerViewModel[]>();
 
-            try
-            {
-                var questions = await req.ReadAsAsync<QuestionAnswerViewModel[]>();
-                questionsToList = questions.ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+            var questionsToList = questions.ToList();
 
             var parentIds = new List<string>();
 

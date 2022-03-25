@@ -205,8 +205,6 @@ export class QuestionPageComponent {
 
   getChildren = (node: Question): Question[] => node.subQuestions;
 
-  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '' || _nodeData.editMode;
-
   hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable && !_nodeData.editMode;
 
   /**
@@ -217,13 +215,6 @@ export class QuestionPageComponent {
     const flatNode = existingNode && existingNode.item === node.title ? existingNode : new TodoItemFlatNode();
     flatNode.item = node.title;
     flatNode.content = node.content;
-    // if (!!node.mentorMaterType) {
-    //   flatNode.mentorMaterType = node.mentorMaterType;
-    // }
-    //   if(Object.prototype.toString.call(node.parents) !== '[object Array]') {
-    //     var nodeParent = Object.assign({}, node.parents );
-    //     flatNode.parents.push(nodeParent);
-    // }
     flatNode.id = node.id;
     flatNode.acquireTraits = node.acquireTraits;
     flatNode.requiredTraits = node.requiredTraits;
@@ -231,33 +222,10 @@ export class QuestionPageComponent {
     flatNode.isAnswer = node.isAnswer;
     flatNode.level = level;
     flatNode.expandable = !!node.subQuestions;
-    // flatNode.type = node.type;
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
   };
-
-  /** Whether all the descendants of the node are selected */
-  descendantsAllSelected(node: TodoItemFlatNode): boolean {
-    const descendants = this.treeControl.getDescendants(node);
-    return descendants.every(child => this.checklistSelection.isSelected(child));
-  }
-
-  /** Whether part of the descendants are selected */
-  descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
-    const descendants = this.treeControl.getDescendants(node);
-    const result = descendants.some(child => this.checklistSelection.isSelected(child));
-    return result && !this.descendantsAllSelected(node);
-  }
-
-  /** Toggle the to-do item selection. Select/deselect all the descendants node */
-  todoItemSelectionToggle(node: TodoItemFlatNode): void {
-    this.checklistSelection.toggle(node);
-    const descendants = this.treeControl.getDescendants(node);
-    this.checklistSelection.isSelected(node)
-      ? this.checklistSelection.select(...descendants)
-      : this.checklistSelection.deselect(...descendants);
-  }
 
   /** Select the category so we can insert the new item. */
   addNewItem() {
@@ -269,18 +237,7 @@ export class QuestionPageComponent {
     this.editedNode = {} as TodoItemFlatNode;
   }
 
-  addNewTopItem() {
-    var addTraits = document.getElementsByClassName('add-trait');
-    for (var i = 0; i < addTraits.length; i++) {
-      addTraits[i].remove();
-      i--;
-    }
-    this.editedNode = {} as TodoItemFlatNode;
-    // this.database.insertTopItem();
-  }
-
   /** Save the node to database */
-  //this will take htmlElement with paragraphs containing the newly added parents
   saveNode(
     node: TodoItemFlatNode | undefined,
     itemValue: string,
@@ -294,7 +251,6 @@ export class QuestionPageComponent {
     deletedRequiredTraitsElement: any
   ) {
     var isAnswer = answer === 'true';
-    console.log(isAnswer);
     if (!isAnswer) {
       itemContent = '';
     }
@@ -376,7 +332,8 @@ export class QuestionPageComponent {
 
   handleDragEnd(e: any) {
     e.preventDefault();
-    var childNode = document.createElement('p');
+    var childNode = document.createElement('span');
+    childNode.className = 'badge badge-success add-trait';
     childNode.textContent = e.toElement.textContent;
     this.dragAndDropElement.appendChild(childNode);
     this.dragAndDropElement = null;
@@ -384,19 +341,18 @@ export class QuestionPageComponent {
 
   handleDropEvent(e: any) {
     e.preventDefault();
-    // this.dragAndDropElement = e.toElement;
     this.dragAndDropElement = document.getElementById('addedParentQuestions');
   }
 
   prepareForDelete(value: string, element: any) {
-    var li = document.createElement('li');
-    li.className = 'list-experience-item me-2 mb-3 add-trait';
-    li.textContent = value;
-    element.appendChild(li);
+    var span = document.createElement('span');
+    span.className = 'badge badge-danger add-trait';
+    span.textContent = value;
+    element.appendChild(span);
   }
 
-  addTrait(ulElement: any, input: any) {
-    var list = ulElement.childNodes as Array<any>;
+  addTrait(divElement: any, input: any) {
+    var list = divElement.childNodes as Array<any>;
     var exists = false;
     list.forEach(element => {
       console.log(element);
@@ -405,10 +361,10 @@ export class QuestionPageComponent {
       }
     });
     if (!exists) {
-      var li = document.createElement('li');
-      li.className = 'list-experience-item me-2 mb-3 add-trait';
-      li.textContent = input.value;
-      ulElement.appendChild(li);
+      var span = document.createElement('span');
+      span.className = 'badge badge-success add-trait';
+      span.textContent = input.value;
+      divElement.appendChild(span);
     }
 
     input.value = '';

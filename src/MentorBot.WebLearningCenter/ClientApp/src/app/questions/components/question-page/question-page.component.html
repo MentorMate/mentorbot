@@ -30,7 +30,7 @@
                 <span *ngIf="node.content">{{node.content}}</span>
             </mat-tree-node>
         </mat-tree>
-        <button class="icon-button" mat-icon-button (click)="addNewTopItem()">
+        <button class="icon-button" mat-icon-button (click)="addNewItem()">
             Add
         </button>
 
@@ -46,7 +46,7 @@
     <div class="edit-content">
         <div>
             <div class="top-spacing">
-                Assign Traits
+                <h3><span class="label label-success">Assign Traits</span></h3>
                 <div>
                     <span *ngFor="let trait of editedNode?.acquireTraits" class="badge badge-success">{{trait}} <span
                               (click)="prepareForDelete(trait, deletedAcquireTratsList)" aria-hidden="true">&times;</span></span>
@@ -54,8 +54,8 @@
                 <div class="traits-div">
                     <div class="panel panel-default">
                         <div class="panel-heading">Added</div>
-                        <ul class="bulletless-list panel-body" #addedAcquireTratsList>
-                        </ul>
+                        <div class="bulletless-list panel-body" #addedAcquireTratsList>
+                        </div>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">Removed</div>
@@ -64,13 +64,6 @@
                     </div>
                 </div>
                 <div #addAcquireTraits class="top-spacing">
-                    <!-- <div class="input-group">
-                        <input #AcqTraitsInput type="text">
-                        <button (click)="addTrait(addedAcquireTratsList, AcqTraitsInput)" class="input-group-text"
-                                type="button">Add</button>
-                        <button (click)="resetTraitFieldInput(AcqTraitsInput)" class="input-group-text" type="button">Cancel</button>
-                    </div> -->
-                    <!-- <div class="col-lg-6"> -->
                     <div class="input-group">
                         <input #AcqTraitsInput type="text" class="form-control" placeholder="">
                         <span class="input-group-btn">
@@ -79,12 +72,11 @@
                             <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(AcqTraitsInput)"
                                     type="button">Cancel</button>
                         </span>
-                    </div><!-- /input-group -->
-                    <!-- </div>/.col-lg-6 -->
+                    </div>
                 </div>
             </div>
             <div class="top-spacing">
-                Require Traits
+                <h3><span class="label label-danger">Require Traits</span></h3>
                 <div>
                     <span *ngFor="let trait of editedNode?.requiredTraits" class="badge badge-danger">{{trait}} <span
                               (click)="prepareForDelete(trait, deletedRequireTratsList)" aria-hidden="true">&times;</span></span>
@@ -115,7 +107,7 @@
             </div>
 
             <div class="top-spacing" (dragover)="handleDropEvent($event)">
-                Parent Questions
+                <h3><span class="label label-primary">Parent Questions</span></h3>
                 <div>
                     <span *ngFor="let parent of editedNode?.parents | keyvalue" class="badge badge-parent">{{parent.value}} <span
                               (click)="prepareForDelete(parent.value, deletedParentQuestions)" aria-hidden="true">&times;</span></span>
@@ -137,26 +129,15 @@
         <div>
             <div class="top-spacing">
                 Type
-                <div>
-                    <select (change)="changeEditNodeIsAnswer($event.target)" class=" higher-input" #typeValue>
+                <div class="input-group">
+                    <select class="form-control"
+                            (change)="changeEditNodeIsAnswer($event.target)"
+                            #typeValue>
                         <option *ngFor="let type of nodeType; let i = index" [selected]="editedNode?.isAnswer ? i === 1 : i === 0"
                                 [value]="type === 'Answer'">
                             {{type}}
                         </option>
                     </select>
-                    <!-- <div class="btn-group">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false">
-                            Action
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Separated link</a>
-                        </div>
-                    </div> -->
                 </div>
             </div>
             <div class="top-spacing">
@@ -169,7 +150,7 @@
             <div class="top-spacing">
                 Answer content
                 <div>
-                    <textarea matInput #contentValue type="text"
+                    <textarea class="textarea-size" matInput #contentValue type="text"
                               [disabled]="!editedNode?.isAnswer"
                               [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content">
                               </textarea>

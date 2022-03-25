@@ -67,31 +67,6 @@ namespace MentorBot.Tests.Business.Processors
                         }
                    });
 
-            _storageService.GetMentorMaterTypes().Returns(
-                new List<QuestionAnswer>()
-                {
-                    new QuestionAnswer()
-                    {
-                        Title = "Office",
-                        Index = 1,
-                    },
-                    new QuestionAnswer()
-                    {
-                        Title = "Flexible Remote",
-                        Index = 2,
-                    },
-                    new QuestionAnswer()
-                    {
-                        Title = "Contractor",
-                        Index = 3,
-                    },
-                    new QuestionAnswer()
-                    {
-                        Title = "Dev Campers -> QA",
-                        Index = 4,
-                    },
-                });
-
             var result = await _processor.ProcessCommandAsync(null, null, null, accessor);
 
             var expectedValues = new string[]
@@ -144,31 +119,7 @@ namespace MentorBot.Tests.Business.Processors
                         }
                    });
 
-            _storageService.GetQuestionsOrAnswerAsync(parentId).Returns(
-                new List<QuestionAnswer>()
-                {
-                    new QuestionAnswer()
-                    {
-                        Id = "1",
-                        Parents = new Dictionary<string, string>() { { parentId, "parentTitle" } },
-                        RequiredTraits = new string[1] { "Office" },
-                    },
-                    new QuestionAnswer()
-                    {
-                        Id = "2",
-                        Parents = new Dictionary<string, string>() { { parentId, "parentTitle" } },
-                        RequiredTraits = new string[1] { "Contractor" },
-                        IsAnswer = true,
-                    },
-                    new QuestionAnswer()
-                    {
-                        Id = "3",
-                        Parents = new Dictionary<string, string>() { { parentId, "parentTitle" } },
-                        RequiredTraits = new string[2] { "Office", "Contractor" },
-                    },
-                });
-
-            var result = await _processor.ProcessCommandAsync(info, null, null, accessor);
+           var result = await _processor.ProcessCommandAsync(info, null, null, accessor);
 
             var stateAfterReceivedAnswer = _storageService.GetStateAsync(userEmail);
 

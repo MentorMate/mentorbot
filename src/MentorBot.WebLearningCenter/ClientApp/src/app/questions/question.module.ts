@@ -42,7 +42,6 @@ import { QuestionPageComponent } from './components/question-page/question-page.
 import { QuestionService } from './question.service';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
-import { QuestionFilterPipe } from '../shared/pipes/question-filter.pipe';
 
 @NgModule({
   exports: [
@@ -88,7 +87,7 @@ import { QuestionFilterPipe } from '../shared/pipes/question-filter.pipe';
 export class DemoMaterialModule {}
 
 @NgModule({
-  declarations: [QuestionPageComponent, QuestionFilterPipe],
+  declarations: [QuestionPageComponent],
   imports: [CommonModule, SharedModule, RouterModule.forChild([{ path: '', component: QuestionPageComponent }]), DemoMaterialModule],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],
