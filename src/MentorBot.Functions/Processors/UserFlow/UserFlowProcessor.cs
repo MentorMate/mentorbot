@@ -9,11 +9,9 @@ using Google.Apis.HangoutsChat.v1.Data;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App.Extensions;
-using MentorBot.Functions.Connectors.Confluence;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
-using MentorBot.Functions.Processors.Searches;
 
 namespace MentorBot.Functions.Processors.UserFlow
 {

@@ -6,7 +6,7 @@
 
             <mat-tree-node class="node" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
                 <div class="node-content">
-                    <button class="icon-button node-element-height centered" *ngIf="node.type != '2' && !node.editMode" mat-icon-button
+                    <button *ngIf="!node.content" class="icon-button node-element-height centered" mat-icon-button
                             matTreeNodeToggle
                             [attr.aria-label]="'toggle ' + node.filename">
                         <mat-icon class="mat-icon-rtl-mirror">
@@ -24,10 +24,10 @@
                     </button>
                 </div>
                 <div class="short">
+                    <span *ngIf="node.content" class="well well-sm">{{node.content}}</span>
                     <span *ngFor="let trait of node.acquireTraits" class="badge badge-success">{{trait}}</span>
                     <span *ngFor="let trait of node.requiredTraits" class="badge badge-danger">{{trait}}</span>
                 </div>
-                <span *ngIf="node.content">{{node.content}}</span>
             </mat-tree-node>
         </mat-tree>
         <button class="icon-button" mat-icon-button (click)="addNewItem()">
