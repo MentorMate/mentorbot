@@ -12,7 +12,7 @@
 
             <mat-tree-node class="node" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
                 <div class="node-content">
-                    <button *ngIf="!node.content" class="icon-button node-element-height centered" mat-icon-button
+                    <button *ngIf="!node.content" class="icon-button node-element-height center-ed" mat-icon-button
                             matTreeNodeToggle
                             [attr.aria-label]="'toggle ' + node.filename">
                         <mat-icon class="mat-icon-rtl-mirror">
@@ -20,11 +20,11 @@
                         </mat-icon>
                         <i class="fas fa-plus-circle"></i>
                     </button>
-                    <div class="centered node-element-height centered" draggable="true" (dragend)="handleDragEnd($event)"
+                    <div class="center-ed node-element-height center-ed" draggable="true" (dragend)="handleDragEnd($event)"
                          ondrop="handleDropEvent($event)">
                         {{node.item}}
                     </div>
-                    <button class="icon-button node-element-height centered" *ngIf="!node.editMode" mat-icon-button
+                    <button class="icon-button node-element-height center-ed" *ngIf="!node.editMode" mat-icon-button
                             (click)="editItem(node)">
                         <p class="blue-text">Edit</p>
                     </button>
@@ -60,12 +60,12 @@
                 <div class="traits-div">
                     <div class="panel panel-default">
                         <div class="panel-heading">Added</div>
-                        <div class="bulletless-list panel-body" #addedAcquireTraitsList>
+                        <div class="bullet-less-list panel-body" #addedAcquireTraitsList>
                         </div>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">Removed</div>
-                        <ul class="bulletless-list panel-body" #deletedAcquireTraitsList>
+                        <ul class="bullet-less-list panel-body" #deletedAcquireTraitsList>
                         </ul>
                     </div>
                 </div>
@@ -90,12 +90,12 @@
                 <div class="traits-div">
                     <div class="panel panel-default">
                         <div class="panel-heading">Added</div>
-                        <ul class="bulletless-list panel-body" #addedRequireTraitsList>
+                        <ul class="bullet-less-list panel-body" #addedRequireTraitsList>
                         </ul>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">Removed</div>
-                        <ul class="bulletless-list panel-body" #deletedRequireTraitsList>
+                        <ul class="bullet-less-list panel-body" #deletedRequireTraitsList>
                         </ul>
                     </div>
                 </div>
@@ -121,12 +121,12 @@
                 <div class="traits-div">
                     <div class="panel panel-default">
                         <div class="panel-heading">Added</div>
-                        <ul id="addedParentQuestions" class="bulletless-list panel-body" #addedParentQuestions>
+                        <ul id="addedParentQuestions" class="bullet-less-list panel-body" #addedParentQuestions>
                         </ul>
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">Removed</div>
-                        <ul class="bulletless-list panel-body" #deletedParentQuestions>
+                        <ul class="bullet-less-list panel-body" #deletedParentQuestions>
                         </ul>
                     </div>
                 </div>

@@ -65,8 +65,8 @@ namespace MentorBot.Tests.Business.Processors
                     {
                         new PluginPropertyValue
                         {
-                             Key = "UserFlow.User",
-                             Value = userEmail,
+                            Key = "UserFlow.User",
+                            Value = userEmail,
                         },
                     }
                 });

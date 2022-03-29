@@ -262,37 +262,37 @@ export class QuestionPageComponent {
     var addedParents: string[] = [];
     if (parentsElement != null) {
       for (var i = 0; i < parentsElement.children.length; i++) {
-        addedParents.push(parentsElement.children[i].textContent ?? '');
+        addedParents.push(parentsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
     var addedAcquireTraits: string[] = [];
     if (acquireTraitsElement != null) {
       for (var i = 0; i < acquireTraitsElement.children.length; i++) {
-        addedAcquireTraits.push(acquireTraitsElement.children[i].textContent ?? '');
+        addedAcquireTraits.push(acquireTraitsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
     var addedRequiredTraits: string[] = [];
     if (requiredTraitsElement != null) {
       for (var i = 0; i < requiredTraitsElement.children.length; i++) {
-        addedRequiredTraits.push(requiredTraitsElement.children[i].textContent ?? '');
+        addedRequiredTraits.push(requiredTraitsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
     var deletedParents: string[] = [];
     if (deletedParentsElement != null) {
       for (var i = 0; i < deletedParentsElement.children.length; i++) {
-        deletedParents.push(deletedParentsElement.children[i].textContent ?? '');
+        deletedParents.push(deletedParentsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
     var deletedAcquireTraits: string[] = [];
     if (deletedAcquireTraitsElement != null) {
       for (var i = 0; i < deletedAcquireTraitsElement.children.length; i++) {
-        deletedAcquireTraits.push(deletedAcquireTraitsElement.children[i].textContent ?? '');
+        deletedAcquireTraits.push(deletedAcquireTraitsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
     var deletedRequiredTraits: string[] = [];
     if (deletedRequiredTraitsElement != null) {
       for (var i = 0; i < deletedRequiredTraitsElement.children.length; i++) {
-        deletedRequiredTraits.push(deletedRequiredTraitsElement.children[i].textContent ?? '');
+        deletedRequiredTraits.push(deletedRequiredTraitsElement.children[i].childNodes[0].textContent ?? '');
       }
     }
 
@@ -347,25 +347,48 @@ export class QuestionPageComponent {
   }
 
   prepareForDelete(value: string, element: any) {
-    var span = document.createElement('span');
-    span.className = 'badge badge-danger add-trait';
-    span.textContent = value;
-    element.appendChild(span);
-  }
-
-  addTrait(divElement: any, input: any) {
-    var list = divElement.childNodes as Array<any>;
+    var list = element.childNodes as Array<any>;
     var exists = false;
     list.forEach(element => {
-      if (element.textContent === input.value) {
+      if (element.childNodes[0].textContent === value) {
         exists = true;
       }
     });
     if (!exists) {
       var span = document.createElement('span');
+      var innerSpan = document.createElement('span');
+      innerSpan.ariaHidden = 'true';
+      innerSpan.innerHTML = '&times;';
+      innerSpan.addEventListener('click', () => {
+        span.remove();
+      });
+      span.className = 'badge badge-danger add-trait';
+      span.textContent = value;
+      span.appendChild(innerSpan);
+      element.appendChild(span);
+    }
+  }
+
+  addTrait(ulElement: any, input: any) {
+    var list = ulElement.childNodes as Array<any>;
+    var exists = false;
+    list.forEach(element => {
+      if (element.childNodes[0].textContent === input.value) {
+        exists = true;
+      }
+    });
+    if (!exists) {
+      var span = document.createElement('span');
+      var innerSpan = document.createElement('span');
+      innerSpan.ariaHidden = 'true';
+      innerSpan.innerHTML = '&times;';
+      innerSpan.addEventListener('click', () => {
+        span.remove();
+      });
       span.className = 'badge badge-success add-trait';
       span.textContent = input.value;
-      divElement.appendChild(span);
+      span.appendChild(innerSpan);
+      ulElement.appendChild(span);
     }
 
     input.value = '';

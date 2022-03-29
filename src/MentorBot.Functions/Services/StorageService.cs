@@ -128,7 +128,7 @@ namespace MentorBot.Functions.Services
                 QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
 
         /// <inheritdoc/>
-        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAsnwer) =>
+        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAnswer) =>
             Task.FromResult(
                 QueryWhenConnected<QuestionAnswer>("DELETE FROM " + QuestionsDocumentName, QuestionsDocumentName));
 

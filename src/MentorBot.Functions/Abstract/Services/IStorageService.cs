@@ -71,6 +71,6 @@ namespace MentorBot.Functions.Abstract.Services
         Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync();
 
         /// <summary>Deletes a question asynchronous.</summary>
-        Task DeleteQuestionAnswerAsync(QuestionAnswer questionAsnwer);
+        Task DeleteQuestionAnswerAsync(QuestionAnswer questionAnswer);
     }
 }

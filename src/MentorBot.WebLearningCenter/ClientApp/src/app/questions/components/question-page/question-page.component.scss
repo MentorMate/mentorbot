@@ -92,7 +92,7 @@
   height: 25px;
 }
 
-.bulletless-list {
+.bullet-less-list {
   list-style-type: none;
   display: flex;
   flex-direction: column;
@@ -101,7 +101,7 @@
   padding: 0%;
 }
 
-.centered {
+.center-ed {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -130,8 +130,10 @@
 
 .blue-text {
   color: blue;
+
   :hover {
     text-decoration: underline;
   }
+
   margin-bottom: 0%;
 }

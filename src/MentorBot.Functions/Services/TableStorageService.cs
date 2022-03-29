@@ -217,7 +217,7 @@ namespace MentorBot.Functions.Services
                 .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
 
         /// <inheritdoc/>
-        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAsnwer) =>
-            _tableClientService.DeleteAsync(questionAsnwer);
+        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAnswer) =>
+            _tableClientService.DeleteAsync(questionAnswer);
     }
 }
