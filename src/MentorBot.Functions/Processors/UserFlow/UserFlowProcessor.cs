@@ -90,7 +90,10 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var question = relativeQuestions[int.Parse(index) - 1];
 
-            state.Traits.AddRange(question.AcquireTraits);
+            if (question.AcquireTraits != null)
+            {
+                state.Traits.AddRange(question.AcquireTraits);
+            }
 
             var nextQuestionsOrAnswer = questions
                 .Where(q => q.Parents.ContainsKey(question.Id)

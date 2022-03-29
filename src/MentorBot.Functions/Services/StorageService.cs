@@ -110,7 +110,8 @@ namespace MentorBot.Functions.Services
         /// <inheritdoc/>
         public Task<State> GetStateAsync(string email) =>
             Task.FromResult(
-                QueryWhenConnected<State>($"SELECT TOP 1 * FROM {StatesDocumentName} s WHERE s.useremail == '{email}'", StatesDocumentName).FirstOrDefault());
+                QueryWhenConnected<State>($"SELECT TOP 1 * FROM {StatesDocumentName} s WHERE s.useremail == '{email}'", StatesDocumentName)
+                .FirstOrDefault());
 
         /// <inheritdoc/>
         public Task<bool> AddOrUpdateStateAsync(State state) =>
@@ -118,12 +119,18 @@ namespace MentorBot.Functions.Services
 
         /// <inheritdoc/>
         public Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers) =>
-            ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
+            ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(
+                doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
 
         /// <inheritdoc/>
         public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
             Task.FromResult(
                 QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
+
+        /// <inheritdoc/>
+        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAsnwer) =>
+            Task.FromResult(
+                QueryWhenConnected<QuestionAnswer>("DELETE FROM " + QuestionsDocumentName, QuestionsDocumentName));
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

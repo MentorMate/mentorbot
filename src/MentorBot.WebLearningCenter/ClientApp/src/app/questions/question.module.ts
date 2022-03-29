@@ -42,6 +42,7 @@ import { QuestionPageComponent } from './components/question-page/question-page.
 import { QuestionService } from './question.service';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
+import { ConfirmationModule } from '../shared/confirmation/confirmation.module';
 
 @NgModule({
   exports: [
@@ -88,7 +89,13 @@ export class DemoMaterialModule {}
 
 @NgModule({
   declarations: [QuestionPageComponent],
-  imports: [CommonModule, SharedModule, RouterModule.forChild([{ path: '', component: QuestionPageComponent }]), DemoMaterialModule],
+  imports: [
+    CommonModule,
+    SharedModule,
+    RouterModule.forChild([{ path: '', component: QuestionPageComponent }]),
+    DemoMaterialModule,
+    ConfirmationModule,
+  ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],
   providers: [QuestionService, SettingsService],

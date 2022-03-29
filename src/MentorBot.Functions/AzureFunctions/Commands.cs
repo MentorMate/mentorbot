@@ -143,8 +143,9 @@ namespace MentorBot.Functions
                 }
             }
 
-            var result = questionsToList.GroupBy(x => x.Id)
-                .Select(x => x.OrderByDescending(x => x.IsEdited))
+            var result = questionsToList
+                .GroupBy(q => q.Id)
+                .Select(q => q.OrderByDescending(q => q.IsEdited))
                 .Select(x => new QuestionAnswer
                 {
                     Id = x.First().Id,
@@ -159,6 +160,42 @@ namespace MentorBot.Functions
                 .ToList();
 
             await storageService.AddOrUpdateQuestionsAsync(result);
+        }
+
+        /// <summary>Sets the questions. </summary>
+        [Function("delete-question/{id}")]
+        public static async Task DeleteQuestionAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Delete), Route = null)] HttpRequestData req,
+            FunctionContext context)
+        {
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
+
+            var storageService = context.Get<IStorageService>();
+
+            var questionId = req.Url.AbsolutePath.Split('/').Last();
+
+            if (!string.IsNullOrWhiteSpace(questionId) && questionId != "undefined")
+            {
+                var questions = await storageService.GetAllQuestionsAsync();
+
+                var question = questions.FirstOrDefault(q => q.Id == questionId);
+
+                var parents = question.Parents;
+
+                var children = questions.Where(q => q.Parents.ContainsKey(question.Id)).ToList();
+
+                await storageService.DeleteQuestionAnswerAsync(question);
+
+                foreach (var child in children)
+                {
+                    foreach (var parent in parents)
+                    {
+                        child.Parents.Add(parent.Key, parent.Value);
+                    }
+                }
+
+                await storageService.AddOrUpdateQuestionsAsync(children);
+            }
         }
 
         private static DateTime GetLocalDateTime(FunctionContext context) =>

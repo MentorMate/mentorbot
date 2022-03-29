@@ -5,6 +5,7 @@ using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors.UserFlow;
 
@@ -41,10 +42,13 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task WhenInactiveStateUserFlowShouldReturnMentorTypesAndActivateUserState()
+        public async Task WhenInactiveStateUserFlowShouldActivateUserStateAndAskForMentorMaterType()
         {
             var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var userEmail = "rosen.kolev@mentormate.com";
+            var info = new TextDeconstructionInformation("", null);
+            var chatEvent = GetChatEvent("@mentorbot Get My Processor. ");
+
 
             _storageService.GetStateAsync(userEmail).Returns(
                 new State
@@ -54,39 +58,26 @@ namespace MentorBot.Tests.Business.Processors
                 });
 
             accessor.GetPluginPropertyGroup("UserFlow.Hosts")
-               .Returns(
-                   new[]
-                   {
-                        new []
+            .Returns(
+                new[]
+                {
+                    new []
+                    {
+                        new PluginPropertyValue
                         {
-                            new PluginPropertyValue
-                            {
-                                Key = "UserFlow.User",
-                                Value = userEmail,
-                            },
-                        }
-                   });
+                             Key = "UserFlow.User",
+                             Value = userEmail,
+                        },
+                    }
+                });
 
-            var result = await _processor.ProcessCommandAsync(null, null, null, accessor);
-
-            var expectedValues = new string[]
-            {
-                "1.Office",
-                "2.Flexible Remote",
-                "3.Contractor",
-                "4.Dev Campers -> QA",
-            };
+            var result = await _processor.ProcessCommandAsync(info, chatEvent, null, accessor);
 
             var stateAfterStartingUserFlow = await _storageService.GetStateAsync(userEmail);
 
             Assert.AreEqual("Select your Mentor Mater Type.", result.Cards[0].Header.Title);
 
-            for (int i = 0; i < expectedValues.Length; i++)
-            {
-                Assert.AreEqual(expectedValues[i], result.Cards[0].Sections[0].Widgets[i].TextParagraph.Text);
-            }
-
-            Assert.AreEqual(stateAfterStartingUserFlow.Active, true);
+            Assert.AreEqual(true, stateAfterStartingUserFlow.Active);
         }
 
         [TestMethod]
@@ -95,35 +86,31 @@ namespace MentorBot.Tests.Business.Processors
             var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var userEmail = "rosen.kolev@mentormate.com";
             var parentId = "1";
-            var info = new TextDeconstructionInformation("2", null);
+            var info = new TextDeconstructionInformation("1", null);
+            var chatEvent = GetChatEvent("1");
+            var testTrait = "test trait";
 
             _storageService.GetStateAsync(userEmail).Returns(
                 new State
                 {
                     UserEmail = userEmail,
                     Active = true,
-                    CurrentQuestionId = parentId,
                 });
 
-            accessor.GetPluginPropertyGroup("UserFlow.Hosts")
-               .Returns(
-                   new[]
-                   {
-                        new []
-                        {
-                            new PluginPropertyValue
-                            {
-                                Key = "UserFlow.User",
-                                Value = userEmail,
-                            },
-                        }
-                   });
+            _storageService.GetAllQuestionsAsync().Returns(
+                new List<QuestionAnswer>()
+                {
+                    new QuestionAnswer() { Id = "1", IsAnswer = false, AcquireTraits = new string[] { testTrait } },
+                    new QuestionAnswer() { Id = "10", Parents =
+                    new Dictionary<string, string>()
+                    { { parentId, "parent" } }, IsAnswer = true, RequiredTraits = new string[]{ testTrait } }
+                });
 
-           var result = await _processor.ProcessCommandAsync(info, null, null, accessor);
+            var result = await _processor.ProcessCommandAsync(info, chatEvent, null, accessor);
 
-            var stateAfterReceivedAnswer = _storageService.GetStateAsync(userEmail);
+            var stateAfterReceivedAnswer = await _storageService.GetStateAsync(userEmail);
 
-            Assert.AreEqual(stateAfterReceivedAnswer, false);
+            Assert.AreEqual(false, stateAfterReceivedAnswer.Active);
         }
 
         [TestMethod]
@@ -137,5 +124,18 @@ namespace MentorBot.Tests.Business.Processors
         {
 
         }
+
+        private static ChatEvent GetChatEvent(string text) =>
+            new ChatEvent
+            {
+                Message = new ChatEventMessage
+                {
+                    Sender = new ChatEventMessageSender
+                    {
+                        Email = "rosen.kolev@mentormate.com"
+                    },
+                    Text = text
+                }
+            };
     }
 }

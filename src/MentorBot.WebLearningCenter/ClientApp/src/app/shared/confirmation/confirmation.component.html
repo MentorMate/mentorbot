@@ -1,0 +1,26 @@
+<div class="backdrop"></div>
+
+<div class="modal-box">
+    <button
+            type="button"
+            class="btn-close text-end"
+            (click)="onCancel()"></button>
+    <div class="modal-header">
+        <div class="message">
+            <h4>Are you sure?</h4>
+            <div>{{ message }}</div>
+            <ng-content></ng-content>
+        </div>
+    </div>
+    <div class="modal-box-actions">
+        <button
+                class="btn mm-button"
+                style="margin-right: 5px"
+                (click)="onCancel()">
+            Cancel
+        </button>
+        <button class="btn mm-button" style="width: 80px" (click)="onConfirm()">
+            Continue
+        </button>
+    </div>
+</div>

@@ -182,6 +182,8 @@ export class QuestionPageComponent {
 
   dragAndDrop: string = '';
 
+  isConfirmed: boolean = false;
+
   dragAndDropElement: any;
 
   /** The selection for checklist */
@@ -355,7 +357,6 @@ export class QuestionPageComponent {
     var list = divElement.childNodes as Array<any>;
     var exists = false;
     list.forEach(element => {
-      console.log(element);
       if (element.textContent === input.value) {
         exists = true;
       }
@@ -378,8 +379,22 @@ export class QuestionPageComponent {
     (this.editedNode as TodoItemFlatNode).isAnswer = (isAnswer as HTMLTextAreaElement).value === 'true';
   }
 
+  deleteQuestion() {
+    this.isConfirmed = true;
+  }
+
+  onConfirm(node: TodoItemFlatNode | undefined) {
+    const question = this.flatNodeMap.get(node as TodoItemFlatNode);
+    this.editedNode = undefined;
+
+    this._questionService
+      .deleteQuestion(question)
+      .subscribe(q => this._questionService.getQuestions().subscribe(questions => this.database.dataChange.next(questions)));
+
+    this.isConfirmed = false;
+  }
+
   save() {
-    console.log(this.database.data);
     this._questionService
       .saveQuestions(this.database.data)
       .subscribe(d => this._questionService.getQuestions().subscribe(questions => this.database.dataChange.next(questions)));

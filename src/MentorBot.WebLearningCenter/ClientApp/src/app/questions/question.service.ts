@@ -10,6 +10,8 @@ export class QuestionService {
 
   static readonly saveQuestions = 'save-questions';
 
+  static readonly deleteQuestion = 'delete-question';
+
   constructor(private http: HttpClient) {}
 
   getQuestions(): Observable<Question[]> {
@@ -18,5 +20,9 @@ export class QuestionService {
 
   saveQuestions(questions: Question[]): Observable<Object> {
     return this.http.post(QuestionService.saveQuestions, questions);
+  }
+
+  deleteQuestion(question: Question | undefined) {
+    return this.http.delete(`${QuestionService.deleteQuestion}/${question?.id}`);
   }
 }

@@ -39,5 +39,10 @@ namespace MentorBot.Functions.Abstract.Services
         /// <typeparam name="T">Table model type.</typeparam>
         Task<IQueryable<T>> QueryAsync<T>(string query, int maxItems = 0)
             where T : new();
+
+        /// <summary>Deletes an entity against table of type T.</summary>
+        /// <typeparam name="T">Table model type.</typeparam>
+        Task DeleteAsync<T>(T model)
+            where T : new();
     }
 }
