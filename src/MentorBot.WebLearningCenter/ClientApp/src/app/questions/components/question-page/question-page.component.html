@@ -18,7 +18,6 @@
                         <mat-icon class="mat-icon-rtl-mirror">
                             {{treeControl.isExpanded(node) ? 'indeterminate_check_box_icon' : 'add_box'}}
                         </mat-icon>
-                        <i class="fas fa-plus-circle"></i>
                     </button>
                     <div class="center-ed node-element-height center-ed" draggable="true" (dragend)="handleDragEnd($event)"
                          ondrop="handleDropEvent($event)">
@@ -150,22 +149,33 @@
                 {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
             </div>
             <div>
-                <input class="form-control" matInput #itemValue placeholder=""
-                       [value]="editedNode?.item === undefined ? '' : editedNode?.item">
+                <input class="form-control" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required>
+                <div *ngIf="!itemValue.valid && itemValue.touched">
+                    <small id="passwordHelp" class="text-danger">
+                        Title field is required
+                    </small>
+                </div>
             </div>
             <div class="top-spacing">
                 Answer content
                 <div>
-                    <textarea class="textarea-size" matInput #contentValue type="text"
+                    <textarea class="textarea-size" [ngModel]="editedNode?.content" matInput #contentValue="ngModel" type="text"
                               [disabled]="!editedNode?.isAnswer"
-                              [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content">
+                              [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content"
+                              required>
                               </textarea>
+                    <div *ngIf="!contentValue.valid && editedNode?.isAnswer">
+                        <small id="passwordHelp" class="text-danger">
+                            Content field is required
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class=" top-spacing">
         <button mat-button
+                [disabled]="!itemValue.valid || (editedNode?.isAnswer && !contentValue.valid)"
                 (click)="saveNode(editedNode, itemValue.value, typeValue.value, contentValue.value, addedParentQuestions, addedAcquireTraitsList, addedRequireTraitsList, deletedParentQuestions, deletedAcquireTraitsList, deletedRequireTraitsList)">Save</button>
         <button class="cancel-button" mat-button (click)="cancelEdit()">
             Cancel
@@ -175,6 +185,7 @@
             Delete
         </button>
     </div>
+
 </div>
 
 <!-- Copyright 2018 Google Inc. All Rights Reserved.

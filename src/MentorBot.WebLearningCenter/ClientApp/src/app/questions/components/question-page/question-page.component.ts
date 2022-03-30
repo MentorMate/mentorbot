@@ -1,8 +1,8 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, Injectable, ViewChild } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { NodeType, Question } from '../../question.models';
 import { QuestionService } from '../../question.service';
 
@@ -185,6 +185,8 @@ export class QuestionPageComponent {
   isConfirmed: boolean = false;
 
   dragAndDropElement: any;
+
+  @ViewChild('itemValue') nodeTitle?: HTMLElement;
 
   /** The selection for checklist */
   checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
@@ -370,6 +372,10 @@ export class QuestionPageComponent {
   }
 
   addTrait(ulElement: any, input: any) {
+    if (input.value === '') {
+      return;
+    }
+
     var list = ulElement.childNodes as Array<any>;
     var exists = false;
     list.forEach(element => {
@@ -380,7 +386,7 @@ export class QuestionPageComponent {
     if (!exists) {
       var span = document.createElement('span');
       var innerSpan = document.createElement('span');
-      innerSpan.ariaHidden = 'true';
+      // innerSpan.ariaHidden = 'true';
       innerSpan.innerHTML = '&times;';
       innerSpan.addEventListener('click', () => {
         span.remove();

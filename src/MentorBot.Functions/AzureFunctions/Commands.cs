@@ -180,15 +180,13 @@ namespace MentorBot.Functions
 
                 var question = questions.FirstOrDefault(q => q.Id == questionId);
 
-                var parents = question.Parents;
-
                 var children = questions.Where(q => q.Parents.ContainsKey(question.Id)).ToList();
 
                 await storageService.DeleteQuestionAnswerAsync(question);
 
                 foreach (var child in children)
                 {
-                    foreach (var parent in parents)
+                    foreach (var parent in question.Parents)
                     {
                         child.Parents.Add(parent.Key, parent.Value);
                     }

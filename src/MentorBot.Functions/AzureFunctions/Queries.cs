@@ -245,11 +245,6 @@ namespace MentorBot.Functions
 
                     questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
                 }
-                else if (result.Where(q => q.SubQuestions != null)
-                    .Any(q => q.SubQuestions.Any(sq => sq.Parents != null && sq.Parents.Keys.Contains(question.Id))))
-                {
-                    questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
-                }
             }
 
             result.RemoveAll(q => questionsToDelete.Any(qtd => qtd.Id == q.Id));

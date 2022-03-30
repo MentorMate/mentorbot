@@ -43,6 +43,7 @@ import { QuestionService } from './question.service';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { ConfirmationModule } from '../shared/confirmation/confirmation.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   exports: [
@@ -95,6 +96,7 @@ export class DemoMaterialModule {}
     RouterModule.forChild([{ path: '', component: QuestionPageComponent }]),
     DemoMaterialModule,
     ConfirmationModule,
+    FormsModule,
   ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],
