@@ -29,9 +29,6 @@ namespace MentorBot.Functions.Models.ViewModels
         /// <summary> Gets or sets a value indicating whether the entity is an answer. </summary>
         public bool IsAnswer { get; set; }
 
-        /// <summary> Gets or sets a value indicating whether the entity is edited. </summary>
-        public bool IsEdited { get; set; }
-
         /// <summary> Gets or sets the subquestions. </summary>
         public QuestionAnswerViewModel[] SubQuestions { get; set; }
     }

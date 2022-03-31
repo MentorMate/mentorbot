@@ -424,12 +424,48 @@ export class QuestionPageComponent {
   }
 
   save() {
+    var result = this.flattenTreeStructure(this.database.data);
     this._questionService
-      .saveQuestions(this.database.data)
+      .saveQuestions(result)
       .subscribe(d => this._questionService.getQuestions().subscribe(questions => this.database.dataChange.next(questions)));
   }
-}
 
-/**  Copyright 2018 Google Inc. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
-    can be found in the LICENSE file at http://angular.io/license */
+  flattenTreeStructure(questions: Question[]): Question[] {
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].subQuestions.length != 0) {
+        var subQuestions = questions[i].subQuestions;
+
+        questions[i].subQuestions = [];
+        subQuestions.forEach(subQuestion => {
+          questions.push(subQuestion);
+        });
+      }
+    }
+
+    let result = questions.reduce(function (r, a) {
+      r[a.id as string] = r[a.id as string] || [];
+      r[a.id as string].push(a);
+      return r;
+    }, Object.create(null));
+
+    const resultArray = Object.keys(result).map(index => {
+      let person = result[index];
+      return person;
+    });
+
+    resultArray.forEach(element => {
+      element.sort((value: any) => {
+        return value.isEdited ? -1 : 1;
+      });
+    });
+
+    let finalResult: Question[] = [];
+
+    resultArray.forEach(element => {
+      finalResult.push(element[0]);
+    });
+
+    console.log(finalResult);
+    return finalResult;
+  }
+}

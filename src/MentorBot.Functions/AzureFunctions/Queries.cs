@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.App.Extensions;
+using MentorBot.Functions.AzureFunctions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
@@ -203,37 +204,25 @@ namespace MentorBot.Functions
 
             var data = await storageService.GetAllQuestionsAsync();
 
-            var questionViewModels = data
-                .Select(q => new QuestionAnswerViewModel
-                {
-                    Id = q.Id,
-                    Content = q.Content,
-                    Index = q.Index,
-                    AcquireTraits = q.AcquireTraits,
-                    RequiredTraits = q.RequiredTraits,
-                    Parents = q.Parents,
-                    Title = q.Title,
-                    IsAnswer = q.IsAnswer,
-                    SubQuestions = data
-                    .Where(d => d.Parents != null && d.Parents.Keys.Contains(q.Id))
-                    .Select(d => new QuestionAnswerViewModel
-                    {
-                        Id = d.Id,
-                        Content = d.Content,
-                        Index = d.Index,
-                        AcquireTraits = d.AcquireTraits,
-                        RequiredTraits = d.RequiredTraits,
-                        Parents = d.Parents,
-                        Title = d.Title,
-                        IsAnswer = d.IsAnswer,
-                    })
-                    .ToArray(),
-                });
+            var questionFactory = QuestionFactory.Create(data);
+
+            var questionViewModels = questionFactory.QuestionAnswers;
 
             var result = questionViewModels.ToList();
 
             var questionsToDelete = new List<QuestionAnswerViewModel>();
+            NestData(questionViewModels, result, questionsToDelete);
 
+            result.RemoveAll(q => questionsToDelete.Any(qtd => qtd.Id == q.Id));
+
+            return result;
+        }
+
+        private static void NestData(
+            IEnumerable<QuestionAnswerViewModel> questionViewModels,
+            List<QuestionAnswerViewModel> result,
+            List<QuestionAnswerViewModel> questionsToDelete)
+        {
             foreach (var question in questionViewModels)
             {
                 if (question.SubQuestions != null && question.SubQuestions.Length
@@ -246,10 +235,6 @@ namespace MentorBot.Functions
                     questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
                 }
             }
-
-            result.RemoveAll(q => questionsToDelete.Any(qtd => qtd.Id == q.Id));
-
-            return result;
         }
 
         private static DateTime GetLastDateTime(DateTime now, DayOfWeek dayOfWeek, int hour)

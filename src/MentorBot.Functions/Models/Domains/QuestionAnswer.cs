@@ -22,9 +22,6 @@ namespace MentorBot.Functions.Models.Domains
         [StoreAsJsonObject]
         public Dictionary<string, string> Parents { get; set; } = new Dictionary<string, string>();
 
-        /// <summary> Gets or sets the index. </summary>
-        public int Index { get; set; }
-
         /// <summary> Gets or sets the title. </summary>
         public string Title { get; set; }
 
