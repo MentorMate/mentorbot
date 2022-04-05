@@ -1,0 +1,41 @@
+<div class="top-spacing">
+    Type
+    <div class="input-group">
+        <select class="form-control"
+                (change)="changeEditNodeIsAnswer($event.target, typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
+                #typeValue>
+            <option *ngFor="let type of nodeType; let i = index" [selected]="editedNode?.isAnswer ? i === 1 : i === 0"
+                    [value]="type === 'Answer'">
+                {{type}}
+            </option>
+        </select>
+    </div>
+</div>
+<div class="top-spacing">
+    {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
+</div>
+<div>
+    <input class="form-control" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required
+           (focusout)="updateTitle(itemValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
+    <div *ngIf="!itemValue.valid && itemValue.touched">
+        <small id="passwordHelp" class="text-danger">
+            Title field is required
+        </small>
+    </div>
+</div>
+<div class="top-spacing">
+    Answer content
+    <div>
+        <textarea class="textarea-size" [ngModel]="editedNode?.content" matInput #contentValue="ngModel" type="text"
+                  [disabled]="!editedNode?.isAnswer"
+                  [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content"
+                  required
+                  (focusout)="updateContent(contentValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
+                  </textarea>
+        <div *ngIf="!contentValue.valid && editedNode?.isAnswer">
+            <small id="passwordHelp" class="text-danger">
+                Content field is required
+            </small>
+        </div>
+    </div>
+</div>

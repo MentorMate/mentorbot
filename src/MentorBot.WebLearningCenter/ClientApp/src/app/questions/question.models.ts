@@ -15,3 +15,11 @@ export enum NodeType {
   'Question' = 1,
   'Answer' = 2,
 }
+
+/** Flat to-do item node with expandable and level information */
+export class TodoItemFlatNode extends Question {
+  item?: string;
+  level!: number;
+  expandable!: boolean;
+  editMode: boolean = false;
+}

@@ -1,0 +1,17 @@
+<h3><span [ngClass]="type === 'acquire' ? 'label label-success' : 'label label-danger'">{{title}}</span></h3>
+<div>
+    <span *ngFor="let trait of traits"
+          [ngClass]="type === 'acquire' ? 'badge badge-success' : 'badge badge-danger'">{{trait}} <span
+              (click)="deleteRequireTrait(trait)" aria-hidden="true">&times;</span></span>
+</div>
+<div class="top-spacing">
+    <div class="input-group">
+        <input #TraitsInput type="text" class="form-control" placeholder="">
+        <span class="input-group-btn">
+            <button class="btn btn-default input-group-text" (click)="addTrait(TraitsInput)"
+                    type="button">Add</button>
+            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(TraitsInput)"
+                    type="button">Cancel</button>
+        </span>
+    </div>
+</div>

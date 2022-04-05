@@ -1,16 +1,13 @@
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
 <confirmation
               message="Are you sure you want to delete {{editedNode?.item}}?"
               (cancel)="isConfirmed = false"
-              (confirm)="onConfirm(editedNode)"
+              (confirm)="onConfirm()"
               *ngIf="isConfirmed"></confirmation>
-
 <div class="split left">
     <div>
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
 
-            <mat-tree-node class="node" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <mat-tree-node class="node" *matTreeNodeDef="let node;" matTreeNodePadding>
                 <div class="node-content">
                     <button *ngIf="!node.content" class="icon-button node-element-height center-ed" mat-icon-button
                             matTreeNodeToggle
@@ -44,150 +41,9 @@
 </div>
 
 <div *ngIf="editedNode" class="split right">
-    <div *ngIf="editedNode?.item">
-        <h4>Title: {{editedNode?.item}}</h4>
-    </div>
-    <hr *ngIf="editedNode?.item">
-    <div class="edit-content">
-        <div>
-            <div class="top-spacing">
-                <h3><span class="label label-success">Assign Traits</span></h3>
-                <div>
-                    <span *ngFor="let trait of editedNode?.acquireTraits" class="badge badge-success">{{trait}} <span
-                              (click)="prepareForDelete(trait, deletedAcquireTraitsList)" aria-hidden="true">&times;</span></span>
-                </div>
-                <div class="traits-div">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Added</div>
-                        <div class="bullet-less-list panel-body" #addedAcquireTraitsList>
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Removed</div>
-                        <ul class="bullet-less-list panel-body" #deletedAcquireTraitsList>
-                        </ul>
-                    </div>
-                </div>
-                <div #addAcquireTraits class="top-spacing">
-                    <div class="input-group">
-                        <input #AcqTraitsInput type="text" class="form-control" placeholder="">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default input-group-text" (click)="addTrait(addedAcquireTraitsList, AcqTraitsInput)"
-                                    type="button">Add</button>
-                            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(AcqTraitsInput)"
-                                    type="button">Cancel</button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="top-spacing">
-                <h3><span class="label label-danger">Require Traits</span></h3>
-                <div>
-                    <span *ngFor="let trait of editedNode?.requiredTraits" class="badge badge-danger">{{trait}} <span
-                              (click)="prepareForDelete(trait, deletedRequireTraitsList)" aria-hidden="true">&times;</span></span>
-                </div>
-                <div class="traits-div">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Added</div>
-                        <ul class="bullet-less-list panel-body" #addedRequireTraitsList>
-                        </ul>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Removed</div>
-                        <ul class="bullet-less-list panel-body" #deletedRequireTraitsList>
-                        </ul>
-                    </div>
-                </div>
-                <div #addRequireTraits class="top-spacing">
-                    <div class="input-group">
-                        <input #ReqTraitsInput type="text" class="form-control" placeholder="">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default input-group-text" (click)="addTrait(addedRequireTraitsList, ReqTraitsInput)"
-                                    type="button">Add</button>
-                            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(ReqTraitsInput)"
-                                    type="button">Cancel</button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="top-spacing" (dragover)="handleDropEvent($event)">
-                <h3><span class="label label-primary">Parent Questions</span></h3>
-                <div>
-                    <span *ngFor="let parent of editedNode?.parents | keyvalue" class="badge badge-parent">{{parent.value}} <span
-                              (click)="prepareForDelete(parent.value, deletedParentQuestions)" aria-hidden="true">&times;</span></span>
-                </div>
-                <div class="traits-div">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Added</div>
-                        <ul id="addedParentQuestions" class="bullet-less-list panel-body" #addedParentQuestions>
-                        </ul>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Removed</div>
-                        <ul class="bullet-less-list panel-body" #deletedParentQuestions>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div>
-            <div class="top-spacing">
-                Type
-                <div class="input-group">
-                    <select class="form-control"
-                            (change)="changeEditNodeIsAnswer($event.target)"
-                            #typeValue>
-                        <option *ngFor="let type of nodeType; let i = index" [selected]="editedNode?.isAnswer ? i === 1 : i === 0"
-                                [value]="type === 'Answer'">
-                            {{type}}
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="top-spacing">
-                {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
-            </div>
-            <div>
-                <input class="form-control" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required>
-                <div *ngIf="!itemValue.valid && itemValue.touched">
-                    <small id="passwordHelp" class="text-danger">
-                        Title field is required
-                    </small>
-                </div>
-            </div>
-            <div class="top-spacing">
-                Answer content
-                <div>
-                    <textarea class="textarea-size" [ngModel]="editedNode?.content" matInput #contentValue="ngModel" type="text"
-                              [disabled]="!editedNode?.isAnswer"
-                              [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content"
-                              required>
-                              </textarea>
-                    <div *ngIf="!contentValue.valid && editedNode?.isAnswer">
-                        <small id="passwordHelp" class="text-danger">
-                            Content field is required
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class=" top-spacing">
-        <button mat-button
-                [disabled]="!itemValue.valid || (editedNode?.isAnswer && !contentValue.valid)"
-                (click)="saveNode(editedNode, itemValue.value, typeValue.value, contentValue.value, addedParentQuestions, addedAcquireTraitsList, addedRequireTraitsList, deletedParentQuestions, deletedAcquireTraitsList, deletedRequireTraitsList)">Save</button>
-        <button class="cancel-button" mat-button (click)="cancelEdit()">
-            Cancel
-        </button>
-        <button class="cancel-button" mat-button
-                (click)="deleteQuestion()">
-            Delete
-        </button>
-    </div>
-
+    <app-edit-question [editedNode]="editedNode" [saveButtonIsNotValid]="saveButtonIsNotValid" (deleteTraitEvent)="deleteTrait($event)"
+                       (addTraitEvent)="addTrait($event)" (deleteParentEvent)="deleteParent($event)"
+                       (typeEvent)="changeEditNodeIsAnswer($event)" (titleEvent)="updateTitle($event)"
+                       (contentEvent)="updateContent($event)" (saveEvent)="saveNode()" (cancelEvent)="cancelEdit()"
+                       (deleteEvent)="deleteQuestion()"></app-edit-question>
 </div>
-
-<!-- Copyright 2018 Google Inc. All Rights Reserved.
-      Use of this source code is governed by an MIT-style license that
-      can be found in the LICENSE file at http://angular.io/license -->

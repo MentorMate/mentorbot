@@ -1,0 +1,11 @@
+<button
+        type="button" class="btn btn-success"
+        [disabled]="saveButtonIsNotValid"
+        (click)="save()">Save</button>
+<button type="button" class="btn btn-warning cancel-button" (click)="cancel()">
+    Cancel
+</button>
+<button type="button" class="btn btn-danger cancel-button"
+        (click)="delete()">
+    Delete
+</button>
