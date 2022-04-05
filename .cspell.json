@@ -95,6 +95,7 @@
     "jwks",
     "ngneat",
     "lcov",
-    "registerables"
+    "registerables",
+    "keyvalue"
   ]
 }

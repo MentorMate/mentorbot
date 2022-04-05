@@ -51,12 +51,10 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var questions = await _storageService.GetAllQuestionsAsync();
 
-            var relativeQuestions = questions.ToList();
-
             if (!state.Active)
             {
-                relativeQuestions = relativeQuestions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
-                var mentorMaterTypesCard = CreateCard(relativeQuestions, "Select your Mentor Mater Type.");
+                questions = questions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
+                var mentorMaterTypesCard = CreateCard(questions, "Select your Mentor Mater Type.");
 
                 state.Active = true;
                 await _storageService.AddOrUpdateStateAsync(state);
@@ -68,7 +66,7 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var parentId = state.CurrentQuestionId;
 
-            var question = GetSelectedQuestion(state, questions, relativeQuestions, parentId, int.Parse(index) - 1);
+            var question = GetSelectedQuestion(state, questions, questions, parentId, int.Parse(index) - 1);
 
             if (question.AcquireTraits != null)
             {
@@ -137,7 +135,7 @@ namespace MentorBot.Functions.Processors.UserFlow
         private static QuestionAnswer GetSelectedQuestion(
             State state,
             IReadOnlyList<QuestionAnswer> questions,
-            List<QuestionAnswer> relativeQuestions,
+            IReadOnlyList<QuestionAnswer> relativeQuestions,
             string parentId,
             int index)
         {

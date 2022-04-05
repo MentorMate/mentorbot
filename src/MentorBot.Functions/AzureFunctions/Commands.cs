@@ -143,7 +143,10 @@ namespace MentorBot.Functions
             }
         }
 
-        private static async Task AddDeletedQuestionParentsToItsChildren(IStorageService storageService, QuestionAnswer question, List<QuestionAnswer> children)
+        private static async Task AddDeletedQuestionParentsToItsChildren(
+            IStorageService storageService,
+            QuestionAnswer question,
+            List<QuestionAnswer> children)
         {
             foreach (var child in children)
             {

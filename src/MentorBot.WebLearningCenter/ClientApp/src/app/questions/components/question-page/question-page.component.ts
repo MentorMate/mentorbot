@@ -63,14 +63,22 @@ export class QuestionPageComponent implements OnDestroy {
   };
 
   addNewItem() {
-    this.editedNode = {} as TodoItemFlatNode;
-    this.editedNode.acquireTraits = [];
-    this.editedNode.requiredTraits = [];
-    this.editedNode.parents = {};
-    this.savingNode = {} as TodoItemFlatNode;
-    this.savingNode.acquireTraits = [];
-    this.savingNode.requiredTraits = [];
-    this.savingNode.parents = {};
+    const emptyNode = {
+      title: '',
+      acquireTraits: [],
+      requiredTraits: [],
+      parents: {},
+      item: '',
+      level: 0,
+      expandable: false,
+      editMode: false,
+      isAnswer: false,
+      subQuestions: [],
+      isEdited: false,
+    };
+
+    this.editedNode = { ...emptyNode };
+    this.savingNode = { ...emptyNode };
     this.saveButtonIsNotValid = true;
   }
 
@@ -199,7 +207,7 @@ export class QuestionPageComponent implements OnDestroy {
   save() {
     this.editedNode = undefined;
     this.savingNode = undefined;
-    var result = this.flattenTreeStructure(this.database.data);
+    let result = this.database.flattenTreeStructure(this.database.data);
     this._questionService
       .saveQuestions(result)
       .pipe(take(1))
@@ -209,50 +217,6 @@ export class QuestionPageComponent implements OnDestroy {
           .pipe(take(1))
           .subscribe(questions => this.database.dataChange.next(questions))
       );
-  }
-
-  flattenTreeStructure(questions: Question[]): Question[] {
-    for (let i = 0; i < questions.length; i++) {
-      if (questions[i].subQuestions.length != 0) {
-        var subQuestions = questions[i].subQuestions;
-
-        questions[i].subQuestions = [];
-        subQuestions.forEach(subQuestion => {
-          questions.push(subQuestion);
-        });
-      }
-    }
-
-    let result = questions.reduce(function (r, a) {
-      r[a.id as string] = r[a.id as string] || [];
-      r[a.id as string].push(a);
-      return r;
-    }, Object.create(null));
-
-    const resultArray = Object.keys(result).map(index => {
-      let person = result[index];
-      return person;
-    });
-
-    resultArray.forEach(element => {
-      element.sort((value: Question) => {
-        return value.isEdited ? -1 : 1;
-      });
-    });
-
-    let finalResult: Question[] = [];
-
-    resultArray.forEach((element: Question[]) => {
-      if (!element[0].id) {
-        element.forEach(nestedEl => {
-          finalResult.push(nestedEl);
-        });
-      } else {
-        finalResult.push(element[0]);
-      }
-    });
-
-    return finalResult;
   }
 
   ngOnDestroy() {

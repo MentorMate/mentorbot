@@ -53,16 +53,16 @@ export class ChecklistDatabase {
     let allQuestions = this.flattenTreeStructure(JSON.parse(JSON.stringify(this.dataChange.value)));
 
     if (!allQuestions.find(n => n.title === name)) {
-      this.dataChange.value.push(node);
+      this.dataChange.next([...this.data, node]);
+    } else {
+      this.dataChange.next(this.data);
     }
-
-    this.dataChange.next(this.data);
   }
 
   flattenTreeStructure(questions: Question[]): Question[] {
     for (let i = 0; i < questions.length; i++) {
       if (questions[i].subQuestions.length != 0) {
-        var subQuestions = questions[i].subQuestions;
+        let subQuestions = questions[i].subQuestions;
 
         questions[i].subQuestions = [];
         subQuestions.forEach(subQuestion => {
@@ -83,14 +83,14 @@ export class ChecklistDatabase {
     });
 
     resultArray.forEach(element => {
-      element.sort((value: any) => {
+      element.sort((value: Question) => {
         return value.isEdited ? -1 : 1;
       });
     });
 
     let finalResult: Question[] = [];
 
-    resultArray.forEach((element: any[]) => {
+    resultArray.forEach((element: Question[]) => {
       if (!element[0].id) {
         element.forEach(nestedEl => {
           finalResult.push(nestedEl);
@@ -99,8 +99,6 @@ export class ChecklistDatabase {
         finalResult.push(element[0]);
       }
     });
-
-    console.log(finalResult);
 
     return finalResult;
   }

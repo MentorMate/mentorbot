@@ -12,7 +12,7 @@ export class QuestionService {
 
   static readonly deleteQuestion = 'delete-question';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getQuestions(): Observable<Question[]> {
     return this.http.get<Question[]>(QuestionService.url);
