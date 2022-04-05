@@ -198,7 +198,7 @@ namespace MentorBot.Tests.AzureFunctions
 
             var result = await Queries.GetPluginsAsync(request, context);
 
-            Assert.AreEqual(11, result.Count());
+            Assert.AreEqual(10, result.Count());
             storageService.Received().AddOrUpdatePluginsAsync(Arg.Is<IReadOnlyList<Plugin>>(list => list.Count == 10)).Wait();
         }
 
