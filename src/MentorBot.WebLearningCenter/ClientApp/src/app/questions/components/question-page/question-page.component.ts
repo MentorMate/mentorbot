@@ -114,7 +114,6 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   handleDragEnd(e: any) {
-    console.log('logging...');
     if (this.editedNode) {
       this.editedNode.parents[e.toElement.textContent] = e.toElement.textContent;
     }

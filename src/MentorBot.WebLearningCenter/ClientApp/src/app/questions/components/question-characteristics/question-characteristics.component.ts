@@ -19,7 +19,6 @@ export class QuestionCharacteristicsComponent {
     if (!(this.editedNode as TodoItemFlatNode).isAnswer) {
       (this.editedNode as TodoItemFlatNode).content = '';
     }
-    console.log(`${this.editedNode?.isAnswer} && valid content - ${isNotValid}`);
     this.typeEvent.emit({ type, isNotValid });
   }
 
