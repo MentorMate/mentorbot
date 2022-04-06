@@ -53,7 +53,7 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             if (!state.Active)
             {
-                questions = questions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
+                questions = QuestionsWithoutParents(questions);
                 var mentorMaterTypesCard = CreateCard(questions, "Select your Mentor Mater Type.");
 
                 state.Active = true;
@@ -99,6 +99,9 @@ namespace MentorBot.Functions.Processors.UserFlow
             return new ChatEventResult(card);
         }
 
+        private static IReadOnlyList<QuestionAnswer> QuestionsWithoutParents(IReadOnlyList<QuestionAnswer> questions) =>
+            questions = questions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
+
         private static Card CreateCard(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer, string title)
         {
             return new Card
@@ -141,7 +144,7 @@ namespace MentorBot.Functions.Processors.UserFlow
         {
             if (string.IsNullOrEmpty(parentId) || parentId == "null")
             {
-                relativeQuestions = relativeQuestions.Where(q => q.Parents == null || q.Parents.Count == 0).ToList();
+                relativeQuestions = QuestionsWithoutParents(relativeQuestions);
             }
             else if (state.Traits.Count == 0)
             {

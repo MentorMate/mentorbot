@@ -11,12 +11,15 @@ using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.TextAnalytics;
+using MentorBot.Functions.Models.ViewModels;
 using MentorBot.Tests._Base;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Newtonsoft.Json;
 
 using NSubstitute;
 
@@ -169,6 +172,42 @@ namespace MentorBot.Tests.AzureFunctions
             await Commands.SavePluginsAsync(request, context);
 
             storageService.Received().AddOrUpdateUserAsync(Arg.Is<User>(u => u.Name == "Original" && u.Properties.Count == 1));
+        }
+
+        [TestMethod]
+        public async Task SaveQuestionsAsyncShouldUpdateQuestions()
+        {
+            var storageService = Substitute.For<IStorageService>();
+
+            var data = new[]
+            {
+                new QuestionAnswerViewModel
+                {
+                    Id = "1",
+                    Title = "Office",
+                    IsAnswer = false,
+                },
+                new QuestionAnswerViewModel
+                        {
+                            Id = "2",
+                            Title = "Accounts",
+                            IsAnswer = false,
+                        },
+            };
+
+            var userInfo = new AccessTokenUserInfo { IsValid = true, UserRole = UserRoles.Administrator };
+            var accessTokenService = Substitute.For<IAccessTokenService>();
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IAccessTokenService), accessTokenService),
+                new ServiceDescriptor(typeof(IStorageService), storageService));
+            var request = MockFunction.GetRequest(JsonConvert.SerializeObject(data), context);
+            accessTokenService.ValidateTokenAsync(request).Returns(userInfo);
+
+            await Commands.SaveQuestionsAsync(request, context);
+
+            storageService.Received().AddOrUpdateQuestionsAsync(
+                Arg.Is<IReadOnlyList<QuestionAnswer>>(
+                    questions => questions.Count == 2 && questions[0].Id == "1" && questions[1].Id == "2"));
         }
 
 #pragma warning restore CS4014
