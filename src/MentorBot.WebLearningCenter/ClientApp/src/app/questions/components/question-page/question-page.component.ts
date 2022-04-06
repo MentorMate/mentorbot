@@ -26,6 +26,8 @@ export class QuestionPageComponent implements OnDestroy {
   savingNode?: TodoItemFlatNode;
   saveButtonIsNotValid?: boolean;
   dataChangeSubscription?: Subscription;
+  addParent?: boolean;
+  nodeExists?: boolean;
 
   public nodeType = Object.values(NodeType).filter(value => typeof value === 'string');
 
@@ -80,6 +82,7 @@ export class QuestionPageComponent implements OnDestroy {
     this.editedNode = { ...emptyNode };
     this.savingNode = { ...emptyNode };
     this.saveButtonIsNotValid = true;
+    this.nodeExists = false;
   }
 
   saveNode() {
@@ -114,6 +117,7 @@ export class QuestionPageComponent implements OnDestroy {
     this.editedNode = JSON.parse(JSON.stringify(node));
     this.savingNode = node;
     this.saveButtonIsNotValid = false;
+    this.nodeExists = true;
   }
 
   cancelEdit() {
@@ -122,7 +126,7 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   handleDragEnd(e: any) {
-    if (this.editedNode) {
+    if (this.editedNode && this.addParent) {
       this.editedNode.parents[e.toElement.textContent] = e.toElement.textContent;
     }
   }

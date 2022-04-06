@@ -7,6 +7,7 @@ import { TodoItemFlatNode } from '../../question.models';
   styleUrls: ['edit-question.component.scss'],
 })
 export class EditQuestionComponent {
+  @Input() nodeExists?: boolean;
   @Input() editedNode?: TodoItemFlatNode;
   @Input() saveButtonIsNotValid?: boolean;
   @Output() deleteTraitEvent = new EventEmitter<{ name: string; type: string }>();
@@ -18,6 +19,8 @@ export class EditQuestionComponent {
   @Output() saveEvent = new EventEmitter();
   @Output() cancelEvent = new EventEmitter();
   @Output() deleteEvent = new EventEmitter();
+  @Output() dragOverEvent = new EventEmitter();
+  @Output() dragLeaveEvent = new EventEmitter();
 
   deleteTrait({ name, type }: { name: string; type: string }) {
     this.deleteTraitEvent.emit({ name, type });
@@ -41,6 +44,15 @@ export class EditQuestionComponent {
 
   updateContent({ content, isNotValid }: { content: string; isNotValid?: boolean }) {
     this.contentEvent.emit({ content, isNotValid });
+  }
+
+  draggedOver(e: DragEvent) {
+    e.preventDefault();
+    this.dragOverEvent.emit();
+  }
+
+  dragLeave() {
+    this.dragLeaveEvent.emit();
   }
 
   saveNode() {

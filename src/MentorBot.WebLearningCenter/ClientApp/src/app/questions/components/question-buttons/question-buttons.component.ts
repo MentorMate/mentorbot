@@ -7,6 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class QuestionButtonsComponent {
   @Input() saveButtonIsNotValid?: boolean;
+  @Input() nodeExists?: boolean;
   @Output() saveEvent = new EventEmitter();
   @Output() cancelEvent = new EventEmitter();
   @Output() deleteEvent = new EventEmitter();

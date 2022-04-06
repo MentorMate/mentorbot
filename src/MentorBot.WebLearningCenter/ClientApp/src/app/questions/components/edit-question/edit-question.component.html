@@ -1,32 +1,45 @@
-<div *ngIf="editedNode?.item">
+<div>
     <h4>Title: {{editedNode?.item}}</h4>
 </div>
-<hr *ngIf="editedNode?.item">
+<hr>
 <div class="edit-content">
     <div>
         <div class="top-spacing">
-            <app-question-traits [title]="'Assign Traits'" [type]="'acquire'" [traits]="editedNode?.acquireTraits"
-                                 (deleteTraitEvent)="deleteTrait($event)" (addTraitEvent)="addTrait($event)"></app-question-traits>
+            <app-question-traits
+                                 [title]="'Assign Traits'"
+                                 [type]="'acquire'"
+                                 [traits]="editedNode?.acquireTraits"
+                                 (deleteTraitEvent)="deleteTrait($event)"
+                                 (addTraitEvent)="addTrait($event)"></app-question-traits>
         </div>
         <div class="top-spacing">
-            <app-question-traits [title]="'Require Traits'" [type]="'required'" [traits]="editedNode?.requiredTraits"
-                                 (deleteTraitEvent)="deleteTrait($event)" (addTraitEvent)="addTrait($event)"></app-question-traits>
+            <app-question-traits [title]="'Require Traits'"
+                                 [type]="'required'"
+                                 [traits]="editedNode?.requiredTraits"
+                                 (deleteTraitEvent)="deleteTrait($event)"
+                                 (addTraitEvent)="addTrait($event)"></app-question-traits>
         </div>
-        <div class="top-spacing">
+        <div (dragover)="draggedOver($event)" (dragleave)="dragLeave()" class="top-spacing">
             <h3><span class="label label-primary">Parent Questions</span></h3>
             <div>
-                <span *ngFor="let parent of editedNode?.parents | keyvalue" class="badge badge-parent">{{parent.value}} <span
-                          (click)="deleteParent(parent.value )" aria-hidden="true">&times;</span></span>
+                <span *ngFor="let parent of editedNode?.parents | keyvalue"
+                      class="badge badge-parent">{{parent.value}} <span (click)="deleteParent(parent.value )"
+                          aria-hidden="true">&times;</span></span>
             </div>
         </div>
     </div>
     <div>
-        <app-question-characteristics [editedNode]="editedNode" (typeEvent)="changeEditNodeIsAnswer($event)"
-                                      (titleEvent)="updateTitle($event)" (contentEvent)="updateContent($event)">
+        <app-question-characteristics [editedNode]="editedNode"
+                                      (typeEvent)="changeEditNodeIsAnswer($event)"
+                                      (titleEvent)="updateTitle($event)"
+                                      (contentEvent)="updateContent($event)">
         </app-question-characteristics>
     </div>
 </div>
 <div class="top-spacing">
-    <app-question-buttons [saveButtonIsNotValid]="saveButtonIsNotValid" (saveEvent)="saveNode()" (cancelEvent)="cancelEdit()"
+    <app-question-buttons [saveButtonIsNotValid]="saveButtonIsNotValid"
+                          [nodeExists]="nodeExists"
+                          (saveEvent)="saveNode()"
+                          (cancelEvent)="cancelEdit()"
                           (deleteEvent)="deleteQuestion()"></app-question-buttons>
 </div>
