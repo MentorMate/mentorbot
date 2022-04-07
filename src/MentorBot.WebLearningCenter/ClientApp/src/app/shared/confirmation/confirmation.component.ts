@@ -4,7 +4,7 @@ import { DialogService } from './dialog.service';
 @Component({
   selector: 'confirmation',
   templateUrl: './confirmation.component.html',
-  styleUrls: ['./confirmation.component.css'],
+  styleUrls: ['./confirmation.component.scss'],
 })
 export class ConfirmationComponent {
   constructor(private dialogService: DialogService) {}
