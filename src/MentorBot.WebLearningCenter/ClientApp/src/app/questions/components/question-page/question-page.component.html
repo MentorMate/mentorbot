@@ -1,8 +1,3 @@
-<confirmation
-              message="Are you sure you want to delete {{editedNode?.item}}?"
-              (cancel)="isConfirmed = false"
-              (confirm)="onConfirm()"
-              *ngIf="isConfirmed"></confirmation>
 <div class="split left">
     <div>
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">

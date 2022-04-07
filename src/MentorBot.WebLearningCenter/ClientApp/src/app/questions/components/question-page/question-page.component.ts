@@ -1,7 +1,9 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { Subscription, take } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/components/confirm-dialog.component';
 import { ChecklistDatabase } from '../../check-list-database';
 import { NodeType, Question, TodoItemFlatNode } from '../../question.models';
 import { QuestionService } from '../../question.service';
@@ -31,7 +33,7 @@ export class QuestionPageComponent implements OnDestroy {
 
   public nodeType = Object.values(NodeType).filter(value => typeof value === 'string');
 
-  constructor(private database: ChecklistDatabase, private readonly _questionService: QuestionService) {
+  constructor(private database: ChecklistDatabase, private readonly _questionService: QuestionService, private dialog: MatDialog) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
@@ -187,7 +189,17 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   deleteQuestion() {
-    this.isConfirmed = true;
+    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Confirm Remove Employee',
+        message: 'Are you sure, you want to remove an employee: ' + this.editedNode?.item,
+      },
+    });
+    confirmDialog.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.onConfirm();
+      }
+    });
   }
 
   onConfirm() {

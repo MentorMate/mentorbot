@@ -8,12 +8,13 @@ import { SharedModule } from '../shared/shared.module';
 import { QuestionPageComponent } from './components/question-page/question-page.component';
 import { QuestionService } from './question.service';
 import { MatTreeModule } from '@angular/material/tree';
-import { ConfirmationModule } from '../shared/confirmation/confirmation.module';
 import { FormsModule } from '@angular/forms';
 import { EditQuestionComponent } from './components/edit-question/edit-question.component';
 import { QuestionTraitsComponent } from './components/question-traits/question-traits.component';
 import { QuestionCharacteristicsComponent } from './components/question-characteristics/question-characteristics.component';
 import { QuestionButtonsComponent } from './components/question-buttons/question-buttons.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogModule } from '../shared/confirm-dialog/confirm-dialog.module';
 
 @NgModule({
   declarations: [
@@ -29,8 +30,9 @@ import { QuestionButtonsComponent } from './components/question-buttons/question
     RouterModule.forChild([{ path: '', component: QuestionPageComponent }]),
     MatIconModule,
     MatTreeModule,
-    ConfirmationModule,
     FormsModule,
+    MatDialogModule,
+    ConfirmDialogModule,
   ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],
