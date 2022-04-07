@@ -16,10 +16,6 @@ namespace MentorBot.Functions.Models.Domains
         [PartitionKey]
         public string PartitionKey { get; } = "System";
 
-        /// <summary>Gets or sets the answered questions.</summary>
-        [StoreAsJsonObject]
-        public List<string> ShownQuestionIds { get; set; } = new List<string>();
-
         /// <summary>Gets or sets the traits.</summary>
         [StoreAsJsonObject]
         public List<string> Traits { get; set; } = new List<string>();

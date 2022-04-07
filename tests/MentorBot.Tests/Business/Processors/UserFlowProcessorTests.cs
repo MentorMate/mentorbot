@@ -83,8 +83,40 @@ namespace MentorBot.Tests.Business.Processors
         [TestMethod]
         public async Task ChoosingFinalQuestionShouldSetStateToInactive()
         {
-            var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var userEmail = "rosen.kolev@mentormate.com";
+
+            await FinalQuestionPreparation(userEmail);
+
+            var stateAfterReceivedAnswer = await _storageService.GetStateAsync(userEmail);
+
+            Assert.AreEqual(false, stateAfterReceivedAnswer.Active);
+        }
+
+        [TestMethod]
+        public async Task ChoosingFinalQuestionShouldEmptySetStateQuestions()
+        {
+            var userEmail = "rosen.kolev@mentormate.com";
+
+            await FinalQuestionPreparation(userEmail);
+
+            var stateAfterReceivedAnswer = await _storageService.GetStateAsync(userEmail);
+
+            Assert.AreEqual(0, stateAfterReceivedAnswer.Traits.Count);
+        }
+
+        [TestMethod]
+        public async Task ChoosingFinalQuestionShouldReturnAnswer()
+        {
+            var userEmail = "rosen.kolev@mentormate.com";
+
+            var result = await FinalQuestionPreparation(userEmail);
+
+            Assert.AreEqual("answer title", result.Cards[0].Header.Title);
+        }
+
+        private async Task<ChatEventResult> FinalQuestionPreparation(string userEmail)
+        {
+            var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var parentId = "1";
             var info = new TextDeconstructionInformation("1", null);
             var chatEvent = GetChatEvent("1");
@@ -103,26 +135,11 @@ namespace MentorBot.Tests.Business.Processors
                     new QuestionAnswer() { Id = "1", IsAnswer = false, AcquireTraits = new string[] { testTrait } },
                     new QuestionAnswer() { Id = "10", Parents =
                     new Dictionary<string, string>()
-                    { { parentId, "parent" } }, IsAnswer = true, RequiredTraits = new string[]{ testTrait } }
+                    { { parentId, "parent" } }, IsAnswer = true, RequiredTraits = new string[]{ testTrait }, Title = "answer title" }
                 });
 
             var result = await _processor.ProcessCommandAsync(info, chatEvent, null, accessor);
-
-            var stateAfterReceivedAnswer = await _storageService.GetStateAsync(userEmail);
-
-            Assert.AreEqual(false, stateAfterReceivedAnswer.Active);
-        }
-
-        [TestMethod]
-        public async Task ChoosingFinalQuestionShouldEmptySetStateQuestions()
-        {
-
-        }
-
-        [TestMethod]
-        public async Task ChoosingFinalQuestionShouldReturnAnswer()
-        {
-
+            return result;
         }
 
         private static ChatEvent GetChatEvent(string text) =>
