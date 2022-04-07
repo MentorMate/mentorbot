@@ -309,7 +309,7 @@ namespace MentorBot.Tests.AzureFunctions
                             Title = "Accounts",
                             IsAnswer = false,
                             Parents = new Dictionary<string, string>() {{"1", "Office"}}
-                        }, 
+                        },
                     }
                 },
             };
