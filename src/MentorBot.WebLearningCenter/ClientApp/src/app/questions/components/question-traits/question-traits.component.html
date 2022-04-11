@@ -2,7 +2,7 @@
 <div>
     <span *ngFor="let trait of traits"
           [ngClass]="type === 'acquire' ? 'badge badge-success' : 'badge badge-danger'">{{trait}} <span
-              (click)="deleteRequireTrait(trait)" aria-hidden="true">&times;</span></span>
+              (click)="deleteTrait(trait)" aria-hidden="true">&times;</span></span>
 </div>
 <div class="top-spacing">
     <div class="input-group">

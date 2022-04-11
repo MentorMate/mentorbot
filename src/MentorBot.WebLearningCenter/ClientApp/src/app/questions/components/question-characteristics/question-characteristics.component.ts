@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NodeType, TodoItemFlatNode } from '../../question.models';
+import { NodeType, QuestionPropertiesChange, TodoItemFlatNode } from '../../question.models';
 
 @Component({
   selector: 'app-question-characteristics',
@@ -8,25 +8,23 @@ import { NodeType, TodoItemFlatNode } from '../../question.models';
 })
 export class QuestionCharacteristicsComponent {
   @Input() editedNode?: TodoItemFlatNode;
-  @Output() typeEvent = new EventEmitter<{ type: string; isNotValid: boolean | undefined }>();
-  @Output() titleEvent = new EventEmitter<{ title: string; isNotValid: boolean | undefined }>();
-  @Output() contentEvent = new EventEmitter<{ content: string; isNotValid: boolean | undefined }>();
+  @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
 
   public nodeType = Object.values(NodeType).filter(value => typeof value === 'string');
 
-  changeEditNodeIsAnswer(isAnswer: EventTarget | null, type: string, isNotValid: boolean | undefined) {
+  changeEditNodeIsAnswer(isAnswer: EventTarget | null, type: string, isNotValid: boolean | undefined): void {
     (this.editedNode as TodoItemFlatNode).isAnswer = (isAnswer as HTMLTextAreaElement).value === 'true';
     if (!(this.editedNode as TodoItemFlatNode).isAnswer) {
       (this.editedNode as TodoItemFlatNode).content = '';
     }
-    this.typeEvent.emit({ type, isNotValid });
+    this.questionUpdateEvent.emit({ title: this.editedNode?.item, type, content: this.editedNode?.content, isNotValid });
   }
 
-  updateTitle(title: string, isNotValid: boolean | undefined) {
-    this.titleEvent.emit({ title, isNotValid });
+  updateTitle(title: string, isNotValid: boolean | undefined): void {
+    this.questionUpdateEvent.emit({ title, type: this.editedNode?.isAnswer ? 'true' : '', content: this.editedNode?.content, isNotValid });
   }
 
-  updateContent(content: string, isNotValid: boolean | undefined) {
-    this.contentEvent.emit({ content, isNotValid });
+  updateContent(content: string, isNotValid: boolean | undefined): void {
+    this.questionUpdateEvent.emit({ title: this.editedNode?.item, type: this.editedNode?.isAnswer ? 'true' : '', content, isNotValid });
   }
 }

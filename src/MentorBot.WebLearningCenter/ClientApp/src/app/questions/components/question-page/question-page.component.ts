@@ -5,7 +5,7 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { Subscription, take } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/components/confirm-dialog.component';
 import { ChecklistDatabase } from '../../check-list-database';
-import { NodeType, Question, TodoItemFlatNode } from '../../question.models';
+import { NodeType, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction } from '../../question.models';
 import { QuestionService } from '../../question.service';
 
 @Component({
@@ -24,7 +24,6 @@ export class QuestionPageComponent implements OnDestroy {
   treeFlattener: MatTreeFlattener<Question, TodoItemFlatNode>;
   dataSource: MatTreeFlatDataSource<Question, TodoItemFlatNode>;
   editedNode?: TodoItemFlatNode;
-  isConfirmed: boolean = false;
   savingNode?: TodoItemFlatNode;
   saveButtonIsNotValid?: boolean;
   dataChangeSubscription?: Subscription;
@@ -49,7 +48,7 @@ export class QuestionPageComponent implements OnDestroy {
 
   getChildren = (node: Question): Question[] => node.subQuestions;
 
-  transformer = (node: Question, level: number) => {
+  transformer = (node: Question, level: number): TodoItemFlatNode => {
     const existingNode = this.nestedNodeMap.get(node);
     const flatNode = existingNode && existingNode.item === node.title ? existingNode : new TodoItemFlatNode();
     flatNode.item = node.title;
@@ -66,7 +65,7 @@ export class QuestionPageComponent implements OnDestroy {
     return flatNode;
   };
 
-  addNewItem() {
+  addNewItem(): void {
     const emptyNode = {
       title: '',
       acquireTraits: [],
@@ -87,7 +86,7 @@ export class QuestionPageComponent implements OnDestroy {
     this.nodeExists = false;
   }
 
-  saveNode() {
+  saveNode(): void {
     if (this.savingNode?.acquireTraits && this.editedNode?.acquireTraits) {
       this.savingNode.acquireTraits = this.editedNode?.acquireTraits;
     }
@@ -111,98 +110,97 @@ export class QuestionPageComponent implements OnDestroy {
         this.savingNode?.parents
       );
     }
-    this.editedNode = undefined;
-    this.savingNode = undefined;
+    this.resetEditedAndSavingNodes();
   }
 
-  editItem(node: TodoItemFlatNode) {
-    this.editedNode = JSON.parse(JSON.stringify(node));
+  editItem(node: TodoItemFlatNode): void {
+    this.editedNode = { ...node };
     this.savingNode = node;
     this.saveButtonIsNotValid = false;
     this.nodeExists = true;
   }
 
-  cancelEdit() {
+  resetEditedAndSavingNodes(): void {
     this.editedNode = undefined;
     this.savingNode = undefined;
   }
 
-  handleDragEnd(e: any) {
+  handleDragEnd(e: any): void {
     if (this.editedNode && this.addParent) {
       this.editedNode.parents[e.toElement.textContent] = e.toElement.textContent;
     }
   }
 
-  deleteTrait({ name, type }: { name: string; type: string }) {
-    if (type === 'acquire') {
-      let index = this.editedNode?.acquireTraits.indexOf(name);
-      if (index != undefined) {
-        this.editedNode?.acquireTraits.splice(index, 1);
+  traitAction({ name, type, actionType }: TraitAction): void {
+    if (type === 'acquire' && actionType === 'delete') {
+      if (this.editedNode?.acquireTraits) {
+        this.editedNode.acquireTraits = this.editedNode.acquireTraits.filter(t => t !== name);
       }
-    } else if (type === 'required') {
-      let index = this.editedNode?.requiredTraits.indexOf(name);
-      if (index != undefined) {
-        this.editedNode?.requiredTraits.splice(index, 1);
+    } else if (type === 'acquire' && actionType === 'add') {
+      if (this.editedNode?.acquireTraits && !this.editedNode?.acquireTraits.includes(name)) {
+        this.editedNode.acquireTraits = [...this.editedNode?.acquireTraits, name];
       }
-    }
-  }
-
-  addTrait({ name, type }: { name: string; type: string }) {
-    if (name === '') {
-      return;
-    }
-
-    if (type === 'acquire') {
-      if (!this.editedNode?.acquireTraits.includes(name)) {
-        this.editedNode?.acquireTraits.push(name);
+    } else if (type === 'required' && actionType === 'delete') {
+      if (this.editedNode?.requiredTraits) {
+        this.editedNode.requiredTraits = this.editedNode.requiredTraits.filter(t => t !== name);
       }
-    } else if (type === 'required') {
-      if (!this.editedNode?.requiredTraits.includes(name)) {
-        this.editedNode?.requiredTraits.push(name);
+    } else if (type === 'required' && actionType === 'add') {
+      if (this.editedNode?.requiredTraits && !this.editedNode?.requiredTraits.includes(name)) {
+        this.editedNode.requiredTraits = [...this.editedNode?.requiredTraits, name];
       }
     }
   }
 
-  deleteParent(parent: string) {
+  deleteParent(parent: string): void {
     if (this.editedNode?.parents) {
-      let key = Object.keys(this.editedNode?.parents).find(key => this.editedNode?.parents[key] === parent);
-      if (key) {
-        delete this.editedNode?.parents[key];
-        delete this.savingNode?.parents[key];
-      }
+      this.editedNode.parents = Object.fromEntries(Object.entries(this.editedNode.parents).filter(([k, v]) => v !== parent));
     }
   }
 
-  changeEditNodeIsAnswer({ type, isNotValid }: { type: string; isNotValid?: boolean }) {
+  changeEditNodeIsAnswer({ type, isNotValid }: { type: string; isNotValid?: boolean }): void {
     (this.editedNode as TodoItemFlatNode).isAnswer = type === 'true';
     this.saveButtonIsNotValid = isNotValid;
   }
 
-  updateTitle({ title, isNotValid }: { title: string; isNotValid?: boolean }) {
+  updateNode({ title, type, content, isNotValid }: QuestionPropertiesChange) {
+    (this.editedNode as TodoItemFlatNode).isAnswer = type === 'true';
     (this.editedNode as TodoItemFlatNode).item = title;
-    this.saveButtonIsNotValid = isNotValid;
-  }
-
-  updateContent({ content, isNotValid }: { content: string; isNotValid?: boolean }) {
     (this.editedNode as TodoItemFlatNode).content = content;
     this.saveButtonIsNotValid = isNotValid;
   }
 
-  deleteQuestion() {
-    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Confirm Remove Employee',
-        message: 'Are you sure, you want to remove an employee: ' + this.editedNode?.item,
-      },
-    });
-    confirmDialog.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.onConfirm();
-      }
-    });
+  action(action: string) {
+    if (action === 'drag-over') {
+      this.addParent = true;
+    } else if (action === 'drag-leave') {
+      this.addParent = false;
+    } else if (action === 'save-node') {
+      this.saveNode();
+    } else if (action === 'cancel-edit') {
+      this.resetEditedAndSavingNodes();
+    } else if (action === 'delete-question') {
+      this.deleteQuestion();
+    }
   }
 
-  onConfirm() {
+  deleteQuestion(): void {
+    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Confirm Remove Question',
+        message: 'Are you sure, you want to remove question: ' + this.editedNode?.item,
+      },
+    });
+    confirmDialog
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(result => {
+        if (result === true) {
+          this.onConfirm();
+        }
+      });
+  }
+
+  onConfirm(): void {
     const question = this.flatNodeMap.get(this.savingNode as TodoItemFlatNode);
 
     this._questionService
@@ -215,15 +213,12 @@ export class QuestionPageComponent implements OnDestroy {
           .subscribe(questions => this.database.dataChange.next(questions))
       );
 
-    this.editedNode = undefined;
-    this.savingNode = undefined;
-    this.isConfirmed = false;
+    this.resetEditedAndSavingNodes();
   }
 
-  save() {
-    this.editedNode = undefined;
-    this.savingNode = undefined;
-    let result = this.database.flattenTreeStructure(this.database.data);
+  save(): void {
+    this.resetEditedAndSavingNodes();
+    const result = this.database.flattenTreeStructure(this.database.data);
     this._questionService
       .saveQuestions(result)
       .pipe(take(1))
@@ -235,7 +230,7 @@ export class QuestionPageComponent implements OnDestroy {
       );
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.dataChangeSubscription?.unsubscribe();
   }
 }

@@ -1,6 +1,6 @@
 import { ifStmt } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, take } from 'rxjs';
 import { Question, TodoItemFlatNode } from './question.models';
 import { QuestionService } from './question.service';
 
@@ -21,8 +21,11 @@ export class ChecklistDatabase {
     this.initialize();
   }
 
-  initialize() {
-    this._questionService.getQuestions().subscribe(questions => this.dataChange.next(questions));
+  initialize(): void {
+    this._questionService
+      .getQuestions()
+      .pipe(take(1))
+      .subscribe(questions => this.dataChange.next(questions));
   }
 
   updateItem(
@@ -35,7 +38,7 @@ export class ChecklistDatabase {
     parents?: {
       [key: string]: string;
     }
-  ) {
+  ): void {
     node.title = name as string;
     node.content = content;
     node.isAnswer = isAnswer as boolean;
@@ -50,56 +53,28 @@ export class ChecklistDatabase {
       node.parents = parents;
     }
 
-    let allQuestions = this.flattenTreeStructure(JSON.parse(JSON.stringify(this.dataChange.value)));
+    let allQuestions = this.flattenTreeStructure([...this.dataChange.value]);
 
     if (!allQuestions.find(n => n.title === name)) {
       this.dataChange.next([...this.data, node]);
     } else {
-      this.dataChange.next(this.data);
+      this.dataChange.next([...this.data]);
     }
   }
 
   flattenTreeStructure(questions: Question[]): Question[] {
-    for (let i = 0; i < questions.length; i++) {
-      if (questions[i].subQuestions.length != 0) {
-        let subQuestions = questions[i].subQuestions;
-
-        questions[i].subQuestions = [];
-        subQuestions.forEach(subQuestion => {
-          questions.push(subQuestion);
+    return questions.reduce(function (r, a): Question[] {
+      if (a.subQuestions && a.subQuestions.length != 0) {
+        a.subQuestions.forEach(element => {
+          if (!questions.find(q => q.title === element.title)) {
+            questions = [...questions, element];
+          } else if (element.isEdited) {
+            let editedElement = questions.find(q => q.title === element.title);
+            editedElement = element;
+          }
         });
       }
-    }
-
-    let result = questions.reduce(function (r, a) {
-      r[a.id as string] = r[a.id as string] || [];
-      r[a.id as string].push(a);
-      return r;
+      return questions;
     }, Object.create(null));
-
-    const resultArray = Object.keys(result).map(index => {
-      let person = result[index];
-      return person;
-    });
-
-    resultArray.forEach(element => {
-      element.sort((value: Question) => {
-        return value.isEdited ? -1 : 1;
-      });
-    });
-
-    let finalResult: Question[] = [];
-
-    resultArray.forEach((element: Question[]) => {
-      if (!element[0].id) {
-        element.forEach(nestedEl => {
-          finalResult.push(nestedEl);
-        });
-      } else {
-        finalResult.push(element[0]);
-      }
-    });
-
-    return finalResult;
   }
 }

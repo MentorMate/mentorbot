@@ -22,7 +22,7 @@ export class QuestionService {
     return this.http.post(QuestionService.saveQuestions, questions);
   }
 
-  deleteQuestion(question: Question | undefined) {
+  deleteQuestion(question: Question | undefined): Observable<Object> {
     return this.http.delete(`${QuestionService.deleteQuestion}/${question?.id}`);
   }
 }

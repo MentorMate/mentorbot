@@ -37,10 +37,7 @@
 
 <div *ngIf="editedNode" class="split right">
     <app-edit-question [nodeExists]="nodeExists" [editedNode]="editedNode" [saveButtonIsNotValid]="saveButtonIsNotValid"
-                       (deleteTraitEvent)="deleteTrait($event)"
-                       (addTraitEvent)="addTrait($event)" (deleteParentEvent)="deleteParent($event)"
-                       (typeEvent)="changeEditNodeIsAnswer($event)" (titleEvent)="updateTitle($event)"
-                       (contentEvent)="updateContent($event)" (saveEvent)="saveNode()" (cancelEvent)="cancelEdit()"
-                       (deleteEvent)="deleteQuestion()" (dragOverEvent)="addParent = true" (dragLeaveEvent)="addParent = false">
+                       (traitEvent)="traitAction($event)" (deleteParentEvent)="deleteParent($event)"
+                       (questionUpdateEvent)="updateNode($event)" (actionEvent)="action($event)">
     </app-edit-question>
 </div>

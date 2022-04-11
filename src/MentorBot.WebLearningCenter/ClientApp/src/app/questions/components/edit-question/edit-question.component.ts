@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TodoItemFlatNode } from '../../question.models';
+import { Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction } from '../../question.models';
 
 @Component({
   selector: 'app-edit-question',
@@ -10,60 +10,41 @@ export class EditQuestionComponent {
   @Input() nodeExists?: boolean;
   @Input() editedNode?: TodoItemFlatNode;
   @Input() saveButtonIsNotValid?: boolean;
-  @Output() deleteTraitEvent = new EventEmitter<{ name: string; type: string }>();
-  @Output() addTraitEvent = new EventEmitter<{ name: string; type: string }>();
+  @Output() traitEvent = new EventEmitter<TraitAction>();
   @Output() deleteParentEvent = new EventEmitter<string>();
-  @Output() typeEvent = new EventEmitter<{ type: string; isNotValid?: boolean }>();
-  @Output() titleEvent = new EventEmitter<{ title: string; isNotValid?: boolean }>();
-  @Output() contentEvent = new EventEmitter<{ content: string; isNotValid?: boolean }>();
-  @Output() saveEvent = new EventEmitter();
-  @Output() cancelEvent = new EventEmitter();
-  @Output() deleteEvent = new EventEmitter();
-  @Output() dragOverEvent = new EventEmitter();
-  @Output() dragLeaveEvent = new EventEmitter();
+  @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
+  @Output() actionEvent = new EventEmitter<string>();
 
-  deleteTrait({ name, type }: { name: string; type: string }) {
-    this.deleteTraitEvent.emit({ name, type });
+  traitAction({ name, type, actionType }: TraitAction): void {
+    this.traitEvent.emit({ name, type, actionType });
   }
 
-  addTrait({ name, type }: { name: string; type: string }) {
-    this.addTraitEvent.emit({ name, type });
-  }
-
-  deleteParent(parent: string) {
+  deleteParent(parent: string): void {
     this.deleteParentEvent.emit(parent);
   }
 
-  changeEditNodeIsAnswer({ type, isNotValid }: { type: string; isNotValid?: boolean }) {
-    this.typeEvent.emit({ type, isNotValid });
+  questionUpdate({ title, type, content, isNotValid }: QuestionPropertiesChange) {
+    this.questionUpdateEvent.emit({ title, type, content, isNotValid });
   }
 
-  updateTitle({ title, isNotValid }: { title: string; isNotValid?: boolean }) {
-    this.titleEvent.emit({ title, isNotValid });
-  }
-
-  updateContent({ content, isNotValid }: { content: string; isNotValid?: boolean }) {
-    this.contentEvent.emit({ content, isNotValid });
-  }
-
-  draggedOver(e: DragEvent) {
+  draggedOver(e: DragEvent): void {
     e.preventDefault();
-    this.dragOverEvent.emit();
+    this.actionEvent.emit('drag-over');
   }
 
-  dragLeave() {
-    this.dragLeaveEvent.emit();
+  dragLeave(): void {
+    this.actionEvent.emit('drag-leave');
   }
 
-  saveNode() {
-    this.saveEvent.emit();
+  saveNode(): void {
+    this.actionEvent.emit('save-node');
   }
 
-  cancelEdit() {
-    this.cancelEvent.emit();
+  cancelEdit(): void {
+    this.actionEvent.emit('cancel-edit');
   }
 
-  deleteQuestion() {
-    this.deleteEvent.emit();
+  deleteQuestion(): void {
+    this.actionEvent.emit('delete-question');
   }
 }

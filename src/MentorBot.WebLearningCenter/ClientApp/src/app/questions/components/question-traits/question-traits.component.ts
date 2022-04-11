@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TraitAction } from '../../question.models';
 
 @Component({
   selector: 'app-question-traits',
@@ -9,19 +10,18 @@ export class QuestionTraitsComponent {
   @Input() title: string = '';
   @Input() type: string = '';
   @Input() traits?: string[];
-  @Output() deleteTraitEvent = new EventEmitter<{ name: string; type: string }>();
-  @Output() addTraitEvent = new EventEmitter<{ name: string; type: string }>();
+  @Output() traitEvent = new EventEmitter<TraitAction>();
 
-  deleteRequireTrait(trait: string) {
-    this.deleteTraitEvent.emit({ name: trait, type: this.type });
+  deleteTrait(trait: string): void {
+    this.traitEvent.emit({ name: trait, type: this.type, actionType: 'delete' });
   }
 
-  addTrait(input: HTMLInputElement) {
-    this.addTraitEvent.emit({ name: input.value, type: this.type });
+  addTrait(input: HTMLInputElement): void {
+    this.traitEvent.emit({ name: input.value, type: this.type, actionType: 'add' });
     input.value = '';
   }
 
-  resetTraitFieldInput(input: HTMLInputElement) {
+  resetTraitFieldInput(input: HTMLInputElement): void {
     input.value = '';
   }
 }

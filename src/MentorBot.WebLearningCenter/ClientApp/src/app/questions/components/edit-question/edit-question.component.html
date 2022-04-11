@@ -9,15 +9,13 @@
                                  [title]="'Assign Traits'"
                                  [type]="'acquire'"
                                  [traits]="editedNode?.acquireTraits"
-                                 (deleteTraitEvent)="deleteTrait($event)"
-                                 (addTraitEvent)="addTrait($event)"></app-question-traits>
+                                 (traitEvent)="traitAction($event)"></app-question-traits>
         </div>
-        <div class="top-spacing">
+        <div class=" top-spacing">
             <app-question-traits [title]="'Require Traits'"
                                  [type]="'required'"
                                  [traits]="editedNode?.requiredTraits"
-                                 (deleteTraitEvent)="deleteTrait($event)"
-                                 (addTraitEvent)="addTrait($event)"></app-question-traits>
+                                 (traitEvent)="traitAction($event)"></app-question-traits>
         </div>
         <div (dragover)="draggedOver($event)" (dragleave)="dragLeave()" class="top-spacing">
             <h3><span class="label label-primary">Parent Questions</span></h3>
@@ -30,9 +28,7 @@
     </div>
     <div>
         <app-question-characteristics [editedNode]="editedNode"
-                                      (typeEvent)="changeEditNodeIsAnswer($event)"
-                                      (titleEvent)="updateTitle($event)"
-                                      (contentEvent)="updateContent($event)">
+                                      (questionUpdateEvent)="questionUpdate($event)">
         </app-question-characteristics>
     </div>
 </div>

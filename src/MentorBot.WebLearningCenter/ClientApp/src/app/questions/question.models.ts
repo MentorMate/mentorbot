@@ -23,3 +23,16 @@ export class TodoItemFlatNode extends Question {
   expandable!: boolean;
   editMode: boolean = false;
 }
+
+export interface TraitAction {
+  name: string;
+  type: string;
+  actionType: string;
+}
+
+export interface QuestionPropertiesChange {
+  title?: string;
+  type?: string;
+  content?: string;
+  isNotValid?: boolean;
+}
