@@ -6,8 +6,7 @@ import { QuestionService } from './question.service';
 
 /**
  * Checklist database, it can build a tree structured Json object.
- * Each node in Json object represents a to-do item or a category.
- * If a node is a category, it has children items and new items can be added under the category.
+ * Each node in Json object represents a question or an answer.
  */
 @Injectable()
 export class ChecklistDatabase {
@@ -53,28 +52,50 @@ export class ChecklistDatabase {
       node.parents = parents;
     }
 
-    let allQuestions = this.flattenTreeStructure([...this.dataChange.value]);
+    const elementExists = (questions: Question[], title: string): boolean => {
+      return questions.some(q => {
+        if (q.title === title) {
+          return true;
+        }
 
-    if (!allQuestions.find(n => n.title === name)) {
+        return elementExists(q.subQuestions, title);
+      });
+    };
+
+    if (!elementExists(this.dataChange.value, node.title)) {
       this.dataChange.next([...this.data, node]);
     } else {
       this.dataChange.next([...this.data]);
     }
   }
 
-  flattenTreeStructure(questions: Question[]): Question[] {
-    return questions.reduce(function (r, a): Question[] {
-      if (a.subQuestions && a.subQuestions.length != 0) {
-        a.subQuestions.forEach(element => {
-          if (!questions.find(q => q.title === element.title)) {
-            questions = [...questions, element];
-          } else if (element.isEdited) {
-            let editedElement = questions.find(q => q.title === element.title);
-            editedElement = element;
-          }
-        });
+  getFlatTree(): Question[] {
+    const flatTree = (nestedObjects: Question[]) => {
+      return nestedObjects.reduce(function (resultArray: Question[], nestedObject: Question): Question[] {
+        if (Object.keys(resultArray).length == 0) {
+          resultArray = [];
+        }
+        resultArray.push(nestedObject);
+        if (nestedObject.subQuestions && nestedObject.subQuestions.length != 0) {
+          resultArray.push(...flatTree(nestedObject.subQuestions));
+        }
+        return resultArray;
+      }, Object.create(null));
+    };
+
+    const allQuestions = flatTree([...this.dataChange.value]);
+
+    let result: Question[] = [];
+
+    for (let i = 0; i < allQuestions.length; i++) {
+      if (!result.some(a => a.id === allQuestions[i].id)) {
+        result.push(allQuestions[i]);
+      } else if (allQuestions[i].isEdited) {
+        const index = result.findIndex(a => a.id === allQuestions[i].id);
+        result[index] = allQuestions[i];
       }
-      return questions;
-    }, Object.create(null));
+    }
+
+    return result;
   }
 }

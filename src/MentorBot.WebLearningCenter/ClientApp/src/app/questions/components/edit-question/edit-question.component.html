@@ -5,15 +5,14 @@
 <div class="edit-content">
     <div>
         <div class="top-spacing">
-            <app-question-traits
-                                 [title]="'Assign Traits'"
-                                 [type]="'acquire'"
+            <app-question-traits [title]="'Assign Traits'"
+                                 [type]="traitTypes.Acquire"
                                  [traits]="editedNode?.acquireTraits"
                                  (traitEvent)="traitAction($event)"></app-question-traits>
         </div>
         <div class=" top-spacing">
             <app-question-traits [title]="'Require Traits'"
-                                 [type]="'required'"
+                                 [type]="traitTypes.Required"
                                  [traits]="editedNode?.requiredTraits"
                                  (traitEvent)="traitAction($event)"></app-question-traits>
         </div>

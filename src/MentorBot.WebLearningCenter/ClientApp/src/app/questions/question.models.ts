@@ -12,8 +12,8 @@ export class Question {
 }
 
 export enum NodeType {
-  'Question' = 1,
-  'Answer' = 2,
+  Question,
+  Answer,
 }
 
 /** Flat to-do item node with expandable and level information */
@@ -26,13 +26,31 @@ export class TodoItemFlatNode extends Question {
 
 export interface TraitAction {
   name: string;
-  type: string;
-  actionType: string;
+  type?: TraitTypes;
+  actionType?: ActionType;
 }
 
 export interface QuestionPropertiesChange {
   title?: string;
-  type?: string;
+  isAnswer?: boolean;
   content?: string;
   isNotValid?: boolean;
+}
+
+export enum ActionEvent {
+  DragOver,
+  DragLeave,
+  SaveNode,
+  CancelEdit,
+  DeleteQuestion,
+}
+
+export enum TraitTypes {
+  Acquire,
+  Required,
+}
+
+export enum ActionType {
+  Add,
+  Delete,
 }

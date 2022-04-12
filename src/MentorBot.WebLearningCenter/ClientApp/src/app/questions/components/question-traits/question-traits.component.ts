@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TraitAction } from '../../question.models';
+import { ActionType, TraitAction, TraitTypes } from '../../question.models';
 
 @Component({
   selector: 'app-question-traits',
@@ -8,16 +8,18 @@ import { TraitAction } from '../../question.models';
 })
 export class QuestionTraitsComponent {
   @Input() title: string = '';
-  @Input() type: string = '';
+  @Input() type?: TraitTypes;
   @Input() traits?: string[];
   @Output() traitEvent = new EventEmitter<TraitAction>();
 
+  public traitTypes = TraitTypes;
+
   deleteTrait(trait: string): void {
-    this.traitEvent.emit({ name: trait, type: this.type, actionType: 'delete' });
+    this.traitEvent?.emit({ name: trait, type: this.type, actionType: ActionType.Delete });
   }
 
   addTrait(input: HTMLInputElement): void {
-    this.traitEvent.emit({ name: input.value, type: this.type, actionType: 'add' });
+    this.traitEvent?.emit({ name: input.value, type: this.type, actionType: ActionType.Add });
     input.value = '';
   }
 

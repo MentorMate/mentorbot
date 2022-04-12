@@ -1,7 +1,7 @@
-<h3><span [ngClass]="type === 'acquire' ? 'label label-success' : 'label label-danger'">{{title}}</span></h3>
+<h3><span [ngClass]="type === traitTypes.Acquire ? 'label label-success' : 'label label-danger'">{{title}}</span></h3>
 <div>
     <span *ngFor="let trait of traits"
-          [ngClass]="type === 'acquire' ? 'badge badge-success' : 'badge badge-danger'">{{trait}} <span
+          [ngClass]="type === traitTypes.Acquire ? 'badge badge-success' : 'badge badge-danger'">{{trait}} <span
               (click)="deleteTrait(trait)" aria-hidden="true">&times;</span></span>
 </div>
 <div class="top-spacing">

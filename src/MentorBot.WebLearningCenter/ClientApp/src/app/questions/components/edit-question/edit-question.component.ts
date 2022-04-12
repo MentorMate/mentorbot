@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction } from '../../question.models';
+import { ActionEvent, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction, TraitTypes } from '../../question.models';
 
 @Component({
   selector: 'app-edit-question',
@@ -13,38 +13,40 @@ export class EditQuestionComponent {
   @Output() traitEvent = new EventEmitter<TraitAction>();
   @Output() deleteParentEvent = new EventEmitter<string>();
   @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
-  @Output() actionEvent = new EventEmitter<string>();
+  @Output() actionEvent = new EventEmitter<ActionEvent>();
+
+  public traitTypes = TraitTypes;
 
   traitAction({ name, type, actionType }: TraitAction): void {
-    this.traitEvent.emit({ name, type, actionType });
+    this.traitEvent?.emit({ name, type, actionType });
   }
 
   deleteParent(parent: string): void {
-    this.deleteParentEvent.emit(parent);
+    this.deleteParentEvent?.emit(parent);
   }
 
-  questionUpdate({ title, type, content, isNotValid }: QuestionPropertiesChange) {
-    this.questionUpdateEvent.emit({ title, type, content, isNotValid });
+  questionUpdate({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+    this.questionUpdateEvent?.emit({ title, isAnswer, content, isNotValid });
   }
 
   draggedOver(e: DragEvent): void {
     e.preventDefault();
-    this.actionEvent.emit('drag-over');
+    this.actionEvent?.emit(ActionEvent.DragOver);
   }
 
   dragLeave(): void {
-    this.actionEvent.emit('drag-leave');
+    this.actionEvent?.emit(ActionEvent.DragLeave);
   }
 
   saveNode(): void {
-    this.actionEvent.emit('save-node');
+    this.actionEvent?.emit(ActionEvent.SaveNode);
   }
 
   cancelEdit(): void {
-    this.actionEvent.emit('cancel-edit');
+    this.actionEvent?.emit(ActionEvent.CancelEdit);
   }
 
   deleteQuestion(): void {
-    this.actionEvent.emit('delete-question');
+    this.actionEvent?.emit(ActionEvent.DeleteQuestion);
   }
 }

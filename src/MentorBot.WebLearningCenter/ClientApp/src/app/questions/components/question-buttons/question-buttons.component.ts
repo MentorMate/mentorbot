@@ -13,14 +13,14 @@ export class QuestionButtonsComponent {
   @Output() deleteEvent = new EventEmitter();
 
   save(): void {
-    this.saveEvent.emit();
+    this.saveEvent?.emit();
   }
 
   cancel(): void {
-    this.cancelEvent.emit();
+    this.cancelEvent?.emit();
   }
 
   delete(): void {
-    this.deleteEvent.emit();
+    this.deleteEvent?.emit();
   }
 }

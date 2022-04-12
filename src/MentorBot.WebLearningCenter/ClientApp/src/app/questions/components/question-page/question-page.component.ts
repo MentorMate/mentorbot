@@ -5,7 +5,16 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { Subscription, take } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/components/confirm-dialog.component';
 import { ChecklistDatabase } from '../../check-list-database';
-import { NodeType, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction } from '../../question.models';
+import {
+  ActionEvent,
+  ActionType,
+  NodeType,
+  Question,
+  QuestionPropertiesChange,
+  TodoItemFlatNode,
+  TraitAction,
+  TraitTypes,
+} from '../../question.models';
 import { QuestionService } from '../../question.service';
 
 @Component({
@@ -87,16 +96,6 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   saveNode(): void {
-    if (this.savingNode?.acquireTraits && this.editedNode?.acquireTraits) {
-      this.savingNode.acquireTraits = this.editedNode?.acquireTraits;
-    }
-    if (this.savingNode?.requiredTraits && this.editedNode?.requiredTraits) {
-      this.savingNode.requiredTraits = this.editedNode?.requiredTraits;
-    }
-    if (this.savingNode?.parents && this.editedNode?.parents) {
-      this.savingNode.parents = this.editedNode?.parents;
-    }
-
     const nestedNode = this.flatNodeMap.get(this.savingNode as TodoItemFlatNode);
 
     if (this.savingNode) {
@@ -105,9 +104,9 @@ export class QuestionPageComponent implements OnDestroy {
         this.editedNode?.item,
         this.editedNode?.isAnswer,
         this.editedNode?.content,
-        this.savingNode?.acquireTraits,
-        this.savingNode?.requiredTraits,
-        this.savingNode?.parents
+        this.editedNode?.acquireTraits,
+        this.editedNode?.requiredTraits,
+        this.editedNode?.parents
       );
     }
     this.resetEditedAndSavingNodes();
@@ -132,19 +131,19 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   traitAction({ name, type, actionType }: TraitAction): void {
-    if (type === 'acquire' && actionType === 'delete') {
+    if (type === TraitTypes.Acquire && actionType === ActionType.Delete) {
       if (this.editedNode?.acquireTraits) {
         this.editedNode.acquireTraits = this.editedNode.acquireTraits.filter(t => t !== name);
       }
-    } else if (type === 'acquire' && actionType === 'add') {
+    } else if (type === TraitTypes.Acquire && actionType === ActionType.Add) {
       if (this.editedNode?.acquireTraits && !this.editedNode?.acquireTraits.includes(name)) {
         this.editedNode.acquireTraits = [...this.editedNode?.acquireTraits, name];
       }
-    } else if (type === 'required' && actionType === 'delete') {
+    } else if (type === TraitTypes.Required && actionType === ActionType.Delete) {
       if (this.editedNode?.requiredTraits) {
         this.editedNode.requiredTraits = this.editedNode.requiredTraits.filter(t => t !== name);
       }
-    } else if (type === 'required' && actionType === 'add') {
+    } else if (type === TraitTypes.Required && actionType === ActionType.Add) {
       if (this.editedNode?.requiredTraits && !this.editedNode?.requiredTraits.includes(name)) {
         this.editedNode.requiredTraits = [...this.editedNode?.requiredTraits, name];
       }
@@ -162,23 +161,26 @@ export class QuestionPageComponent implements OnDestroy {
     this.saveButtonIsNotValid = isNotValid;
   }
 
-  updateNode({ title, type, content, isNotValid }: QuestionPropertiesChange) {
-    (this.editedNode as TodoItemFlatNode).isAnswer = type === 'true';
+  updateNode({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+    if (isAnswer !== undefined) {
+      (this.editedNode as TodoItemFlatNode).isAnswer = isAnswer;
+    }
+    // this.editedNode = {...this.editedNode, title, isAnswer: type === 'true', content, level: 1};
     (this.editedNode as TodoItemFlatNode).item = title;
     (this.editedNode as TodoItemFlatNode).content = content;
     this.saveButtonIsNotValid = isNotValid;
   }
 
-  action(action: string) {
-    if (action === 'drag-over') {
+  action(action: ActionEvent) {
+    if (action === ActionEvent.DragOver) {
       this.addParent = true;
-    } else if (action === 'drag-leave') {
+    } else if (action === ActionEvent.DragLeave) {
       this.addParent = false;
-    } else if (action === 'save-node') {
+    } else if (action === ActionEvent.SaveNode) {
       this.saveNode();
-    } else if (action === 'cancel-edit') {
+    } else if (action === ActionEvent.CancelEdit) {
       this.resetEditedAndSavingNodes();
-    } else if (action === 'delete-question') {
+    } else if (action === ActionEvent.DeleteQuestion) {
       this.deleteQuestion();
     }
   }
@@ -218,7 +220,7 @@ export class QuestionPageComponent implements OnDestroy {
 
   save(): void {
     this.resetEditedAndSavingNodes();
-    const result = this.database.flattenTreeStructure(this.database.data);
+    const result = this.database.getFlatTree();
     this._questionService
       .saveQuestions(result)
       .pipe(take(1))

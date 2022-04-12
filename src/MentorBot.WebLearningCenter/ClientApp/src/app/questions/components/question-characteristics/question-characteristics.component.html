@@ -2,12 +2,10 @@
     Type
     <div class="input-group">
         <select class="form-control"
-                (change)="changeEditNodeIsAnswer($event.target, typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
+                (change)="changeEditNodeIsAnswer(typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
                 #typeValue>
-            <option *ngFor="let type of nodeType; let i = index" [selected]="editedNode?.isAnswer ? i === 1 : i === 0"
-                    [value]="type === 'Answer'">
-                {{type}}
-            </option>
+            <option [value]="nodeType.Answer" [selected]="editedNode?.isAnswer">Answer</option>
+            <option [value]="nodeType.Question" [selected]="!editedNode?.isAnswer">Question</option>
         </select>
     </div>
 </div>
