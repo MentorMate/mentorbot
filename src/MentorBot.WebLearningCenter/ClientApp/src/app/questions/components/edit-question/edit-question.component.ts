@@ -25,8 +25,8 @@ export class EditQuestionComponent {
     this.deleteParentEvent?.emit(parent);
   }
 
-  questionUpdate({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
-    this.questionUpdateEvent?.emit({ title, isAnswer, content, isNotValid });
+  questionUpdate({ item, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+    this.questionUpdateEvent?.emit({ item, isAnswer, content, isNotValid });
   }
 
   draggedOver(e: DragEvent): void {

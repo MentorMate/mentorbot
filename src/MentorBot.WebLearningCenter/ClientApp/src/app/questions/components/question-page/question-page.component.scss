@@ -5,7 +5,16 @@
   z-index: 1;
   top: 0;
   overflow-x: hidden;
-  margin-top: 80px;
+  margin-top: 100px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.top-spacing {
+  margin-top: 10px;
+}
+
+.right-spacing {
+  margin-right: 5px;
 }
 
 .badge {
@@ -22,14 +31,6 @@
 /* Control the right side */
 .right {
   right: 0;
-}
-
-.edit-content {
-  margin-left: 10px;
-  display: flex;
-  width: 500px;
-  flex-direction: row;
-  justify-content: space-between;
 }
 
 .node {
@@ -58,17 +59,8 @@
   height: auto;
 }
 
-.badge-success {
-  background-color: #5cb85c;
-}
-
-.badge-danger {
-  background-color: red;
-}
-
-.icon-button {
-  background-color: transparent;
-  border-style: none;
+.badge {
+  white-space: nowrap;
 }
 
 .well-sm {
@@ -82,5 +74,6 @@
     text-decoration: underline;
   }
 
+  margin-top: 0%;
   margin-bottom: 0%;
 }

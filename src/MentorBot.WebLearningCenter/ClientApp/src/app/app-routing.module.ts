@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 
 import { AuthModule } from './auth/auth.module';
 
@@ -58,7 +60,7 @@ export const appRoutes: Routes = [
 
 @NgModule({
   declarations: [AppRootComponent, AppMainComponent, NotFoundPageComponent, NoAccessPageComponent, MenuComponent],
-  imports: [CommonModule, AuthModule.forRoot(), RouterModule.forRoot(appRoutes)],
+  imports: [CommonModule, AuthModule.forRoot(), RouterModule.forRoot(appRoutes), MatToolbarModule, MatButtonModule],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

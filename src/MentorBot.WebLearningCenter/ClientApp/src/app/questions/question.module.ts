@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MDBBootstrapModule } from 'angular-bootstrap-md';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 
 import { SettingsService } from '../settings/settings.service';
 import { SharedModule } from '../shared/shared.module';
@@ -33,6 +36,9 @@ import { ConfirmDialogModule } from '../shared/confirm-dialog/confirm-dialog.mod
     FormsModule,
     MatDialogModule,
     ConfirmDialogModule,
+    MDBBootstrapModule,
+    MatButtonModule,
+    MatSelectModule,
   ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],

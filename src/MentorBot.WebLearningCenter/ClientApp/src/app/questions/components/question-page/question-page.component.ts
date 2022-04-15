@@ -161,12 +161,12 @@ export class QuestionPageComponent implements OnDestroy {
     this.saveButtonIsNotValid = isNotValid;
   }
 
-  updateNode({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+  updateNode({ item, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
     if (isAnswer !== undefined) {
       (this.editedNode as TodoItemFlatNode).isAnswer = isAnswer;
     }
     // this.editedNode = {...this.editedNode, title, isAnswer: type === 'true', content, level: 1};
-    (this.editedNode as TodoItemFlatNode).item = title;
+    (this.editedNode as TodoItemFlatNode).item = item;
     (this.editedNode as TodoItemFlatNode).content = content;
     this.saveButtonIsNotValid = isNotValid;
   }

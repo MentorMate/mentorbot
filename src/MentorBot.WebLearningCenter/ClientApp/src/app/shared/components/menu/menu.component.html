@@ -1,30 +1,15 @@
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button
-        type="button"
-        class="navbar-toggle collapsed"
-        data-toggle="collapse"
-        data-target="#bs-example-navbar-collapse-1"
-        aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
+<mat-toolbar
+             class="app-toolbar no-print mat-toolbar mat-primary mat-elevation-z6 mat-toolbar-multiple-rows"
+             color="primary">
+  <mat-toolbar-row>
+    <button *ngFor="let path of paths" mat-button [routerLink]="path.url">{{path.name}}</button> &nbsp; &nbsp;
+    <span class="example-spacer"></span>
+    <div class="spacer"></div>
+    <div fxShow="true" fxHide.lt-sm="true">
+      <button mat-button>
+        <p>Signed in as {{ name }}</p>
       </button>
+      <button mat-button (click)="signout()">Sign out</button>
     </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li *ngFor="let path of paths">
-          <a *ngIf="allow(path.url)" [routerLink]="path.url" routerLinkActive="active">{{ path.name }}</a>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-          <p class="navbar-text">Signed in as {{ name }}</p>
-        </li>
-        <li><button type="button" class="btn btn-default navbar-btn" (click)="signout()">Sign out</button></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+  </mat-toolbar-row>
+</mat-toolbar>

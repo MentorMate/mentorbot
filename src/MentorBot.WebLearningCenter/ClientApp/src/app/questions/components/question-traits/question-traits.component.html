@@ -1,17 +1,17 @@
-<h3><span [ngClass]="type === traitTypes.Acquire ? 'label label-success' : 'label label-danger'">{{title}}</span></h3>
+<h2>
+    <mdb-badge pill="true" [success]="type === traitTypes.Acquire" [danger]="type === traitTypes.Required">{{title}}</mdb-badge>
+</h2>
 <div>
-    <span *ngFor="let trait of traits"
-          [ngClass]="type === traitTypes.Acquire ? 'badge badge-success' : 'badge badge-danger'">{{trait}} <span
-              (click)="deleteTrait(trait)" aria-hidden="true">&times;</span></span>
+    <mdb-badge pill="true" *ngFor="let trait of traits" [success]="type === traitTypes.Acquire" [danger]="type === traitTypes.Required">
+        {{trait}} <span
+              (click)="deleteTrait(trait)" aria-hidden="true">&times;</span></mdb-badge>
 </div>
 <div class="top-spacing">
     <div class="input-group">
-        <input #TraitsInput type="text" class="form-control" placeholder="">
-        <span class="input-group-btn">
-            <button class="btn btn-default input-group-text" (click)="addTrait(TraitsInput)"
-                    type="button">Add</button>
-            <button class="btn btn-default input-group-text" (click)="resetTraitFieldInput(TraitsInput)"
-                    type="button">Cancel</button>
+        <input #TraitsInput type="text" class="form-control custom-input" placeholder="">
+        <span>
+            <button mat-stroked-button (click)="addTrait(TraitsInput)">Add</button>
+            <button mat-stroked-button (click)="resetTraitFieldInput(TraitsInput)">Cancel</button>
         </span>
     </div>
 </div>

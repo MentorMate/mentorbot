@@ -4,7 +4,7 @@ import { ActionEvent, NodeType, QuestionPropertiesChange, TodoItemFlatNode } fro
 @Component({
   selector: 'app-question-characteristics',
   templateUrl: 'question-characteristics.component.html',
-  // styleUrls: ['question-traits.component.scss'],
+  styleUrls: ['question-characteristics.component.scss'],
 })
 export class QuestionCharacteristicsComponent {
   @Input() editedNode?: TodoItemFlatNode;
@@ -12,20 +12,20 @@ export class QuestionCharacteristicsComponent {
 
   public nodeType = NodeType;
 
-  changeEditNodeIsAnswer(type: string, isNotValid: boolean | undefined): void {
-    (this.editedNode as TodoItemFlatNode).isAnswer = type === this.nodeType.Answer.toString();
+  changeEditNodeIsAnswer(type: number, isNotValid: boolean | undefined): void {
+    (this.editedNode as TodoItemFlatNode).isAnswer = type.toString() === this.nodeType.Answer.toString();
     if (!(this.editedNode as TodoItemFlatNode).isAnswer) {
       (this.editedNode as TodoItemFlatNode).content = '';
     }
     this.questionUpdateEvent?.emit({
       ...this.editedNode,
-      isAnswer: type === this.nodeType.Answer.toString(),
+      isAnswer: type.toString() === this.nodeType.Answer.toString(),
       isNotValid,
     });
   }
 
   updateTitle(title: string, isNotValid: boolean | undefined): void {
-    this.questionUpdateEvent?.emit({ ...this.editedNode, title, isNotValid });
+    this.questionUpdateEvent?.emit({ ...this.editedNode, item: title, isNotValid });
   }
 
   updateContent(content: string, isNotValid: boolean | undefined): void {

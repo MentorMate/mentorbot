@@ -31,7 +31,7 @@ export interface TraitAction {
 }
 
 export interface QuestionPropertiesChange {
-  title?: string;
+  item?: string;
   isAnswer?: boolean;
   content?: string;
   isNotValid?: boolean;

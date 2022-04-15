@@ -1,19 +1,17 @@
 <div class="top-spacing">
     Type
-    <div class="input-group">
-        <select class="form-control"
-                (change)="changeEditNodeIsAnswer(typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
+    <mat-select [value]="editedNode?.isAnswer ? nodeType.Answer : nodeType.Question" class="form-control background"
+                (selectionChange)="changeEditNodeIsAnswer(typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
                 #typeValue>
-            <option [value]="nodeType.Answer" [selected]="editedNode?.isAnswer">Answer</option>
-            <option [value]="nodeType.Question" [selected]="!editedNode?.isAnswer">Question</option>
-        </select>
-    </div>
+        <mat-option [value]="nodeType.Answer">Answer</mat-option>
+        <mat-option [value]="nodeType.Question">Question</mat-option>
+    </mat-select>
 </div>
 <div class="top-spacing">
     {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
 </div>
 <div>
-    <input class="form-control" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required
+    <input class="form-control custom-input" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required
            (focusout)="updateTitle(itemValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
     <div *ngIf="!itemValue.valid && itemValue.touched">
         <small id="passwordHelp" class="text-danger">

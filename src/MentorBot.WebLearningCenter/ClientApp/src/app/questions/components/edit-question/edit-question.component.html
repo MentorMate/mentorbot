@@ -1,5 +1,5 @@
 <div>
-    <h4>Title: {{editedNode?.item}}</h4>
+    <h2>Title: {{editedNode?.item}}</h2>
 </div>
 <hr>
 <div class="edit-content">
@@ -17,11 +17,13 @@
                                  (traitEvent)="traitAction($event)"></app-question-traits>
         </div>
         <div (dragover)="draggedOver($event)" (dragleave)="dragLeave()" class="top-spacing">
-            <h3><span class="label label-primary">Parent Questions</span></h3>
+            <h2>
+                <mdb-badge pill="true" primary="true">Parent Questions</mdb-badge>
+            </h2>
             <div>
-                <span *ngFor="let parent of editedNode?.parents | keyvalue"
-                      class="badge badge-parent">{{parent.value}} <span (click)="deleteParent(parent.value )"
-                          aria-hidden="true">&times;</span></span>
+                <mdb-badge pill="true" *ngFor="let parent of editedNode?.parents | keyvalue" primary="true">
+                    {{parent.value}} <span
+                          (click)="deleteParent(parent.value)" aria-hidden="true">&times;</span></mdb-badge>
             </div>
         </div>
     </div>

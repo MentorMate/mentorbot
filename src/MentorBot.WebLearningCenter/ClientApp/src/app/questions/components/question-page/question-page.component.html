@@ -22,16 +22,18 @@
                 </div>
                 <div class="short">
                     <span *ngIf="node.content" class="well well-sm">{{node.content}}</span>
-                    <span *ngFor="let trait of node.acquireTraits" class="badge badge-success">{{trait}}</span>
-                    <span *ngFor="let trait of node.requiredTraits" class="badge badge-danger">{{trait}}</span>
+                    <mdb-badge class="badge" pill="true" *ngFor="let trait of node.acquireTraits" success="true">{{trait}}</mdb-badge>
+                    <mdb-badge class="badge" pill="true" *ngFor="let trait of node.requiredTraits" danger="true">{{trait}}</mdb-badge>
                 </div>
             </mat-tree-node>
         </mat-tree>
-        <button class="icon-button" mat-icon-button (click)="addNewItem()">
-            Add
-        </button>
+        <div class="top-spacing">
+            <button class="right-spacing" mat-stroked-button (click)="addNewItem()">
+                Add
+            </button>
 
-        <a (click)="save()">SAVE</a>
+            <button mat-stroked-button (click)="save()">SAVE</button>
+        </div>
     </div>
 </div>
 

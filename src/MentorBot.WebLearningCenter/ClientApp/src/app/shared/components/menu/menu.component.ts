@@ -8,6 +8,9 @@ const style = `
   :host {
     display: block;
   }
+  .spacer {
+    flex: 1 1 auto;
+  }
 `;
 
 @Component({
