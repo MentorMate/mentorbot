@@ -9,14 +9,18 @@ import { ActionEvent, NodeType, QuestionPropertiesChange, TodoItemFlatNode } fro
 export class QuestionCharacteristicsComponent {
   @Input() editedNode?: TodoItemFlatNode;
   @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
+  content?: string =
+    !this.editedNode?.isAnswer && (this.editedNode?.content !== undefined || this.editedNode?.content !== 'undefined')
+      ? ''
+      : this.editedNode?.content;
 
   public nodeType = NodeType;
 
   changeEditNodeIsAnswer(type: number, isNotValid: boolean | undefined): void {
-    (this.editedNode as TodoItemFlatNode).isAnswer = type.toString() === this.nodeType.Answer.toString();
-    if (!(this.editedNode as TodoItemFlatNode).isAnswer) {
-      (this.editedNode as TodoItemFlatNode).content = '';
+    if (type.toString() !== this.nodeType.Answer.toString()) {
+      this.resetContent();
     }
+
     this.questionUpdateEvent?.emit({
       ...this.editedNode,
       isAnswer: type.toString() === this.nodeType.Answer.toString(),
@@ -24,8 +28,14 @@ export class QuestionCharacteristicsComponent {
     });
   }
 
+  private resetContent() {
+    if (this.editedNode?.content) {
+      this.editedNode.content = '';
+    }
+  }
+
   updateTitle(title: string, isNotValid: boolean | undefined): void {
-    this.questionUpdateEvent?.emit({ ...this.editedNode, item: title, isNotValid });
+    this.questionUpdateEvent?.emit({ ...this.editedNode, title, isNotValid });
   }
 
   updateContent(content: string, isNotValid: boolean | undefined): void {

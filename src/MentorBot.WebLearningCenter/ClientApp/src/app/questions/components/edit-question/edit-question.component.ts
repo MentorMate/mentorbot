@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActionEvent, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitAction, TraitTypes } from '../../question.models';
+import { ActionEvent, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitActionInfo, TraitTypes } from '../../question.models';
 
 @Component({
   selector: 'app-edit-question',
@@ -10,14 +10,14 @@ export class EditQuestionComponent {
   @Input() nodeExists?: boolean;
   @Input() editedNode?: TodoItemFlatNode;
   @Input() saveButtonIsNotValid?: boolean;
-  @Output() traitEvent = new EventEmitter<TraitAction>();
+  @Output() traitEvent = new EventEmitter<TraitActionInfo>();
   @Output() deleteParentEvent = new EventEmitter<string>();
   @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
   @Output() actionEvent = new EventEmitter<ActionEvent>();
 
   public traitTypes = TraitTypes;
 
-  traitAction({ name, type, actionType }: TraitAction): void {
+  traitAction({ name, type, actionType }: TraitActionInfo): void {
     this.traitEvent?.emit({ name, type, actionType });
   }
 
@@ -25,8 +25,8 @@ export class EditQuestionComponent {
     this.deleteParentEvent?.emit(parent);
   }
 
-  questionUpdate({ item, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
-    this.questionUpdateEvent?.emit({ item, isAnswer, content, isNotValid });
+  questionUpdate({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+    this.questionUpdateEvent?.emit({ title, isAnswer, content, isNotValid });
   }
 
   draggedOver(e: DragEvent): void {

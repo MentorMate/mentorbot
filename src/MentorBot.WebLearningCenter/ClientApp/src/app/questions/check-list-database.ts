@@ -1,6 +1,7 @@
 import { ifStmt } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take } from 'rxjs';
+import { UtilitiesService } from '../shared/utilities.service';
 import { Question, TodoItemFlatNode } from './question.models';
 import { QuestionService } from './question.service';
 
@@ -16,7 +17,7 @@ export class ChecklistDatabase {
     return this.dataChange.value;
   }
 
-  constructor(private readonly _questionService: QuestionService) {
+  constructor(private readonly _questionService: QuestionService, private readonly _utilitiesService: UtilitiesService) {
     this.initialize();
   }
 
@@ -52,17 +53,7 @@ export class ChecklistDatabase {
       node.parents = parents;
     }
 
-    const elementExists = (questions: Question[], title: string): boolean => {
-      return questions.some(q => {
-        if (q.title === title) {
-          return true;
-        }
-
-        return elementExists(q.subQuestions, title);
-      });
-    };
-
-    if (!elementExists(this.dataChange.value, node.title)) {
+    if (!this.elementExists(this.dataChange.value, node.title)) {
       this.dataChange.next([...this.data, node]);
     } else {
       this.dataChange.next([...this.data]);
@@ -70,21 +61,28 @@ export class ChecklistDatabase {
   }
 
   getFlatTree(): Question[] {
-    const flatTree = (nestedObjects: Question[]) => {
-      return nestedObjects.reduce(function (resultArray: Question[], nestedObject: Question): Question[] {
-        if (Object.keys(resultArray).length == 0) {
-          resultArray = [];
-        }
-        resultArray.push(nestedObject);
-        if (nestedObject.subQuestions && nestedObject.subQuestions.length != 0) {
-          resultArray.push(...flatTree(nestedObject.subQuestions));
-        }
-        return resultArray;
-      }, Object.create(null));
-    };
+    const allQuestions = this._utilitiesService.flatTree<Question>([...this.dataChange.value], 'subQuestions');
 
-    const allQuestions = flatTree([...this.dataChange.value]);
+    let result: Question[] = this.getUniqueQuestions(allQuestions);
 
+    return result;
+  }
+
+  elementExists = (questions: Question[], title: string): boolean => {
+    return questions.some(q => {
+      if (q.title === title) {
+        return true;
+      }
+
+      if (q.subQuestions) {
+        return this.elementExists(q.subQuestions, title);
+      } else {
+        return false;
+      }
+    });
+  };
+
+  private getUniqueQuestions(allQuestions: Question[]) {
     let result: Question[] = [];
 
     for (let i = 0; i < allQuestions.length; i++) {
@@ -95,7 +93,6 @@ export class ChecklistDatabase {
         result[index] = allQuestions[i];
       }
     }
-
     return result;
   }
 }

@@ -8,10 +8,10 @@
     </mat-select>
 </div>
 <div class="top-spacing">
-    {{editedNode?.item === undefined || '' ? '' : 'Edit'}} Title
+    <span *ngIf="editedNode?.title">Edit </span> Title
 </div>
 <div>
-    <input class="form-control custom-input" [ngModel]="editedNode?.item" matInput #itemValue="ngModel" required
+    <input class="form-control custom-input" [ngModel]="editedNode?.title" matInput #itemValue="ngModel" required
            (focusout)="updateTitle(itemValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
     <div *ngIf="!itemValue.valid && itemValue.touched">
         <small id="passwordHelp" class="text-danger">
@@ -24,7 +24,7 @@
     <div>
         <textarea class="textarea-size" [ngModel]="editedNode?.content" matInput #contentValue="ngModel" type="text"
                   [disabled]="!editedNode?.isAnswer"
-                  [value]="!editedNode?.isAnswer ? '' : editedNode?.content === undefined || editedNode?.content === 'undefined' ? '' : editedNode?.content"
+                  [value]="content"
                   required
                   (focusout)="updateContent(contentValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
                   </textarea>

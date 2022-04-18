@@ -2,7 +2,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { Subscription, take } from 'rxjs';
+import { Observable, Subscription, take } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/components/confirm-dialog.component';
 import { ChecklistDatabase } from '../../check-list-database';
 import {
@@ -13,6 +13,7 @@ import {
   QuestionPropertiesChange,
   TodoItemFlatNode,
   TraitAction,
+  TraitActionInfo,
   TraitTypes,
 } from '../../question.models';
 import { QuestionService } from '../../question.service';
@@ -39,8 +40,6 @@ export class QuestionPageComponent implements OnDestroy {
   addParent?: boolean;
   nodeExists?: boolean;
 
-  public nodeType = Object.values(NodeType).filter(value => typeof value === 'string');
-
   constructor(private database: ChecklistDatabase, private readonly _questionService: QuestionService, private dialog: MatDialog) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
@@ -51,16 +50,16 @@ export class QuestionPageComponent implements OnDestroy {
     });
   }
 
-  getLevel = (node: TodoItemFlatNode) => node.level;
+  getLevel = (node: TodoItemFlatNode) => node.level ?? 0;
 
-  isExpandable = (node: TodoItemFlatNode) => node.expandable;
+  isExpandable = (node: TodoItemFlatNode) => node.expandable ?? false;
 
-  getChildren = (node: Question): Question[] => node.subQuestions;
+  getChildren = (node: Question): Question[] => node.subQuestions ?? [];
 
   transformer = (node: Question, level: number): TodoItemFlatNode => {
     const existingNode = this.nestedNodeMap.get(node);
-    const flatNode = existingNode && existingNode.item === node.title ? existingNode : new TodoItemFlatNode();
-    flatNode.item = node.title;
+    const flatNode = existingNode && existingNode.title === node.title ? existingNode : new TodoItemFlatNode();
+    flatNode.title = node.title;
     flatNode.content = node.content;
     flatNode.id = node.id;
     flatNode.acquireTraits = node.acquireTraits;
@@ -91,17 +90,21 @@ export class QuestionPageComponent implements OnDestroy {
 
     this.editedNode = { ...emptyNode };
     this.savingNode = { ...emptyNode };
-    this.saveButtonIsNotValid = true;
+    this.updateSaveButtonValidness(true);
     this.nodeExists = false;
   }
 
   saveNode(): void {
-    const nestedNode = this.flatNodeMap.get(this.savingNode as TodoItemFlatNode);
+    if (!this.savingNode) {
+      return;
+    }
+
+    const nestedNode = this.flatNodeMap.get(this.savingNode);
 
     if (this.savingNode) {
       this.database.updateItem(
         nestedNode === undefined ? new Question() : nestedNode!,
-        this.editedNode?.item,
+        this.editedNode?.title,
         this.editedNode?.isAnswer,
         this.editedNode?.content,
         this.editedNode?.acquireTraits,
@@ -113,9 +116,9 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   editItem(node: TodoItemFlatNode): void {
-    this.editedNode = { ...node };
+    this.editedNode = { ...node, parents: { ...node.parents } };
     this.savingNode = node;
-    this.saveButtonIsNotValid = false;
+    this.updateSaveButtonValidness(false);
     this.nodeExists = true;
   }
 
@@ -125,29 +128,40 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   handleDragEnd(e: any): void {
-    if (this.editedNode && this.addParent) {
+    if (this.editedNode && this.addParent && this.editedNode.parents) {
       this.editedNode.parents[e.toElement.textContent] = e.toElement.textContent;
     }
   }
 
-  traitAction({ name, type, actionType }: TraitAction): void {
-    if (type === TraitTypes.Acquire && actionType === ActionType.Delete) {
-      if (this.editedNode?.acquireTraits) {
-        this.editedNode.acquireTraits = this.editedNode.acquireTraits.filter(t => t !== name);
-      }
-    } else if (type === TraitTypes.Acquire && actionType === ActionType.Add) {
-      if (this.editedNode?.acquireTraits && !this.editedNode?.acquireTraits.includes(name)) {
-        this.editedNode.acquireTraits = [...this.editedNode?.acquireTraits, name];
-      }
-    } else if (type === TraitTypes.Required && actionType === ActionType.Delete) {
-      if (this.editedNode?.requiredTraits) {
-        this.editedNode.requiredTraits = this.editedNode.requiredTraits.filter(t => t !== name);
-      }
-    } else if (type === TraitTypes.Required && actionType === ActionType.Add) {
-      if (this.editedNode?.requiredTraits && !this.editedNode?.requiredTraits.includes(name)) {
-        this.editedNode.requiredTraits = [...this.editedNode?.requiredTraits, name];
-      }
+  traitAction({ name, type, actionType }: TraitActionInfo): void {
+    const traitAction: TraitAction = {
+      acquiredelete: () =>
+        this.editedNode ? (this.editedNode.acquireTraits = this.filterTraitsByName(this.editedNode?.acquireTraits, name)) : undefined,
+      acquireadd: () =>
+        this.editedNode ? (this.editedNode.acquireTraits = this.addTrait(this.editedNode?.acquireTraits, name)) : undefined,
+      requireddelete: () =>
+        this.editedNode ? (this.editedNode.requiredTraits = this.filterTraitsByName(this.editedNode?.requiredTraits, name)) : undefined,
+      requiredadd: () =>
+        this.editedNode ? (this.editedNode.requiredTraits = this.addTrait(this.editedNode?.requiredTraits, name)) : undefined,
+    };
+
+    if (type != undefined && actionType != undefined) {
+      traitAction[TraitTypes[type].toLowerCase() + ActionType[actionType].toLowerCase()]();
     }
+  }
+
+  addTrait(traits: string[] | undefined, name: string): string[] | undefined {
+    if (traits && !traits.includes(name)) {
+      return (traits = [...traits, name]);
+    }
+    return traits;
+  }
+
+  filterTraitsByName(traits: string[] | undefined, name: string): string[] | undefined {
+    if (traits) {
+      return traits.filter(t => t !== name);
+    }
+    return traits;
   }
 
   deleteParent(parent: string): void {
@@ -157,17 +171,22 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   changeEditNodeIsAnswer({ type, isNotValid }: { type: string; isNotValid?: boolean }): void {
-    (this.editedNode as TodoItemFlatNode).isAnswer = type === 'true';
-    this.saveButtonIsNotValid = isNotValid;
+    if (this.editedNode) {
+      this.editedNode.isAnswer = type === 'true';
+    }
+
+    this.updateSaveButtonValidness(isNotValid);
   }
 
-  updateNode({ item, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
-    if (isAnswer !== undefined) {
-      (this.editedNode as TodoItemFlatNode).isAnswer = isAnswer;
+  updateNode({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
+    if (title && isAnswer !== undefined) {
+      this.editedNode = { ...this.editedNode, title, isAnswer, content };
     }
-    // this.editedNode = {...this.editedNode, title, isAnswer: type === 'true', content, level: 1};
-    (this.editedNode as TodoItemFlatNode).item = item;
-    (this.editedNode as TodoItemFlatNode).content = content;
+
+    this.updateSaveButtonValidness(isNotValid);
+  }
+
+  updateSaveButtonValidness(isNotValid: boolean | undefined) {
     this.saveButtonIsNotValid = isNotValid;
   }
 
@@ -189,7 +208,7 @@ export class QuestionPageComponent implements OnDestroy {
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Confirm Remove Question',
-        message: 'Are you sure, you want to remove question: ' + this.editedNode?.item,
+        message: 'Are you sure you want to remove question: ' + this.editedNode?.title,
       },
     });
     confirmDialog
@@ -203,33 +222,26 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   onConfirm(): void {
-    const question = this.flatNodeMap.get(this.savingNode as TodoItemFlatNode);
-
-    this._questionService
-      .deleteQuestion(question)
-      .pipe(take(1))
-      .subscribe(q =>
-        this._questionService
-          .getQuestions()
-          .pipe(take(1))
-          .subscribe(questions => this.database.dataChange.next(questions))
-      );
-
-    this.resetEditedAndSavingNodes();
+    if (this.savingNode) {
+      const question = this.flatNodeMap.get(this.savingNode);
+      this.getQuestions(this._questionService.deleteQuestion(question));
+      this.resetEditedAndSavingNodes();
+    }
   }
 
   save(): void {
-    this.resetEditedAndSavingNodes();
     const result = this.database.getFlatTree();
-    this._questionService
-      .saveQuestions(result)
-      .pipe(take(1))
-      .subscribe(d =>
-        this._questionService
-          .getQuestions()
-          .pipe(take(1))
-          .subscribe(questions => this.database.dataChange.next(questions))
-      );
+    this.getQuestions(this._questionService.saveQuestions(result));
+    this.resetEditedAndSavingNodes();
+  }
+
+  getQuestions(observable: Observable<Object>) {
+    return observable.pipe(take(1)).subscribe(d =>
+      this._questionService
+        .getQuestions()
+        .pipe(take(1))
+        .subscribe(questions => this.database.dataChange.next(questions))
+    );
   }
 
   ngOnDestroy(): void {

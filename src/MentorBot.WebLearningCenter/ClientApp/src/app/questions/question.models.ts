@@ -1,14 +1,17 @@
-export class Question {
+import { data } from '../shared/utilities.models';
+
+export class Question implements data {
+  [childPropertyName: string]: any;
   id?: string;
-  parents: { [key: string]: string } = {};
+  parents?: { [key: string]: string } = {};
   index?: string;
-  title: string = '';
+  title?: string = '';
   content?: string;
-  requiredTraits: string[] = [];
-  acquireTraits: string[] = [];
+  requiredTraits?: string[] = [];
+  acquireTraits?: string[] = [];
   isAnswer: boolean = false;
-  subQuestions: Question[] = [];
-  isEdited: boolean = false;
+  subQuestions?: Question[] = [];
+  isEdited?: boolean = false;
 }
 
 export enum NodeType {
@@ -18,20 +21,19 @@ export enum NodeType {
 
 /** Flat to-do item node with expandable and level information */
 export class TodoItemFlatNode extends Question {
-  item?: string;
-  level!: number;
-  expandable!: boolean;
-  editMode: boolean = false;
+  level?: number;
+  expandable?: boolean;
+  editMode?: boolean;
 }
 
-export interface TraitAction {
+export interface TraitActionInfo {
   name: string;
   type?: TraitTypes;
   actionType?: ActionType;
 }
 
 export interface QuestionPropertiesChange {
-  item?: string;
+  title?: string;
   isAnswer?: boolean;
   content?: string;
   isNotValid?: boolean;
@@ -53,4 +55,11 @@ export enum TraitTypes {
 export enum ActionType {
   Add,
   Delete,
+}
+
+export interface TraitAction {
+  [acquiredelete: string]: () => string[] | undefined;
+  acquireadd: () => string[] | undefined;
+  requireddelete: () => string[] | undefined;
+  requiredadd: () => string[] | undefined;
 }

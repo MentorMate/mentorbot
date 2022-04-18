@@ -13,7 +13,7 @@
                     </button>
                     <div class="center-ed node-element-height center-ed" draggable="true" (dragend)="handleDragEnd($event)"
                          ondrop="handleDropEvent($event)">
-                        {{node.item}}
+                        {{node.title}}
                     </div>
                     <button class="icon-button node-element-height center-ed" *ngIf="!node.editMode" mat-icon-button
                             (click)="editItem(node)">

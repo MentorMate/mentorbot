@@ -18,6 +18,7 @@ import { QuestionCharacteristicsComponent } from './components/question-characte
 import { QuestionButtonsComponent } from './components/question-buttons/question-buttons.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogModule } from '../shared/confirm-dialog/confirm-dialog.module';
+import { UtilitiesService } from '../shared/utilities.service';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,6 @@ import { ConfirmDialogModule } from '../shared/confirm-dialog/confirm-dialog.mod
   ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],
-  providers: [QuestionService, SettingsService],
+  providers: [QuestionService, SettingsService, UtilitiesService],
 })
 export class QuestionsModule {}
