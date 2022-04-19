@@ -22,8 +22,10 @@
                 </div>
                 <div class="short">
                     <span *ngIf="node.content" class="well well-sm">{{node.content}}</span>
-                    <mdb-badge class="badge" pill="true" *ngFor="let trait of node.acquireTraits" success="true">{{trait}}</mdb-badge>
-                    <mdb-badge class="badge" pill="true" *ngFor="let trait of node.requiredTraits" danger="true">{{trait}}</mdb-badge>
+                    <mat-chip-list>
+                        <mat-chip class="success small-chip" *ngFor="let trait of node.acquireTraits">{{trait}}</mat-chip>
+                        <mat-chip class="danger small-chip" *ngFor="let trait of node.requiredTraits">{{trait}}</mat-chip>
+                    </mat-chip-list>
                 </div>
             </mat-tree-node>
         </mat-tree>

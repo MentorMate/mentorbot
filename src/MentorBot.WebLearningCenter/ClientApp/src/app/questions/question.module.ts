@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { SettingsService } from '../settings/settings.service';
 import { SharedModule } from '../shared/shared.module';
@@ -37,9 +37,9 @@ import { UtilitiesService } from '../shared/utilities.service';
     FormsModule,
     MatDialogModule,
     ConfirmDialogModule,
-    MDBBootstrapModule,
     MatButtonModule,
     MatSelectModule,
+    MatChipsModule,
   ],
   entryComponents: [QuestionPageComponent],
   bootstrap: [QuestionPageComponent],

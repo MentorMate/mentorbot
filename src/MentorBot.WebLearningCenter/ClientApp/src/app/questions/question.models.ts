@@ -1,10 +1,9 @@
 import { data } from '../shared/utilities.models';
 
-export class Question implements data {
-  [childPropertyName: string]: any;
+export class Question implements data<Question> {
+  [childPropertyName: string]: Question[] | unknown;
   id?: string;
   parents?: { [key: string]: string } = {};
-  index?: string;
   title?: string = '';
   content?: string;
   requiredTraits?: string[] = [];

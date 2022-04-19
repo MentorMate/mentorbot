@@ -18,11 +18,9 @@ const style = `
 
   .left-align {
     text-align: left;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   .title {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
   }
 

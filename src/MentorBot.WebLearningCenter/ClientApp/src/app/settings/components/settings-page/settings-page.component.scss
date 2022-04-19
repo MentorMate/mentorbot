@@ -75,16 +75,15 @@ input:checked + .slider::before {
   border-radius: 50%;
 }
 
+.text {
+  font-weight: 100;
+}
+
 .switch .text {
   position: absolute;
   left: 60px;
   top: 9px;
   white-space: nowrap;
-}
-
-.text {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 100;
 }
 
 .left {

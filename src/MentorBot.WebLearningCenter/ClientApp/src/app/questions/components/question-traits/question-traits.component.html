@@ -1,10 +1,16 @@
-<h2>
-    <mdb-badge pill="true" [success]="type === traitTypes.Acquire" [danger]="type === traitTypes.Required">{{title}}</mdb-badge>
-</h2>
 <div>
-    <mdb-badge pill="true" *ngFor="let trait of traits" [success]="type === traitTypes.Acquire" [danger]="type === traitTypes.Required">
-        {{trait}} <span
-              (click)="deleteTrait(trait)" aria-hidden="true">&times;</span></mdb-badge>
+    <mat-chip-list>
+        <mat-chip [class]="type === traitTypes.Acquire ? 'success chip' : 'danger chip'">{{title}}</mat-chip>
+    </mat-chip-list>
+</div>
+<div>
+    <mat-chip-list>
+        <mat-chip [class]="type === traitTypes.Acquire ? 'success small-chip' : 'danger small-chip'" *ngFor="let trait of traits">{{trait}}
+            <button matChipRemove (click)="deleteTrait(trait)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </mat-chip>
+    </mat-chip-list>
 </div>
 <div class="top-spacing">
     <div class="input-group">

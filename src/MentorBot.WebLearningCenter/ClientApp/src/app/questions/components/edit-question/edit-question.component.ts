@@ -4,7 +4,7 @@ import { ActionEvent, Question, QuestionPropertiesChange, TodoItemFlatNode, Trai
 @Component({
   selector: 'app-edit-question',
   templateUrl: 'edit-question.component.html',
-  styleUrls: ['edit-question.component.scss'],
+  styleUrls: ['edit-question.component.scss', '../question-page/question-page.component.scss'],
 })
 export class EditQuestionComponent {
   @Input() nodeExists?: boolean;

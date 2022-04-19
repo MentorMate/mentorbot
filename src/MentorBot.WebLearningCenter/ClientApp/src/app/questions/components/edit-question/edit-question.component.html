@@ -17,14 +17,15 @@
                                  (traitEvent)="traitAction($event)"></app-question-traits>
         </div>
         <div (dragover)="draggedOver($event)" (dragleave)="dragLeave()" class="top-spacing">
-            <h2>
-                <mdb-badge pill="true" primary="true">Parent Questions</mdb-badge>
-            </h2>
-            <div>
-                <mdb-badge pill="true" *ngFor="let parent of editedNode?.parents | keyvalue" primary="true">
-                    {{parent.value}} <span
-                          (click)="deleteParent(parent.value)" aria-hidden="true">&times;</span></mdb-badge>
-            </div>
+            <mat-chip-list>
+                <mat-chip class="primary chip">Parent Questions</mat-chip>
+            </mat-chip-list>
+            <mat-chip-list>
+                <mat-chip class="primary small-chip" *ngFor="let parent of editedNode?.parents | keyvalue">
+                    {{parent.value}}<button matChipRemove (click)="deleteParent(parent.value)">
+                        <mat-icon>cancel</mat-icon>
+                    </button></mat-chip>
+            </mat-chip-list>
         </div>
     </div>
     <div>

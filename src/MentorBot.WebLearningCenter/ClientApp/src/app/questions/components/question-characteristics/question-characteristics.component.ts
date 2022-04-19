@@ -1,20 +1,23 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActionEvent, NodeType, QuestionPropertiesChange, TodoItemFlatNode } from '../../question.models';
 
 @Component({
   selector: 'app-question-characteristics',
   templateUrl: 'question-characteristics.component.html',
-  styleUrls: ['question-characteristics.component.scss'],
+  styleUrls: ['question-characteristics.component.scss', '../question-page/question-page.component.scss'],
 })
-export class QuestionCharacteristicsComponent {
+export class QuestionCharacteristicsComponent implements OnChanges {
   @Input() editedNode?: TodoItemFlatNode;
   @Output() questionUpdateEvent = new EventEmitter<QuestionPropertiesChange>();
-  content?: string =
-    !this.editedNode?.isAnswer && (this.editedNode?.content !== undefined || this.editedNode?.content !== 'undefined')
-      ? ''
-      : this.editedNode?.content;
+  content?: string;
 
   public nodeType = NodeType;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['editedNode'].previousValue) {
+      this.content = this.editedNode?.content;
+    }
+  }
 
   changeEditNodeIsAnswer(type: number, isNotValid: boolean | undefined): void {
     if (type.toString() !== this.nodeType.Answer.toString()) {
