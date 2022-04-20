@@ -77,7 +77,7 @@
     "markdownlint",
     "codecov",
     "Willezone",
-    
+
     "mentorbot",
     "mentorbotlearningcenter",
     "oidc",
@@ -96,6 +96,12 @@
     "ngneat",
     "lcov",
     "registerables",
-    "keyvalue"
+    "keyvalue",
+    "Validness",
+    "acquiredelete",
+    "acquireadd",
+    "requireddelete",
+    "requiredadd",
+    "Neue"
   ]
 }
