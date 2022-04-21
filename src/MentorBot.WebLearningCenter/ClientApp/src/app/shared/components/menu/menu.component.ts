@@ -11,6 +11,9 @@ const style = `
   .spacer {
     flex: 1 1 auto;
   }
+  .mat-toolbar {
+    background-color: #d2d2d2;
+  }
 `;
 
 @Component({
