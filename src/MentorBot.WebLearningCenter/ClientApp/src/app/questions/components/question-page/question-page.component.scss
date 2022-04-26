@@ -1,0 +1,81 @@
+/* Split the screen in half */
+.split {
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  margin-top: 100px;
+}
+
+.top-spacing {
+  margin-top: 10px;
+}
+
+.right-spacing {
+  margin-right: 5px;
+}
+
+.success {
+  background-color: rgb(56, 234, 56);
+}
+
+.danger {
+  background-color: red;
+}
+
+.small-chip {
+  min-height: 20px;
+  color: white;
+}
+
+.left {
+  left: 0;
+  overflow-y: auto;
+  max-height: 650px;
+}
+
+.right {
+  right: 0;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.node-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.node-element-height {
+  height: 25px;
+}
+
+.center-ed {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.short {
+  margin-left: 30px;
+  height: auto;
+}
+
+.well-sm {
+  padding: 5px;
+}
+
+.blue-text {
+  color: blue;
+
+  :hover {
+    text-decoration: underline;
+  }
+
+  margin-top: 0%;
+  margin-bottom: 0%;
+}

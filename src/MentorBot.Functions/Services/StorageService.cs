@@ -18,6 +18,8 @@ namespace MentorBot.Functions.Services
         private const string AddressDocumentName = "addresses";
         private const string MessagesDocumentName = "messages";
         private const string PluginsDocumentName = "plugins";
+        private const string StatesDocumentName = "states";
+        private const string QuestionsDocumentName = "QuestionsAndAnswers";
 
         private readonly IDocumentClientService _documentClientService;
 
@@ -104,6 +106,31 @@ namespace MentorBot.Functions.Services
             Task.FromResult(QueryWhenConnected<Statistics<T>>(
                 $"SELECT TOP 1000 * FROM {StatisticsDocumentName} s WHERE s.Data == '{date}' AND s.Time == '{time}'",
                 StatisticsDocumentName));
+
+        /// <inheritdoc/>
+        public Task<State> GetStateAsync(string email) =>
+            Task.FromResult(
+                QueryWhenConnected<State>($"SELECT TOP 1 * FROM {StatesDocumentName} s WHERE s.useremail == '{email}'", StatesDocumentName)
+                .FirstOrDefault());
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateStateAsync(State state) =>
+            ExecuteIfConnectedAsync<State, bool>(doc => doc.AddOrUpdateAsync(state), StatesDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers) =>
+            ExecuteIfConnectedAsync<IReadOnlyList<QuestionAnswer>, bool>(
+                doc => doc.AddOrUpdateAsync(questionAnswers), QuestionsDocumentName, false);
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
+            Task.FromResult(
+                QueryWhenConnected<QuestionAnswer>("SELECT TOP 2000 * FROM " + QuestionsDocumentName, QuestionsDocumentName));
+
+        /// <inheritdoc/>
+        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAnswer) =>
+            Task.FromResult(
+                QueryWhenConnected<QuestionAnswer>("DELETE FROM " + QuestionsDocumentName, QuestionsDocumentName));
 
         private IReadOnlyList<T> QueryWhenConnected<T>(string sqlException, string documentName)
         {

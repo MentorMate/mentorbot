@@ -31,6 +31,11 @@ namespace MentorBot.Functions.Services.AzureStorage
             ExecuteAsync<T>(ctx => ctx.MergeAsync(models));
 
         /// <inheritdoc/>
+        public Task DeleteAsync<T>(T model)
+            where T : new() =>
+            ExecuteAsync<T>(ctx => ctx.DeleteAsync(model));
+
+        /// <inheritdoc/>
         public Task MergeOrInsertAsync<T>(T model)
             where T : new() =>
             ExecuteAsync<T>(ctx => ctx.MergeOrInsertAsync(model));

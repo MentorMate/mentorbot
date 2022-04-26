@@ -6,7 +6,7 @@ import { PluginProperty, PluginValue, PluginGroup } from '../../../settings/sett
 @Component({
   selector: 'app-plugin-values',
   templateUrl: './plugin-values.component.html',
-  styles: [],
+  styleUrls: ['./plugin-values.component.scss'],
 })
 export class PluginValuesComponent implements OnChanges {
   pluginsProperties: PropertyValue[][] = [];

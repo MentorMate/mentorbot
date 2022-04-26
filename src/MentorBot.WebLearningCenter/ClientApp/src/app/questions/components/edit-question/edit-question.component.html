@@ -1,0 +1,43 @@
+<div>
+    <h2>Title: {{editedNode?.title}}</h2>
+</div>
+<hr>
+<div class="edit-content">
+    <div>
+        <div class="top-spacing">
+            <app-question-traits [title]="'Assign Traits'"
+                                 [type]="traitTypes.Acquire"
+                                 [traits]="editedNode?.acquireTraits"
+                                 (traitEvent)="traitAction($event)"></app-question-traits>
+        </div>
+        <div class=" top-spacing">
+            <app-question-traits [title]="'Require Traits'"
+                                 [type]="traitTypes.Required"
+                                 [traits]="editedNode?.requiredTraits"
+                                 (traitEvent)="traitAction($event)"></app-question-traits>
+        </div>
+        <div (dragover)="draggedOver($event)" (dragleave)="dragLeave()" class="top-spacing">
+            <mat-chip-list>
+                <mat-chip class="primary chip">Parent Questions</mat-chip>
+            </mat-chip-list>
+            <mat-chip-list>
+                <mat-chip class="primary small-chip" *ngFor="let parent of editedNode?.parents | keyvalue">
+                    {{parent.value}}<button matChipRemove (click)="deleteParent(parent.value)">
+                        <mat-icon>cancel</mat-icon>
+                    </button></mat-chip>
+            </mat-chip-list>
+        </div>
+    </div>
+    <div>
+        <app-question-characteristics [editedNode]="editedNode"
+                                      (questionUpdateEvent)="questionUpdate($event)">
+        </app-question-characteristics>
+    </div>
+</div>
+<div class="top-spacing">
+    <app-question-buttons [saveButtonIsNotValid]="saveButtonIsNotValid"
+                          [nodeExists]="nodeExists"
+                          (saveEvent)="saveNode()"
+                          (cancelEvent)="cancelEdit()"
+                          (deleteEvent)="deleteQuestion()"></app-question-buttons>
+</div>

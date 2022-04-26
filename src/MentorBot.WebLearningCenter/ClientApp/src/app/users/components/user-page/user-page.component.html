@@ -1,28 +1,29 @@
-<h2>Users</h2>
+<h2 class="title">Users</h2>
 <table class="users">
   <thead>
     <tr>
-      <th>Name</th>
-      <th class="email">Email</th>
-      <th>Role</th>
-      <th>Department</th>
-      <th>Manager</th>
-      <th class="cust">Customers</th>
+      <th class="left-align">Name</th>
+      <th class="email left-align">Email</th>
+      <th class="left-align">Role</th>
+      <th class="left-align">Department</th>
+      <th class="left-align">Manager</th>
+      <th class="cust left-align">Customers</th>
       <th></th>
     </tr>
   </thead>
   <tbody *ngIf="properties$ | async as properties">
     <ng-container *ngFor="let user of users$ | async">
       <tr>
-        <td>{{ user.name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
-        <td>{{ user.department }}</td>
-        <td>{{ user.manager }}</td>
-        <td>{{ user.customers }}</td>
+        <td class="left-align">{{ user.name }}</td>
+        <td class="left-align">{{ user.email }}</td>
+        <td class="left-align">{{ user.role }}</td>
+        <td class="left-align">{{ user.department }}</td>
+        <td class="left-align">{{ user.manager }}</td>
+        <td class="left-align">{{ user.customers }}</td>
         <td>
           <button type="button" class="btn btn-default" role="button" (click)="edit(user)">
-            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            <!-- <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> -->
+            <mat-icon>view_list</mat-icon>
           </button>
         </td>
       </tr>
@@ -34,7 +35,7 @@
           </div>
           <br />
           <br />
-          <button type="button" role="button" class="btn btn-primary" (click)="save(user)">Save</button>
+          <button mat-raised-button (click)="save(user)" color="primary">Save</button>
         </td>
       </tr>
     </ng-container>

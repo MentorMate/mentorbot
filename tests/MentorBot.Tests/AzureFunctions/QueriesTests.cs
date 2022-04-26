@@ -9,6 +9,7 @@ using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.ViewModels;
 using MentorBot.Tests._Base;
 
 using Microsoft.Azure.Functions.Worker.Http;
@@ -270,6 +271,62 @@ namespace MentorBot.Tests.AzureFunctions
             Assert.AreEqual(1, array[2].Count);
             Assert.AreEqual(".NET", array[3].Department);
             Assert.AreEqual(2, array[3].Count);
+        }
+
+        [TestMethod]
+        public async Task GetQuestionAnswersShouldReturnNestedQuestionAnswers()
+        {
+            var storageService = Substitute.For<IStorageService>();
+            var data = new[]
+            {
+                new QuestionAnswer
+                {
+                    Id = "1",
+                    Title = "Office",
+                    IsAnswer = false,
+                },
+                new QuestionAnswer
+                {
+                    Id = "2",
+                    Title = "Accounts",
+                    IsAnswer = false,
+                    Parents = new Dictionary<string, string>() {{"1", "Office"}}
+                },
+            };
+
+            var expectedResult = new[]
+            {
+                new QuestionAnswerViewModel
+                {
+                    Id = "1",
+                    Title = "Office",
+                    IsAnswer = false,
+                    SubQuestions = new QuestionAnswerViewModel[]
+                    {
+                        new QuestionAnswerViewModel
+                        {
+                            Id = "2",
+                            Title = "Accounts",
+                            IsAnswer = false,
+                            Parents = new Dictionary<string, string>() {{"1", "Office"}}
+                        },
+                    }
+                },
+            };
+
+            var context = MockFunction.GetContext(
+                new ServiceDescriptor(typeof(IStorageService), storageService),
+                GetAccessTokenServiceDescriptor());
+            var request = MockFunction.GetRequest(null, context);
+
+            SetUserRole(request, UserRoles.Administrator);
+            storageService.GetAllQuestionsAsync().Returns(data);
+
+            var result = await Queries.GetQuestionsAnswersAsync(request, context);
+
+            Assert.AreEqual(result.First().Title, expectedResult.First().Title);
+            Assert.AreEqual(result.First().SubQuestions.First().Title, expectedResult.First().SubQuestions.First().Title);
+            Assert.AreEqual(result.Count(), expectedResult.Length);
         }
 
         private static ServiceDescriptor GetAccessTokenServiceDescriptor()

@@ -40,5 +40,10 @@ namespace MentorBot.Functions.Services.AzureStorage
         /// <typeparam name="T">The table schema type.</typeparam>
         Task MergeAsync<T>(IEnumerable<T> models)
             where T : new();
+
+        /// <summary>Delete records in the database asynchronous.</summary>
+        /// <typeparam name="T">The table schema type.</typeparam>
+        Task DeleteAsync<T>(T model)
+            where T : new();
     }
 }

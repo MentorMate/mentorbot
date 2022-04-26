@@ -16,6 +16,14 @@ const style = `
     max-width: 450px;
   }
 
+  .left-align {
+    text-align: left;
+  }
+
+  .title {
+    font-weight: 100;
+  }
+
 .table-edit-row {
   border-top: 1px solid #CCC;
   border-bottom: 1px solid #CCC;

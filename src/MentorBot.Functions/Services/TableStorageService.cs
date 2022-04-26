@@ -179,5 +179,45 @@ namespace MentorBot.Functions.Services
         public Task<IReadOnlyList<Plugin>> GetAllPluginsAsync() =>
             _tableClientService.QueryAsync<Plugin>(1000)
                 .ContinueWith(task => (IReadOnlyList<Plugin>)task.Result.ToList(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public Task<State> GetStateAsync(string email) =>
+            _tableClientService.QueryAsync<State>($"UserEmail eq {email.ToLower()}", 1)
+                .ContinueWith(task => task.Result.FirstOrDefault(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateStateAsync(State state)
+        {
+            if (!_tableClientService.IsConnected)
+            {
+                return false;
+            }
+
+            await _tableClientService.MergeOrInsertAsync<State>(state);
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateQuestionsAsync(IReadOnlyList<QuestionAnswer> questionAnswers)
+        {
+            if (!_tableClientService.IsConnected)
+            {
+                return false;
+            }
+
+            await _tableClientService.MergeOrInsertListAsync<QuestionAnswer>(questionAnswers);
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public Task<IReadOnlyList<QuestionAnswer>> GetAllQuestionsAsync() =>
+            _tableClientService.QueryAsync<QuestionAnswer>(1000)
+                .ContinueWith(task => (IReadOnlyList<QuestionAnswer>)task.Result.ToList(), TaskScheduler.Default);
+
+        /// <inheritdoc/>
+        public Task DeleteQuestionAnswerAsync(QuestionAnswer questionAnswer) =>
+            _tableClientService.DeleteAsync(questionAnswer);
     }
 }

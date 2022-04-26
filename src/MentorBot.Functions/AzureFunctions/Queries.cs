@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.App;
 using MentorBot.Functions.App.Extensions;
+using MentorBot.Functions.AzureFunctions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
+using MentorBot.Functions.Models.ViewModels;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -186,6 +188,53 @@ namespace MentorBot.Functions
             data.Reverse();
 
             return data;
+        }
+
+        /// <summary>Gets all questions and answers asynchronous.</summary>
+        [Function("get-questions")]
+        public static async Task<IEnumerable<QuestionAnswerViewModel>> GetQuestionsAnswersAsync(
+            [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
+            FunctionContext context)
+        {
+            Contract.Ensures(req != null, "Request is not instanciated");
+
+            await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
+
+            var storageService = context.Get<IStorageService>() ?? throw new NullReferenceException();
+
+            var data = await storageService.GetAllQuestionsAsync();
+
+            var questionFactory = QuestionFactory.Create(data);
+
+            var questionViewModels = questionFactory.QuestionAnswers;
+
+            var result = questionViewModels.ToList();
+
+            var questionsToDelete = new List<QuestionAnswerViewModel>();
+            NestData(questionViewModels, result, questionsToDelete);
+
+            result.RemoveAll(q => questionsToDelete.Any(qtd => qtd.Id == q.Id));
+
+            return result;
+        }
+
+        private static void NestData(
+            IEnumerable<QuestionAnswerViewModel> questionViewModels,
+            List<QuestionAnswerViewModel> result,
+            List<QuestionAnswerViewModel> questionsToDelete)
+        {
+            foreach (var question in questionViewModels)
+            {
+                if (question.SubQuestions != null && question.SubQuestions.Length
+                    != 0 && result.Where(q => q.SubQuestions != null)
+                    .Any(q => q.SubQuestions.Any(sq => sq.Parents != null && sq.Parents.Keys.Contains(question.Id))))
+                {
+                    result.First(q => q.Id == question.Id).SubQuestions =
+                        result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)).ToArray();
+
+                    questionsToDelete.AddRange(result.Where(q => q.Parents != null && q.Parents.Keys.Contains(question.Id)));
+                }
+            }
         }
 
         private static DateTime GetLastDateTime(DateTime now, DayOfWeek dayOfWeek, int hour)

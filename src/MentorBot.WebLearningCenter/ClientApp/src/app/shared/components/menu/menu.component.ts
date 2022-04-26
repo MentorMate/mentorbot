@@ -8,6 +8,12 @@ const style = `
   :host {
     display: block;
   }
+  .spacer {
+    flex: 1 1 auto;
+  }
+  .mat-toolbar {
+    background-color: #d2d2d2;
+  }
 `;
 
 @Component({
@@ -22,6 +28,7 @@ export class MenuComponent implements OnInit {
     { url: '/app/settings', name: 'Settings' },
     { url: '/app/users', name: 'Users' },
     { url: '/app/about', name: 'About' },
+    { url: '/app/questions', name: 'Questions' },
   ];
 
   constructor(private authService: AuthService, private router: Router) {}

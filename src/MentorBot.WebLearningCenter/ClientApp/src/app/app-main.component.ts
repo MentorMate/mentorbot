@@ -10,6 +10,7 @@ const style = `
     display: block;
     height: 100%;
     padding: 10px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 `;
 

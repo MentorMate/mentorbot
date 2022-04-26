@@ -5,6 +5,7 @@ using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Processors.BuildInfo;
 using MentorBot.Functions.Processors.Issues;
 using MentorBot.Functions.Processors.Timesheets;
+using MentorBot.Functions.Processors.UserFlow;
 
 namespace MentorBot.Functions.App
 {
@@ -329,7 +330,7 @@ namespace MentorBot.Functions.App
                             "Get user information for Jhon Doe",
                             "Show user Jhon Doe",
                         },
-                    },
+                    }
                 };
     }
 }
