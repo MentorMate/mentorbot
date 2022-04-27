@@ -68,6 +68,12 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var relativeQuestions = GetRelativeQuestions(state, questions, parentId);
 
+            if (InvalidAnswer(index, relativeQuestions.Count))
+            {
+                var repeatCard = CreateCard(relativeQuestions, "Select a category/question.");
+                return new ChatEventResult(repeatCard);
+            }
+
             if (UserWantsToExit(index, relativeQuestions.Count))
             {
                 await ResetState(state);
@@ -203,7 +209,7 @@ namespace MentorBot.Functions.Processors.UserFlow
                             .ToList();
         }
 
-        private static IList<QuestionAnswer> GetRelativeQuestions(
+        private static IReadOnlyList<QuestionAnswer> GetRelativeQuestions(
             State state,
             IReadOnlyList<QuestionAnswer> questions,
             string parentId)
@@ -248,7 +254,19 @@ namespace MentorBot.Functions.Processors.UserFlow
 
         private bool UserWantsToExit(string input, int questionsCount)
         {
-            return int.Parse(input) > questionsCount;
+            return int.Parse(input) - 1 == questionsCount;
+        }
+
+        private bool InvalidAnswer(string input, int questionsCount)
+        {
+            var index = 0;
+
+            if (!int.TryParse(input, out index))
+            {
+                return true;
+            }
+
+            return index > questionsCount + 1;
         }
     }
 }
