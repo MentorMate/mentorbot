@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
 
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
@@ -166,22 +163,49 @@ namespace MentorBot.Functions.Processors.UserFlow
             {
                 return WidgetWithMessage("There aren't any answers added to this question yet.Exiting current mode");
             }
+            else if (nextQuestionsOrAnswer.Count == 1 && nextQuestionsOrAnswer[0].IsAnswer)
+            {
+                return new List<WidgetMarkup> { WidgetWithAnswer(nextQuestionsOrAnswer[0]) };
+            }
             else
             {
-                return WidgetWithQuestionsOrAnswer(nextQuestionsOrAnswer);
+                return WidgetWithQuestions(nextQuestionsOrAnswer);
             }
         }
 
-        private static List<WidgetMarkup> WidgetWithQuestionsOrAnswer(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
+        private static List<WidgetMarkup> WidgetWithQuestions(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
         {
-            return nextQuestionsOrAnswer.Select((qa, index) => new WidgetMarkup
+            return nextQuestionsOrAnswer.Select((q, index) => new WidgetMarkup
             {
                 TextParagraph = new TextParagraph
                 {
-                    Text = $"{(nextQuestionsOrAnswer.Any(q => q.IsAnswer) ? string.Empty : index + 1 + ".")}" +
-                                                        $"{(string.IsNullOrWhiteSpace(qa.Content) ? qa.Title : qa.Content)}",
-                }
+                    Text = $"{index + 1}.{q.Title}",
+                },
             }).ToList();
+        }
+
+        private static WidgetMarkup WidgetWithAnswer(QuestionAnswer answer)
+        {
+            return new WidgetMarkup
+            {
+                Buttons = new Button[]
+                {
+                    new Button
+                    {
+                        TextButton = new TextButton
+                        {
+                            Text = answer.Title,
+                            OnClick = new OnClick
+                            {
+                                OpenLink = new OpenLink
+                                {
+                                    Url = answer.Content,
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         private static List<WidgetMarkup> WidgetWithMessage(string text)
