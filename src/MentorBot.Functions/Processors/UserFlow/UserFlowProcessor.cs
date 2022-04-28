@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
 
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
@@ -66,14 +63,29 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var parentId = state.CurrentQuestionId;
 
-            var question = GetSelectedQuestion(state, questions, questions, parentId, int.Parse(index) - 1);
+            var relativeQuestions = GetRelativeQuestions(state, questions, parentId);
+
+            if (InvalidAnswer(index, relativeQuestions.Count))
+            {
+                var repeatCard = CreateCard(relativeQuestions, "Select a category/question.");
+                return new ChatEventResult(repeatCard);
+            }
+
+            if (UserWantsToExit(index, relativeQuestions.Count))
+            {
+                await ResetState(state);
+                var exitCard = CreateCard(null, "Exiting");
+                return new ChatEventResult(exitCard);
+            }
+
+            var question = relativeQuestions[int.Parse(index) - 1];
 
             if (question.AcquireTraits != null)
             {
                 state.Traits.AddRange(question.AcquireTraits);
             }
 
-            var nextQuestionsOrAnswer = GetRelativeQuestions(state, questions, question.Id);
+            var nextQuestionsOrAnswer = GetRelativeQuestionsWithParentsAndTraits(state, questions, question.Id);
 
             state.CurrentQuestionId = question.Id;
 
@@ -94,7 +106,15 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             await _storageService.AddOrUpdateStateAsync(state);
 
-            var card = CreateCard(nextQuestionsOrAnswer, "Select a category/question.");
+            var cardTitle = "Select a category/question.";
+
+            if (nextQuestionsOrAnswer.Count == 0)
+            {
+                await ResetState(state);
+                cardTitle = "No answers found";
+            }
+
+            var card = CreateCard(nextQuestionsOrAnswer, cardTitle);
 
             return new ChatEventResult(card);
         }
@@ -104,30 +124,108 @@ namespace MentorBot.Functions.Processors.UserFlow
 
         private static Card CreateCard(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer, string title)
         {
-            return new Card
+            var card = new Card
             {
                 Header = new CardHeader
                 {
                     Title = title,
                 },
                 Sections = new List<Section>
+                {
+                    new Section
                     {
-                        new Section
+                        Widgets = GetWidgets(nextQuestionsOrAnswer)
+                    }
+                },
+            };
+
+            if (nextQuestionsOrAnswer != null && !nextQuestionsOrAnswer.Any(q => q.IsAnswer) && nextQuestionsOrAnswer.Count != 0)
+            {
+                card.Sections[0].Widgets.Add(new WidgetMarkup
+                {
+                    TextParagraph = new TextParagraph
+                    {
+                        Text = $"{nextQuestionsOrAnswer.Count + 1}.Exit",
+                    }
+                });
+            }
+
+            return card;
+        }
+
+        private static List<WidgetMarkup> GetWidgets(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
+        {
+            if (nextQuestionsOrAnswer == null)
+            {
+                return WidgetWithMessage("Exiting chat flow");
+            }
+            else if (nextQuestionsOrAnswer.Count == 0)
+            {
+                return WidgetWithMessage("There aren't any answers added to this question yet.Exiting current mode");
+            }
+            else if (nextQuestionsOrAnswer.Count == 1 && nextQuestionsOrAnswer[0].IsAnswer)
+            {
+                return new List<WidgetMarkup> { WidgetWithAnswer(nextQuestionsOrAnswer[0]) };
+            }
+            else
+            {
+                return WidgetWithQuestions(nextQuestionsOrAnswer);
+            }
+        }
+
+        private static List<WidgetMarkup> WidgetWithQuestions(IReadOnlyList<QuestionAnswer> nextQuestionsOrAnswer)
+        {
+            return nextQuestionsOrAnswer.Select((q, index) => new WidgetMarkup
+            {
+                TextParagraph = new TextParagraph
+                {
+                    Text = $"{index + 1}.{q.Title}",
+                },
+            }).ToList();
+        }
+
+        private static WidgetMarkup WidgetWithAnswer(QuestionAnswer answer)
+        {
+            return new WidgetMarkup
+            {
+                Buttons = new Button[]
+                {
+                    new Button
+                    {
+                        TextButton = new TextButton
                         {
-                            Widgets = nextQuestionsOrAnswer.Select((qa, index) => new WidgetMarkup
+                            Text = answer.Title,
+                            OnClick = new OnClick
                             {
-                                TextParagraph = new TextParagraph
+                                OpenLink = new OpenLink
                                 {
-                                    Text = $"{(nextQuestionsOrAnswer.Any(q => q.IsAnswer) ? string.Empty : index + 1 + ".")}" +
-                                    $"{(string.IsNullOrWhiteSpace(qa.Content) ? qa.Title : qa.Content)}",
+                                    Url = answer.Content,
                                 }
-                            }).ToList(),
+                            }
                         }
-                    },
+                    }
+                }
             };
         }
 
-        private static List<QuestionAnswer> GetRelativeQuestions(State state, IReadOnlyList<QuestionAnswer> questions, string questionId)
+        private static List<WidgetMarkup> WidgetWithMessage(string text)
+        {
+            return new List<WidgetMarkup>
+            {
+                new WidgetMarkup
+                {
+                    TextParagraph = new TextParagraph
+                    {
+                        Text = text,
+                    }
+                }
+            };
+        }
+
+        private static List<QuestionAnswer> GetRelativeQuestionsWithParentsAndTraits(
+            State state,
+            IReadOnlyList<QuestionAnswer> questions,
+            string questionId)
         {
             return questions
                             .Where(q => q.Parents.ContainsKey(questionId)
@@ -135,16 +233,15 @@ namespace MentorBot.Functions.Processors.UserFlow
                             .ToList();
         }
 
-        private static QuestionAnswer GetSelectedQuestion(
+        private static IReadOnlyList<QuestionAnswer> GetRelativeQuestions(
             State state,
             IReadOnlyList<QuestionAnswer> questions,
-            IReadOnlyList<QuestionAnswer> relativeQuestions,
-            string parentId,
-            int index)
+            string parentId)
         {
+            var relativeQuestions = new List<QuestionAnswer>();
             if (string.IsNullOrEmpty(parentId) || parentId == "null")
             {
-                relativeQuestions = QuestionsWithoutParents(relativeQuestions);
+                relativeQuestions = QuestionsWithoutParents(questions).ToList();
             }
             else if (state.Traits.Count == 0)
             {
@@ -152,10 +249,10 @@ namespace MentorBot.Functions.Processors.UserFlow
             }
             else
             {
-                relativeQuestions = GetRelativeQuestions(state, questions, parentId);
+                relativeQuestions = GetRelativeQuestionsWithParentsAndTraits(state, questions, parentId).ToList();
             }
 
-            return relativeQuestions[index];
+            return relativeQuestions;
         }
 
         private async Task ResetState(State state)
@@ -177,6 +274,23 @@ namespace MentorBot.Functions.Processors.UserFlow
             await _storageService.AddOrUpdateStateAsync(newState);
             var state = await _storageService.GetStateAsync(user);
             return state;
+        }
+
+        private bool UserWantsToExit(string input, int questionsCount)
+        {
+            return int.Parse(input) - 1 == questionsCount;
+        }
+
+        private bool InvalidAnswer(string input, int questionsCount)
+        {
+            var index = 0;
+
+            if (!int.TryParse(input, out index))
+            {
+                return true;
+            }
+
+            return index > questionsCount + 1;
         }
     }
 }
