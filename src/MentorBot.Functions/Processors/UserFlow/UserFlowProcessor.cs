@@ -221,7 +221,7 @@ namespace MentorBot.Functions.Processors.UserFlow
                 }
             };
         }
-        
+
         private static List<QuestionAnswer> GetRelativeQuestionsWithParentsAndTraits(
             State state,
             IReadOnlyList<QuestionAnswer> questions,
