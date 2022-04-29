@@ -38,7 +38,7 @@ In Google Chat you can ask questions, like:
 
 ## Build
 
-Just use Visual Studio 2017 or newer.
+Just use Visual Studio 2019 or newer.
 
 AppVeyor uses appveyor.yml
 
