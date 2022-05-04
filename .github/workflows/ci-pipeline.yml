@@ -113,3 +113,4 @@ jobs:
 
           az storage blob upload-batch --account-name ${{ secrets.AZ_STORAGE }}
           -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web' --subscription ${{ secrets.AZ_SUB }}
+          --overwrite
