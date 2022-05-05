@@ -179,7 +179,7 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   updateNode({ title, isAnswer, content, isNotValid }: QuestionPropertiesChange) {
-    if (title && isAnswer !== undefined) {
+    if (isAnswer !== undefined) {
       this.editedNode = { ...this.editedNode, title, isAnswer, content };
     }
 
