@@ -83,16 +83,20 @@ export class ChecklistDatabase {
   };
 
   private getUniqueQuestions(allQuestions: Question[]) {
-    let result: Question[] = [];
+    let uniqueQuestions: Question[] = [];
 
     for (let i = 0; i < allQuestions.length; i++) {
-      if (!result.some(a => a.id === allQuestions[i].id)) {
-        result.push(allQuestions[i]);
+      if (this.questionIsUnique(allQuestions[i].id, uniqueQuestions)) {
+        uniqueQuestions.push(allQuestions[i]);
       } else if (allQuestions[i].isEdited) {
-        const index = result.findIndex(a => a.id === allQuestions[i].id);
-        result[index] = allQuestions[i];
+        const index = uniqueQuestions.findIndex(a => a.id === allQuestions[i].id);
+        uniqueQuestions[index] = allQuestions[i];
       }
     }
-    return result;
+    return uniqueQuestions;
+  }
+
+  private questionIsUnique(questionId: string | undefined, uniqueQuestions: Question[]) {
+    return questionId === undefined || !uniqueQuestions.some(a => a.id === questionId);
   }
 }
