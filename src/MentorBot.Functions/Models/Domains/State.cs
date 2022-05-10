@@ -23,6 +23,9 @@ namespace MentorBot.Functions.Models.Domains
         /// <summary>Gets or sets the current question's id.</summary>
         public string CurrentQuestionId { get; set; }
 
+        /// <summary>Gets or sets entry question's id.</summary>
+        public string EntryQuestionId { get; set; }
+
         /// <summary>Gets or sets a value indicating whether the status is active.</summary>
         public bool Active { get; set; }
     }

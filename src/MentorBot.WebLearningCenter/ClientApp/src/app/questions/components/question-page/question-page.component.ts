@@ -130,6 +130,7 @@ export class QuestionPageComponent implements OnDestroy {
   handleDragEnd(e: any): void {
     if (this.editedNode && this.addParent && this.editedNode.parents) {
       this.editedNode.parents[e.toElement.textContent] = e.toElement.textContent;
+      this.addParent = false;
     }
   }
 
