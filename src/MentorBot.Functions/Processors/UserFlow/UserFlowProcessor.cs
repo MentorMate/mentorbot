@@ -197,12 +197,12 @@ namespace MentorBot.Functions.Processors.UserFlow
             {
                 TextParagraph = new TextParagraph
                 {
-                    Text = TextWithClicableLinks(answer.Content),
+                    Text = TextWithClickableLinks(answer.Content),
                 }
             };
         }
 
-        private static string TextWithClicableLinks(string answer)
+        private static string TextWithClickableLinks(string answer)
         {
             answer = Regex.Replace(
                 answer,
