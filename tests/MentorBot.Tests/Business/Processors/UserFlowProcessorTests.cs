@@ -135,7 +135,7 @@ namespace MentorBot.Tests.Business.Processors
                     new QuestionAnswer() { Id = "1", IsAnswer = false, AcquireTraits = new string[] { testTrait } },
                     new QuestionAnswer() { Id = "10", Parents =
                     new Dictionary<string, string>()
-                    { { parentId, "parent" } }, IsAnswer = true, RequiredTraits = new string[]{ testTrait }, Title = "answer title" }
+                    { { parentId, "parent" } }, IsAnswer = true, Content="content", RequiredTraits = new string[]{ testTrait }, Title = "answer title" }
                 });
 
             var result = await _processor.ProcessCommandAsync(info, chatEvent, null, accessor);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Google.Apis.HangoutsChat.v1.Data;
@@ -48,46 +49,52 @@ namespace MentorBot.Functions.Processors.UserFlow
 
             var questions = await _storageService.GetAllQuestionsAsync();
 
+            var input = info.TextSentenceChunk;
+
             if (!state.Active)
             {
-                questions = QuestionsWithoutParents(questions);
-                var mentorMaterTypesCard = CreateCard(questions, "Select your Mentor Mater Type.");
-
-                state.Active = true;
-                await _storageService.AddOrUpdateStateAsync(state);
+                var questionsWithoutParents = QuestionsWithoutParents(questions);
+                var mentorMaterTypesCard = CreateCard(questionsWithoutParents, "Select your Mentor Mater Type.");
+                await SetInitialState(state, questions, input);
 
                 return new ChatEventResult(mentorMaterTypesCard);
             }
-
-            var index = info.TextSentenceChunk;
 
             var parentId = state.CurrentQuestionId;
 
             var relativeQuestions = GetRelativeQuestions(state, questions, parentId);
 
-            if (InvalidAnswer(index, relativeQuestions.Count))
+            if (InvalidAnswer(input, relativeQuestions.Count))
             {
                 var repeatCard = CreateCard(relativeQuestions, "Select a category/question.");
                 return new ChatEventResult(repeatCard);
             }
 
-            if (UserWantsToExit(index, relativeQuestions.Count))
+            if (UserWantsToExit(input, relativeQuestions.Count))
             {
                 await ResetState(state);
                 var exitCard = CreateCard(null, "Exiting");
                 return new ChatEventResult(exitCard);
             }
 
-            var question = relativeQuestions[int.Parse(index) - 1];
+            var question = relativeQuestions[int.Parse(input) - 1];
 
             if (question.AcquireTraits != null)
             {
                 state.Traits.AddRange(question.AcquireTraits);
             }
 
-            var nextQuestionsOrAnswer = GetRelativeQuestionsWithParentsAndTraits(state, questions, question.Id);
+            var questionId = question.Id;
 
-            state.CurrentQuestionId = question.Id;
+            if (!string.IsNullOrWhiteSpace(state.EntryQuestionId))
+            {
+                questionId = state.EntryQuestionId;
+                state.EntryQuestionId = string.Empty;
+            }
+
+            var nextQuestionsOrAnswer = GetRelativeQuestionsWithParentsAndTraits(state, questions, questionId);
+
+            state.CurrentQuestionId = questionId;
 
             if (nextQuestionsOrAnswer.Any(x => x.IsAnswer))
             {
@@ -188,24 +195,21 @@ namespace MentorBot.Functions.Processors.UserFlow
         {
             return new WidgetMarkup
             {
-                Buttons = new Button[]
+                TextParagraph = new TextParagraph
                 {
-                    new Button
-                    {
-                        TextButton = new TextButton
-                        {
-                            Text = answer.Title,
-                            OnClick = new OnClick
-                            {
-                                OpenLink = new OpenLink
-                                {
-                                    Url = answer.Content,
-                                }
-                            }
-                        }
-                    }
+                    Text = TextWithClickableLinks(answer.Content),
                 }
             };
+        }
+
+        private static string TextWithClickableLinks(string answer)
+        {
+            answer = Regex.Replace(
+                answer,
+                @"((http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)",
+                "<a target='_blank' href='$1'>$1</a>");
+
+            return answer;
         }
 
         private static List<WidgetMarkup> WidgetWithMessage(string text)
@@ -238,27 +242,32 @@ namespace MentorBot.Functions.Processors.UserFlow
             IReadOnlyList<QuestionAnswer> questions,
             string parentId)
         {
-            var relativeQuestions = new List<QuestionAnswer>();
             if (string.IsNullOrEmpty(parentId) || parentId == "null")
             {
-                relativeQuestions = QuestionsWithoutParents(questions).ToList();
-            }
-            else if (state.Traits.Count == 0)
-            {
-                relativeQuestions = relativeQuestions.Where(q => q.Parents.ContainsKey(parentId)).ToList();
+                return QuestionsWithoutParents(questions).ToList();
             }
             else
             {
-                relativeQuestions = GetRelativeQuestionsWithParentsAndTraits(state, questions, parentId).ToList();
+                return GetRelativeQuestionsWithParentsAndTraits(state, questions, parentId).ToList();
+            }
+        }
+
+        private async Task SetInitialState(State state, IReadOnlyList<QuestionAnswer> questions, string input)
+        {
+            if (questions.Any(q => q.Title == input))
+            {
+                state.EntryQuestionId = questions.First(q => q.Title == input).Id;
             }
 
-            return relativeQuestions;
+            state.Active = true;
+            await _storageService.AddOrUpdateStateAsync(state);
         }
 
         private async Task ResetState(State state)
         {
             state.Active = false;
             state.CurrentQuestionId = string.Empty;
+            state.EntryQuestionId = string.Empty;
             state.Traits.RemoveAll(t => t != null);
 
             await _storageService.AddOrUpdateStateAsync(state);
