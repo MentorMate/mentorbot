@@ -54,6 +54,11 @@ namespace MentorBot.Functions.Processors.UserFlow
             if (!state.Active)
             {
                 var questionsWithoutParents = QuestionsWithoutParents(questions);
+                if (questions == null || questions.Count == 0)
+                {
+                    return ExitCard("There aren't any questions in the database at the moment.");
+                }
+
                 var mentorMaterTypesCard = CreateCard(questionsWithoutParents, "Select your Mentor Mater Type.");
                 await SetInitialState(state, questions, input);
 
@@ -73,8 +78,7 @@ namespace MentorBot.Functions.Processors.UserFlow
             if (UserWantsToExit(input, relativeQuestions.Count))
             {
                 await ResetState(state);
-                var exitCard = CreateCard(null, "Exiting");
-                return new ChatEventResult(exitCard);
+                return ExitCard("Exiting");
             }
 
             var question = relativeQuestions[int.Parse(input) - 1];
@@ -124,6 +128,12 @@ namespace MentorBot.Functions.Processors.UserFlow
             var card = CreateCard(nextQuestionsOrAnswer, cardTitle);
 
             return new ChatEventResult(card);
+        }
+
+        private static ChatEventResult ExitCard(string message)
+        {
+            var exitCard = CreateCard(null, message);
+            return new ChatEventResult(exitCard);
         }
 
         private static IReadOnlyList<QuestionAnswer> QuestionsWithoutParents(IReadOnlyList<QuestionAnswer> questions) =>
