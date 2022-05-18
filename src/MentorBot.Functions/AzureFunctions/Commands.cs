@@ -28,7 +28,7 @@ namespace MentorBot.Functions
             [TimerTrigger("0 0 9 * * Fri")] TimerInfo myTimer,
             FunctionContext context)
         {
-            Contract.Ensures(myTimer != null, "Timer is not instanciated");
+            Contract.Ensures(myTimer != null, "Timer is not instantiated");
 
             var openAirConnector = context.Get<IOpenAirConnector>();
 
@@ -41,7 +41,7 @@ namespace MentorBot.Functions
             [TimerTrigger("0 */15 * * * 1-5")] TimerInfo myTimer,
             FunctionContext context)
         {
-            Contract.Ensures(myTimer != null, "Timer is not instanciated");
+            Contract.Ensures(myTimer != null, "Timer is not instantiated");
 
             var timesheetService = context.Get<ITimesheetService>();
             var now = GetLocalDateTime(context);

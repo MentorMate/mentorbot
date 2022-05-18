@@ -204,7 +204,7 @@ namespace MentorBot.Tests.AzureFunctions
         }
 
         [TestMethod]
-        public async Task GetTimesheettatisticsAsyncShouldQueryDocument()
+        public async Task GetTimesheetStatisticsAsyncShouldQueryDocument()
         {
             var storageService = Substitute.For<IStorageService>();
             var stat1 = new Statistics<TimesheetStatistics[]>

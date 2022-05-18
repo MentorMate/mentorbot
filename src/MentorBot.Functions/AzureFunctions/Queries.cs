@@ -29,7 +29,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
 
@@ -52,7 +52,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             var accessTokenService = context.Get<IAccessTokenService>() ?? throw new NullReferenceException();
 
@@ -67,7 +67,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
 
@@ -94,7 +94,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.Administrator);
 
@@ -153,7 +153,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
 
@@ -196,7 +196,7 @@ namespace MentorBot.Functions
             [HttpTrigger(AuthorizationLevel.Function, nameof(HttpMethod.Get), Route = null)] HttpRequestData req,
             FunctionContext context)
         {
-            Contract.Ensures(req != null, "Request is not instanciated");
+            Contract.Ensures(req != null, "Request is not instantiated");
 
             await context.Get<IAccessTokenService>().EnsureRole(req, UserRoles.User | UserRoles.Administrator);
 

@@ -111,7 +111,7 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public async Task StorageService_AddOrUpdatePluginsAsyncShouldCallAddOrupdate()
+        public async Task StorageService_AddOrUpdatePluginsAsyncShouldCallAddOrUpdate()
         {
             var document = GetDocument<Plugin>("mentorbot", "plugins");
 
