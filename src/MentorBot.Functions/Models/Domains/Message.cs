@@ -27,7 +27,7 @@ namespace MentorBot.Functions.Models.Domains
         [StoreAsJsonObject]
         public ChatEventResult Output { get; set; }
 
-        /// <summary>Gets or sets the confidence procent from 0 to 100. 0 is not able to tell the comand and 100 is exact match.</summary>
+        /// <summary>Gets or sets the confidence percent from 0 to 100. 0 is not able to tell the command and 100 is exact match.</summary>
         public int ProbabilityPercentage { get; set; }
     }
 }

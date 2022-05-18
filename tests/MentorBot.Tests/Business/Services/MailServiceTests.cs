@@ -46,7 +46,7 @@ namespace MentorBot.Tests.Business.Services
         }
 
         [TestMethod]
-        public void MailServiceDisposses()
+        public void MailServiceDisposes()
         {
             _service.Dispose();
             _client.Received().Dispose();

@@ -7,7 +7,7 @@ using MentorBot.Functions.Models.HangoutsChat;
 
 namespace MentorBot.Functions.Abstract.Services
 {
-    /// <summary>The service that handels hangout chat events.</summary>
+    /// <summary>The service that handles hangout chat events.</summary>
     public interface IHangoutsChatService
     {
         /// <summary>An POC for the chat bot.</summary>
