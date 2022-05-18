@@ -42,7 +42,7 @@ namespace MentorBot.Tests.Business.Processors
         }
 
         [TestMethod]
-        public async Task WhenInactiveStateUserFlowShouldActivateUserStateAndAskForMentorMaterType()
+        public async Task WhenInactiveStateUserFlowShouldActivateUserStateAndAskForMentorMaterTypeIfThereAreAnyQuestions()
         {
             var accessor = Substitute.For<IPluginPropertiesAccessor>();
             var userEmail = "rosen.kolev@mentormate.com";
@@ -69,6 +69,12 @@ namespace MentorBot.Tests.Business.Processors
                             Value = userEmail,
                         },
                     }
+                });
+
+            _storageService.GetAllQuestionsAsync().Returns(
+                new QuestionAnswer[]
+                {
+                    new QuestionAnswer() { Id = "1", Title = "Contractor"}
                 });
 
             var result = await _processor.ProcessCommandAsync(info, chatEvent, null, accessor);
