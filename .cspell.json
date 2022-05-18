@@ -103,7 +103,7 @@
     "requireddelete",
     "requiredadd",
     "Neue",
-    "typearam",
+    "typeparam",
     "inheritdoc",
     "seealso",
     "userid",
@@ -125,6 +125,9 @@
     "wikibase",
     "originalimage",
     "Originalimage",
-    "Userflow"
+    "Userflow",
+    "subquestions",
+    "unaproved",
+    "unmanaged"
   ]
 }
