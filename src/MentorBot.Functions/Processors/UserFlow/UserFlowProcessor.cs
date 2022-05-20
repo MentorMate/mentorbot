@@ -243,7 +243,7 @@ namespace MentorBot.Functions.Processors.UserFlow
         {
             return questions
                             .Where(q => q.Parents.ContainsKey(questionId)
-                        && q.RequiredTraits.Any(t => state.Traits.FirstOrDefault(st => st == t) != null))
+                        && (!q.RequiredTraits.Any() || q.RequiredTraits.Any(t => state.Traits.FirstOrDefault(st => st == t) != null)))
                             .ToList();
         }
 
