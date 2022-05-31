@@ -82,7 +82,7 @@ namespace MentorBot.Tests.Business.Processors
             var results = await client.GetTimesheetsAsync(date, date);
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"all\" limit=\"0,1000\" enable_custom=\"0\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"all\" limit=\"0,1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
             Assert.AreEqual(1, results.Count);
 
             var first = results.First();
@@ -143,7 +143,7 @@ namespace MentorBot.Tests.Business.Processors
             var results = await client.GetTimesheetsByStatusAsync(date, date, "A");
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"equal to\" limit=\"0,1000\" enable_custom=\"0\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><Timesheet><status>A</status></Timesheet><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Timesheet\" filter=\"newer-than,older-than\" field=\"starts,starts\" method=\"equal to\" limit=\"0,1000\"><Date><month>10</month><day>10</day><year>2000</year></Date><Date><month>10</month><day>10</day><year>2000</year></Date><Timesheet><status>A</status></Timesheet><_Return><status/><name /><total/><notes /><userid /><starts /></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace MentorBot.Tests.Business.Processors
             var results = await client.GetAllActiveCustomersAsync();
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Customer\" method=\"equal to\" limit=\"0,1000\" enable_custom=\"0\"><Customer><active>1</active></Customer><_Return><id/><name /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Customer\" method=\"equal to\" limit=\"0,1000\"><Customer><active>1</active></Customer><_Return><id/><name /></_Return></Read></request>", content);
             Assert.AreEqual(2, results.Count);
         }
 
@@ -173,7 +173,7 @@ namespace MentorBot.Tests.Business.Processors
             var bookings = await client.GetAllActiveBookingsAsync(new DateTime(2019, 1, 1));
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"0,1000\" enable_custom=\"0\"><Date><month>12</month><day>31</day><year>2018</year></Date><Date><month>1</month><day>2</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"Booking\" filter=\"newer-than,older-than\" field=\"enddate,startdate\" method=\"equal to\" limit=\"0,1000\"><Date><month>12</month><day>31</day><year>2018</year></Date><Date><month>1</month><day>2</day><year>2019</year></Date><Booking><approval_status>A</approval_status></Booking><_Return><id/><userid/><ownerid /><projectid /><customerid /><booking_typeid /></_Return></Read></request>", content);
             Assert.AreEqual(257, bookings[0].UserId);
             Assert.AreEqual(10, bookings[0].CustomerId);
         }
@@ -189,7 +189,7 @@ namespace MentorBot.Tests.Business.Processors
             var user = await client.GetAllUsersAsync();
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"0,1000\" enable_custom=\"1\"><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /><usr_start_date__c/></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>R</user><password>P</password></Login></Auth><Read type=\"User\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><addr /><departmentid /><active /><line_managerid /><user_locationid /><usr_start_date__c/></_Return></Read></request>", content);
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace MentorBot.Tests.Business.Processors
             var content = Encoding.UTF8.GetString(handler[0].RequestContent);
             var department = departments.First();
 
-            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"all\" limit=\"0,1000\" enable_custom=\"0\"><_Return><id /><name /><userid /></_Return></Read></request>", content);
+            Assert.AreEqual("<request API_version=\"1.0\" client=\"MM\" client_ver=\"1.0\" namespace=\"default\" key=\"K\"><Auth><Login><company>MM</company><user>U</user><password>P</password></Login></Auth><Read type=\"Department\" method=\"all\" limit=\"0,1000\"><_Return><id /><name /><userid /></_Return></Read></request>", content);
             Assert.AreEqual(101, department.Id);
             Assert.AreEqual(".NET", department.Name);
             Assert.AreEqual(1, department.UserId);
