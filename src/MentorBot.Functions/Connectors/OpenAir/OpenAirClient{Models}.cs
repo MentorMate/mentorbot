@@ -141,6 +141,18 @@ namespace MentorBot.Functions.Connectors.OpenAir
             [XmlAttribute("limit")]
             public string Limit { get; set; } = "1000";
 
+            /// <summary>Gets or sets a value indicating whether custom property names are allowed.</summary>
+            [XmlIgnore]
+            public bool? EnableCustom { get; set; }
+
+            /// <summary>Gets or sets a value of enable custom as string.</summary>
+            [XmlAttribute("enable_custom")]
+            public string EnableCustomAsString
+            {
+                get => EnableCustom.HasValue ? ParseBoolToString(EnableCustom.Value) : "0";
+                set => EnableCustom = ParseStringToBool(value);
+            }
+
             /// <summary>Gets or sets the dates.</summary>
             [XmlElement("Date", Order = 1)]
             public Date[] Date { get; set; }
