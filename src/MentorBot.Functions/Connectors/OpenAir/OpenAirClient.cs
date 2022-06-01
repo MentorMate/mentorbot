@@ -88,6 +88,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                     {
                         Type = DateType.User,
                         Limit = $"{skip},{take}",
+                        EnableCustom = true,
                         Return = new ReadReturn
                         {
                             Content =
