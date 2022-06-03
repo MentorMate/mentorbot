@@ -110,10 +110,14 @@ namespace MentorBot.Functions.Connectors
                             requiredDays = dayOfWeekMultiplier;
                         }
 
+                        var requiredHourToSubmit = requiredUserHoursPerWeek == 0
+                            ? 0
+                            : (requiredUserHoursPerWeek / WorkDaysInWeek) * requiredDays;
+
                         return new TimesheetExtendedData(
                             timesheetsData.FirstOrDefault(it => it.UserId == user.OpenAirUserId),
                             user,
-                            requiredHours: (requiredUserHoursPerWeek / WorkDaysInWeek) * requiredDays);
+                            requiredHourToSubmit);
                     }
                     catch (Exception ex)
                     {
