@@ -36,7 +36,7 @@ namespace MentorBot.Tests.Business.Processors
         public void OpenAirProcessorSubjectShouldBeTimesheets()
         {
             Assert.AreEqual("Timesheets", _processor.Subject);
-            Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.TimesheetProcessor", _processor.Name);
+            Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.OpenAirProcessor", _processor.Name);
         }
 
 #pragma warning disable CS4014

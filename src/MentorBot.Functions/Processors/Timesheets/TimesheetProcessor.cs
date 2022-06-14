@@ -29,7 +29,7 @@ namespace MentorBot.Functions.Processors.Timesheets
         }
 
         /// <inheritdoc/>
-        public string Name => GetType().FullName;
+        public string Name => "MentorBot.Functions.Processors.Timesheets.OpenAirProcessor";
 
         /// <inheritdoc/>
         public string Subject => TimesheetsProperties.ProcessorSubjectName;
