@@ -202,6 +202,13 @@ namespace MentorBot.Functions.App
                                 },
                                 new PluginProperty
                                 {
+                                    Name = "Departments",
+                                    UniqueName = TimesheetsProperties.AutoNotificationsDepartments,
+                                    DescriptionHtml = "List of departments to be included or empty for all",
+                                    ValueType = PropertyValueTypes.String,
+                                },
+                                new PluginProperty
+                                {
                                     Name = "Notify Users",
                                     DescriptionHtml = "Also, notify unsubmitted users with direct message",
                                     UniqueName = TimesheetsProperties.AutoNotificationsNotify,

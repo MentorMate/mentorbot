@@ -33,6 +33,9 @@
         /// <summary>The automatic notifications should notify users.</summary>
         public const string AutoNotificationsNotify = "OpenAir.AutoNotifications.Notify";
 
+        /// <summary>The automatic notifications departments.</summary>
+        public const string AutoNotificationsDepartments = "OpenAir.AutoNotifications.Departments";
+
         /// <summary>The filter by customer key.</summary>
         public const string FilterByCustomer = "OpenAir.Filters.Customer";
 

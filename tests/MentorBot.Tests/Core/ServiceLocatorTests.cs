@@ -7,6 +7,7 @@ using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Connectors;
 using MentorBot.Functions.Connectors.Base;
 using MentorBot.Functions.Models.Options;
+using MentorBot.Functions.Processors.Timesheets;
 using MentorBot.Functions.Services;
 using MentorBot.Localize;
 
@@ -36,6 +37,8 @@ namespace MentorBot.Tests.Core
             Assert.IsInstanceOfType(services.GetService<IGoogleCalendarConnector>(), typeof(GoogleCalendarConnector));
             Assert.IsInstanceOfType(services.GetService<ICognitiveService>(), typeof(CognitiveService));
             Assert.IsInstanceOfType(services.GetService<IStringLocalizer>(), typeof(StringLocalizer));
+            Assert.IsInstanceOfType(services.GetService<ITimesheetScheduleService>(), typeof(TimesheetScheduleService));
+            Assert.IsInstanceOfType(services.GetService<ITimesheetNotifier>(), typeof(TimesheetNotifier));
         }
 
         [TestMethod]

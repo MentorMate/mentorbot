@@ -46,10 +46,10 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task ExecuteTimesheetsReminderAsyncShouldWorkOnDivisionByFive()
         {
-            var timesheetService = Substitute.For<ITimesheetService>();
+            var timesheetService = Substitute.For<ITimesheetScheduleService>();
             var dateTime = new DateTime(2021, 12, 1, 12, 16, 5, 123, DateTimeKind.Local);
             var context = MockFunction.GetContext(
-                new ServiceDescriptor(typeof(ITimesheetService), timesheetService),
+                new ServiceDescriptor(typeof(ITimesheetScheduleService), timesheetService),
                 new ServiceDescriptor(typeof(Func<DateTime>), () => dateTime),
                 new ServiceDescriptor(typeof(Func<TimeZoneInfo>), () => TimeZoneInfo.Local));
 
@@ -64,12 +64,12 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task ExecuteTimesheetsReminderAsyncShouldSendNotifications()
         {
-            var timesheetService = Substitute.For<ITimesheetService>();
+            var timesheetService = Substitute.For<ITimesheetScheduleService>();
             var now = DateTime.Now;
             var dateTimeMinutes = (now.Minute / 10) * 10;
             var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
             var context = MockFunction.GetContext(
-                new ServiceDescriptor(typeof(ITimesheetService), timesheetService),
+                new ServiceDescriptor(typeof(ITimesheetScheduleService), timesheetService),
                 new ServiceDescriptor(typeof(Func<DateTime>), () => dateTime),
                 new ServiceDescriptor(typeof(Func<TimeZoneInfo>), () => TimeZoneInfo.Local));
 

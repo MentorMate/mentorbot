@@ -1,18 +1,12 @@
-﻿// cSpell:ignore Jhon
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Google.Apis.HangoutsChat.v1.Data;
-
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
-using MentorBot.Functions.Abstract.Services;
 using MentorBot.Functions.Models.Business;
-using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
-using MentorBot.Functions.Processors;
 using MentorBot.Functions.Processors.Timesheets;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,30 +15,28 @@ using NSubstitute;
 
 namespace MentorBot.Tests.Business.Processors
 {
-    /// <summary>Tests for <see cref="RepeatProcessor" />.</summary>
+    /// <summary>Tests for <see cref="TimesheetProcessor" />.</summary>
     [TestClass]
     [TestCategory("Business.Processors")]
-    public sealed class OpenAirProcessorTests
+    public sealed class TimesheetProcessorTests
     {
-        private OpenAirProcessor _processor;
+        private TimesheetProcessor _processor;
         private IOpenAirConnector _connector;
-        private IMailService _mailService;
-        private IStorageService _storageService;
+        private ITimesheetNotifier _timesheetNotifier;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _connector = Substitute.For<IOpenAirConnector>();
-            _storageService = Substitute.For<IStorageService>();
-            _mailService = Substitute.For<IMailService>();
-            _processor = new OpenAirProcessor(_connector, _storageService, _mailService);
+            _timesheetNotifier = Substitute.For<ITimesheetNotifier>();
+            _processor = new TimesheetProcessor(_connector, _timesheetNotifier);
         }
 
         [TestMethod]
         public void OpenAirProcessorSubjectShouldBeTimesheets()
         {
             Assert.AreEqual("Timesheets", _processor.Subject);
-            Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.OpenAirProcessor", _processor.Name);
+            Assert.AreEqual("MentorBot.Functions.Processors.Timesheets.TimesheetProcessor", _processor.Name);
         }
 
 #pragma warning disable CS4014
@@ -91,6 +83,7 @@ namespace MentorBot.Tests.Business.Processors
                 Total = 20
             };
 
+            var timesheets = new [] { timesheet };
             var info = new TextDeconstructionInformation(
                 "Get unsubmitted timesheets",
                 null,
@@ -99,21 +92,27 @@ namespace MentorBot.Tests.Business.Processors
                 null,
                 1.0);
 
-            _connector.GetUnsubmittedTimesheetsAsync(DateTime.MinValue, new DateTime(2020, 1, 1), TimesheetStates.Unsubmitted, null, true, "OpenAir.User.MaxHours", new string[0]).ReturnsForAnyArgs(new[] { timesheet });
+            _connector
+                .GetUnsubmittedTimesheetsAsync(DateTime.MinValue, new DateTime(2020, 1, 1), TimesheetStates.Unsubmitted, null, true, "OpenAir.User.MaxHours", new string[0])
+                .ReturnsForAnyArgs(timesheets);
 
             // Act
             var result = await _processor.ProcessCommandAsync(info, chat, responder, accessor);
+            await _processor.NotificationTask;
 
             // Test
-            System.Threading.Thread.Sleep(150);
-
             Assert.AreEqual(null, result.Text);
-            responder
+            _timesheetNotifier
                 .Received()
-                .SendMessageAsync(
-                    null,
+                .SendTimesheetNotificationsToUsersAsync(
+                    timesheets,
+                    email: "a@b.c",
+                    departments: null,
+                    notify: false,
+                    false,
+                    TimesheetStates.Unsubmitted,
                     Arg.Is<GoogleChatAddress>(it => it.Sender == chat.Message.Sender && it.Space == chat.Space),
-                    Arg.Any<Card[]>());
+                    responder);
         }
 
         [TestMethod]
@@ -139,70 +138,49 @@ namespace MentorBot.Tests.Business.Processors
                 Total = 15
             };
 
+            var departments = new[] { "Department" };
+            var timesheets = new[] { timesheet, timesheet2 };
+            var userTimesheetCache = new Dictionary<string, IReadOnlyList<Timesheet>>();
+
             responder.GetPrivateAddress(Arg.Any<IReadOnlyList<string>>()).Returns(new[] { address });
 
-            _storageService.GetAddressesAsync().Returns(new GoogleAddress[0]);
-            _connector.GetUnsubmittedTimesheetsAsync(date, date, TimesheetStates.Unsubmitted, "a@b.c", true, "OpenAir.User.MaxHours", null)
-                .ReturnsForAnyArgs(new[] { timesheet, timesheet2 });
+            _connector
+                .GetUnsubmittedTimesheetsAsync(
+                    date,
+                    Arg.Any<DateTime>(),
+                    TimesheetStates.Unsubmitted,
+                    "a@b.c",
+                    true,
+                    "OpenAir.User.MaxHours",
+                    customers)
+                .Returns(timesheets);
 
             // Act
-            await _processor.NotifyAsync(
-                new DateTime(2000, 1, 1, 1, 1, 1),
+            await _processor.SendTimesheetNotificationsByKeyAsync(
+                date,
                 TimesheetStates.Unsubmitted,
                 "a@b.c",
-                new[] { "D" },
-                "F",
-                true,
-                true,
+                customers,
+                departments,
                 true,
                 null,
+                "userKey",
+                userTimesheetCache,
                 responder);
 
             // Test
-            responder.Received()
-                .SendMessageAsync(
-                    "Jhon, You have unsubmitted timesheet. Please, submit your timesheet.",
-                    Arg.Is<GoogleChatAddress>(it => it.Space.Name == "space/B"));
-            _mailService.Received()
-                .SendMailAsync(
-                    "Timesheet is pending",
-                    ", You have unsubmitted timesheet. Please, submit your timesheet.",
-                    Arg.Is<string[]>(it => it[0] == "w@n.m"));
-            _storageService.Received()
-                .AddAddressesAsync(Arg.Is<IReadOnlyList<GoogleAddress>>(arr => arr[0].SpaceName == "space/B"));
-            _mailService.Received()
-                .SendMailAsync("Users not notified", "All users with unsubmitted timesheets are notified! Total of 2.<br/><br/><b>The following people where notified by a direct massage or email:<br/><b>Jhon</b><br/><b>ElA</b>", "a@b.c");
-        }
-
-        [TestMethod]
-        public async Task SendTimesheetNotificationsToUsersShouldSendAllSubmitted()
-        {
-            var responder = Substitute.For<IHangoutsChatConnector>();
-            var address = new GoogleChatAddress("space/B", "MentorBot", null, "A", "Jhon");
-            var responses = new[]
-            {
-                "<b>If you're reading this, probably MentorBot has encountered internal server error or everybody submitted their timesheets on time. The second one Is highly unlikely, so please review the log.</b>",
-                "<b>I spent 2 hours looking for unsubmitted timesheets and I couldn't find any! How should I log this time?</b>",
-                "<b>It must be the end of the world, because everyone submitted their timesheet on time!</b>",
-            };
-
-            // Act
-            await _processor.SendTimesheetNotificationsToUsersAsync(
-                Array.Empty<Timesheet>(),
+            Assert.AreEqual(timesheets, userTimesheetCache["userKey"]);
+            _timesheetNotifier
+                .Received()
+                .SendTimesheetNotificationsToUsersAsync(
+                timesheets,
                 "a@b.c",
-                null,
-                false,
+                departments,
+                true,
                 false,
                 TimesheetStates.Unsubmitted,
-                address,
+                null,
                 responder);
-
-            // Test
-            responder.Received()
-                .SendMessageAsync(
-                    null,
-                    Arg.Is<GoogleChatAddress>(it => it.Space.Name == "space/B"),
-                    Arg.Is<Card[]>(cards => Array.IndexOf(responses, cards[0].Sections[0].Widgets[0].TextParagraph.Text) > -1));
         }
 
 #pragma warning restore CS4014

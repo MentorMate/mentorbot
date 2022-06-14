@@ -13,131 +13,30 @@ using MentorBot.Functions.App.Extensions;
 using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.HangoutsChat;
-using MentorBot.Functions.Models.TextAnalytics;
 using MentorBot.Functions.Processors.LanguageAnalysis;
 
 namespace MentorBot.Functions.Processors.Timesheets
 {
-    /// <summary>The processor that handle timesheet operations.</summary>
-    public sealed class OpenAirProcessor : ITimesheetProcessor
+    /// <summary>Google chat implementation of <see cref="ITimesheetNotifier" />.</summary>
+    public sealed class TimesheetNotifier : ITimesheetNotifier
     {
-        private readonly IOpenAirConnector _openAirConnector;
         private readonly IStorageService _storageService;
         private readonly IMailService _mailService;
 
-        /// <summary>Initializes a new instance of the <see cref="OpenAirProcessor"/> class.</summary>
-        public OpenAirProcessor(
-            IOpenAirConnector openAirConnector,
+        /// <summary>Initializes a new instance of the <see cref="TimesheetNotifier" /> class.</summary>
+        public TimesheetNotifier(
             IStorageService storageService,
             IMailService mailService)
         {
-            _openAirConnector = openAirConnector;
             _storageService = storageService;
             _mailService = mailService;
         }
-
-        /// <inheritdoc/>
-        public string Name => GetType().FullName;
-
-        /// <inheritdoc/>
-        public string Subject => TimesheetsProperties.ProcessorSubjectName;
-
-        /// <inheritdoc/>
-        public ValueTask<ChatEventResult> ProcessCommandAsync(
-            TextDeconstructionInformation info,
-            ChatEvent originalChatEvent,
-            IAsyncResponder responder,
-            IPluginPropertiesAccessor accessor)
-        {
-            var notify = info.TextSentenceChunk.StartsWith("Notify", StringComparison.InvariantCultureIgnoreCase);
-            var departmentValue = info
-                .Entities
-                .GetValueOrDefault(nameof(Department))
-                ?.FirstOrDefault()
-                ?.Replace(". ", ".", StringComparison.InvariantCulture);
-
-            var customersValue = info.Entities.GetValueOrDefault(nameof(Customer), new string[0]);
-            var period = OpenAirText.GetPeriod(info.Entities.GetValueOrDefault("Period")?.FirstOrDefault());
-            var state = OpenAirText.GetTimesheetState(info.Entities.GetValueOrDefault(nameof(State))?.FirstOrDefault());
-            var today = Contract.LocalDateTime.Date;
-            var date = period == OpenAirPeriodTypes.LastWeek ? today.AddDays(-((int)today.DayOfWeek + 1)) : today;
-            var senderEmail = originalChatEvent.Message.Sender.Email;
-            var customersSetting = accessor.GetAllPluginPropertyValues<string>(TimesheetsProperties.FilterByCustomer);
-            var customersToExclude = customersValue.Concat(customersSetting ?? new string[0]).ToArray();
-            if (state == TimesheetStates.None)
-            {
-                return new ValueTask<ChatEventResult>(
-                    new ChatEventResult("Provide a state of the time sheets, like unsubmitted or unapproved!"));
-            }
-
-            var address = new GoogleChatAddress(originalChatEvent);
-            NotifyAsync(
-                date,
-                state,
-                senderEmail,
-                customersToExclude,
-                departmentValue,
-                notify,
-                false,
-                true,
-                address,
-                responder as IHangoutsChatConnector)
-                .ConfigureAwait(false);
-
-            return new ValueTask<ChatEventResult>(
-                new ChatEventResult(text: null));
-        }
-
-        /// <summary>Get timesheets and notifies by message or email the users asynchronous.</summary>
-        public async Task NotifyAsync(
-            DateTime date,
-            TimesheetStates state,
-            string email,
-            IReadOnlyList<string> customersToExclude,
-            string department,
-            bool notify,
-            bool notifyByEmail,
-            bool filterOutSender,
-            GoogleChatAddress address,
-            IHangoutsChatConnector connector) =>
-            await SendTimesheetNotificationsToUsersAsync(
-                await _openAirConnector.GetUnsubmittedTimesheetsAsync(
-                    date,
-                    Contract.LocalDateTime.Date,
-                    state,
-                    email,
-                    filterOutSender,
-                    TimesheetsProperties.UserMaxHours,
-                    customersToExclude),
-                email,
-                department,
-                notify,
-                notifyByEmail,
-                state,
-                address,
-                connector);
-
-        /// <inheritdoc/>
-        public Task<IReadOnlyList<Timesheet>> GetTimesheetsAsync(
-            DateTime dateTime,
-            TimesheetStates state,
-            string senderEmail,
-            bool filterOutSender,
-            IReadOnlyList<string> customersToExclude) =>
-            _openAirConnector.GetUnsubmittedTimesheetsAsync(
-                dateTime,
-                Contract.LocalDateTime.Date,
-                state,
-                senderEmail,
-                filterOutSender,
-                TimesheetsProperties.UserMaxHours,
-                customersToExclude);
 
         /// <summary>Processes the specified timesheets.</summary>
         public async Task SendTimesheetNotificationsToUsersAsync(
             IReadOnlyList<Timesheet> timesheets,
             string email,
-            string department,
+            string[] departments,
             bool notify,
             bool notifyByEmail,
             TimesheetStates state,
@@ -147,8 +46,9 @@ namespace MentorBot.Functions.Processors.Timesheets
             string text;
             var filteredTimesheet = timesheets
                 .Where(it =>
-                    department == null ||
-                    department.Equals(it.DepartmentName, StringComparison.InvariantCultureIgnoreCase))
+                    departments == null ||
+                    !departments.Any() ||
+                    departments.Any(dep => dep.Equals(it.DepartmentName, StringComparison.InvariantCultureIgnoreCase)))
                 .OrderBy(it => it.ManagerName)
                     .ThenBy(it => it.UserName)
                 .ToArray();
@@ -223,7 +123,7 @@ namespace MentorBot.Functions.Processors.Timesheets
             var emails = timesheets.Select(it => it.UserEmail).ToArray();
             var filteredAddresses = storeAddresses.Where(it => emails.Contains(it.UserEmail)).ToArray();
 
-            IReadOnlyList<GoogleAddress> privateAddresses = new GoogleAddress[0];
+            IReadOnlyList<GoogleAddress> privateAddresses = Array.Empty<GoogleAddress>();
             if (filteredAddresses.Length < timesheets.Length)
             {
                 var storeAddressesNames = storeAddresses.Select(it => it.SpaceName).Distinct().ToArray();

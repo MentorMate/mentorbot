@@ -1,6 +1,7 @@
 ﻿// cSpell:ignore Jhon
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MentorBot.Functions.Abstract.Connectors;
@@ -18,12 +19,12 @@ using NSubstitute;
 
 namespace MentorBot.Tests.Business.Processors
 {
-    /// <summary>Tests for <see cref="TimesheetService" />.</summary>
+    /// <summary>Tests for <see cref="TimesheetScheduleService" />.</summary>
     [TestClass]
     [TestCategory("Business.Processors")]
-    public class TimesheetServiceTests
+    public class TimesheetScheduleServiceTests
     {
-        private TimesheetService _timesheetService;
+        private TimesheetScheduleService _timesheetService;
         private IStorageService _storageService;
         private ICognitiveService _cognitiveService;
         private IHangoutsChatConnector _hangoutsChatConnector;
@@ -34,7 +35,7 @@ namespace MentorBot.Tests.Business.Processors
             _storageService = Substitute.For<IStorageService>();
             _cognitiveService = Substitute.For<ICognitiveService>();
             _hangoutsChatConnector = Substitute.For<IHangoutsChatConnector>();
-            _timesheetService = new TimesheetService(_storageService, _cognitiveService, _hangoutsChatConnector);
+            _timesheetService = new TimesheetScheduleService(_storageService, _cognitiveService, _hangoutsChatConnector);
         }
 
 #pragma warning disable CS4014
@@ -82,6 +83,11 @@ namespace MentorBot.Tests.Business.Processors
                             },
                             new PluginPropertyValue
                             {
+                                Key = "OpenAir.AutoNotifications.Departments",
+                                Value = "DA, DB"
+                            },
+                            new PluginPropertyValue
+                            {
                                 Key = "OpenAir.AutoNotifications.Notify",
                                 Value = false
                             },
@@ -97,15 +103,18 @@ namespace MentorBot.Tests.Business.Processors
 
             timesheetProcessor
                 .Received()
-                .SendTimesheetNotificationsToUsersAsync(
-                    Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
-                    "a@b.c",
-                    null,
-                    false,
-                    false,
+                .SendTimesheetNotificationsByKeyAsync(
+                    date,
                     TimesheetStates.Unsubmitted,
+                    "a@b.c",
+                    excludeCustomers,
+                    Arg.Is<string[]>(it => Enumerable.SequenceEqual(it, new[] { "DA", "DB" })),
+                    false,
                     address,
-                    _hangoutsChatConnector);
+                    "unsubmitted_a@b.c",
+                    Arg.Is<Dictionary<string, IReadOnlyList<Timesheet>>>(it => it.Count == 0),
+                    _hangoutsChatConnector)
+                .Wait();
         }
 
         [TestMethod]
@@ -165,15 +174,18 @@ namespace MentorBot.Tests.Business.Processors
             _hangoutsChatConnector.DidNotReceiveWithAnyArgs().GetAddressByName(null);
             timesheetProcessor
                 .Received()
-                .SendTimesheetNotificationsToUsersAsync(
-                    Arg.Is<IReadOnlyList<Timesheet>>(it => it[0].UserName == "Jhon Doe"),
+                .SendTimesheetNotificationsByKeyAsync(
+                    date,
+                    TimesheetStates.Unsubmitted,
                     "a@b.c",
+                    excludeCustomers,
                     null,
                     true,
-                    false,
-                    TimesheetStates.Unsubmitted,
-                    null,
-                    _hangoutsChatConnector);
+                    address: null,
+                    userKey: "unsubmitted_a@b.c",
+                    Arg.Is<Dictionary<string, IReadOnlyList<Timesheet>>>(it => it.Count == 0),
+                    _hangoutsChatConnector)
+                .Wait();
         }
 
         [TestMethod]
@@ -233,18 +245,18 @@ namespace MentorBot.Tests.Business.Processors
         {
             var date = new DateTime(2020, 7, 1, 10, 0, 0, DateTimeKind.Local);
 
-            Assert.IsTrue(TimesheetService.CronCheck("10 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("10:00 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("10:00,9 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9,10 Wed,Fri", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9,10,11 Wed", date));
-            Assert.IsFalse(TimesheetService.CronCheck("9 Wed,Fri", date));
-            Assert.IsFalse(TimesheetService.CronCheck("10 Fri", date));
-            Assert.IsTrue(TimesheetService.CronCheck("* Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("* *", date));
-            Assert.IsTrue(TimesheetService.CronCheck("10 *", date));
-            Assert.IsFalse(TimesheetService.CronCheck("* Fri", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("10 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("10:00 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9,10 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("10:00,9 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9,10 Wed,Fri", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9,10,11 Wed", date));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9 Wed,Fri", date));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("10 Fri", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("* Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("* *", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("10 *", date));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("* Fri", date));
         }
 
         [TestMethod]
@@ -253,12 +265,12 @@ namespace MentorBot.Tests.Business.Processors
             var date = new DateTime(2020, 7, 1, 9, 30, 5, DateTimeKind.Local);
             var date2 = new DateTime(2021, 11, 5, 17, 45, 0, DateTimeKind.Local);
 
-            Assert.IsFalse(TimesheetService.CronCheck("9 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9:30 Wed", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9,9:30 *", date));
-            Assert.IsTrue(TimesheetService.CronCheck("9:00,9:30 *", date));
-            Assert.IsFalse(TimesheetService.CronCheck("9:15 *", date));
-            Assert.IsTrue(TimesheetService.CronCheck("17:45 FRI", date2));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9:30 Wed", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9,9:30 *", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9:00,9:30 *", date));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9:15 *", date));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("17:45 FRI", date2));
         }
 
         [TestMethod]
@@ -267,12 +279,12 @@ namespace MentorBot.Tests.Business.Processors
             var date1 = new DateTime(2020, 10, 30, 9, 0, 0, DateTimeKind.Local);
             var date2 = new DateTime(2020, 10, 31, 9, 0, 0, DateTimeKind.Local);
 
-            Assert.IsFalse(TimesheetService.CronCheck("9 EOM", date1));
-            Assert.IsTrue(TimesheetService.CronCheck("9 EOM", date2));
-            Assert.IsTrue(TimesheetService.CronCheck("9 Fri,EOM", date1));
-            Assert.IsFalse(TimesheetService.CronCheck("9,9:30 Wed,EOM", date1));
-            Assert.IsTrue(TimesheetService.CronCheck("9:00 Wed,EOM", date2));
-            Assert.IsFalse(TimesheetService.CronCheck("9:30 EOM", date2));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9 EOM", date1));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9 EOM", date2));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9 Fri,EOM", date1));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9,9:30 Wed,EOM", date1));
+            Assert.IsTrue(TimesheetScheduleService.CronCheck("9:00 Wed,EOM", date2));
+            Assert.IsFalse(TimesheetScheduleService.CronCheck("9:30 EOM", date2));
         }
     }
 }
