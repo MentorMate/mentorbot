@@ -82,10 +82,10 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-webbuild-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
+            ${{ runner.os }}-webbuild-${{ env.cache-name }}-
+            ${{ runner.os }}-webbuild-
       - name: npm package install
         run: npm ci --prefix ./src/MentorBot.WebLearningCenter/ClientApp --cache ~/.npm --prefer-offline --no-audit --silent
       - name: Run front end lint
