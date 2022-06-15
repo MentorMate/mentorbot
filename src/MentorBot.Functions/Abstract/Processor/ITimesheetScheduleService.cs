@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace MentorBot.Functions.Abstract.Processor
 {
     /// <summary>A timesheet service for notifications.</summary>
-    public interface ITimesheetService
+    public interface ITimesheetScheduleService
     {
         /// <summary>Sends the scheduled timesheet notifications asynchronous.</summary>
         Task SendScheduledTimesheetNotificationsAsync(DateTime scheduleDate);

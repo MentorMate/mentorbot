@@ -87,14 +87,14 @@ namespace MentorBot.Functions.App.Extensions
             services.AddTransient<ICommandProcessor, LocalTimeProcessor>();
             services.AddTransient<ICommandProcessor, RepeatProcessor>();
             services.AddTransient<ICommandProcessor, CalendarProcessor>();
-            services.AddTransient<ICommandProcessor, OpenAirProcessor>();
+            services.AddTransient<ICommandProcessor, TimesheetProcessor>();
             services.AddTransient<ICommandProcessor, WikipediaProcessor>();
             services.AddTransient<ICommandProcessor, HelpProcessor>();
             services.AddTransient<ICommandProcessor, HelloProcessor>();
             services.AddTransient<ICommandProcessor, IssuesProcessor>();
             services.AddTransient<ICommandProcessor, UserInfoProcessor>();
             services.AddTransient<ICommandProcessor, UserFlowProcessor>();
-            services.AddTransient<ITimesheetProcessor, OpenAirProcessor>();
+            services.AddTransient<ITimesheetProcessor, TimesheetProcessor>();
             services.AddTransient<IStringLocalizer, StringLocalizer>();
             services.AddTransient<IStorageService, TableStorageService>();
             services.AddTransient<IOpenAirClient, OpenAirClient>();
@@ -104,7 +104,8 @@ namespace MentorBot.Functions.App.Extensions
             services.AddTransient<IJenkinsClient, JenkinsClient>();
             services.AddTransient<IJiraClient, JiraClient>();
             services.AddTransient<IBingMapsClient, BingMapsClient>();
-            services.AddTransient<ITimesheetService, TimesheetService>();
+            services.AddTransient<ITimesheetScheduleService, TimesheetScheduleService>();
+            services.AddTransient<ITimesheetNotifier, TimesheetNotifier>();
 
             services.AddHttpClient(JenkinsClient.Name);
             services.AddHttpClient(JiraClient.Name);

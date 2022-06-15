@@ -43,7 +43,7 @@ namespace MentorBot.Functions
         {
             Contract.Ensures(myTimer != null, "Timer is not instantiated");
 
-            var timesheetService = context.Get<ITimesheetService>();
+            var timesheetService = context.Get<ITimesheetScheduleService>();
             var now = GetLocalDateTime(context);
             var dateTimeMinutes = now.Minute - (now.Minute % 5);
             var dateTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, dateTimeMinutes, 0, 0, now.Kind);
