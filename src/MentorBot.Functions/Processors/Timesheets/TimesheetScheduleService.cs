@@ -97,7 +97,9 @@ namespace MentorBot.Functions.Processors.Timesheets
                     var key = string.Concat(stateName, "_", email);
                     var departments = string.IsNullOrEmpty(departmentsValue)
                         ? null
-                        : departmentsValue.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                        : departmentsValue.Split(
+                            new char[] { ',', ';' },
+                            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
                     if (string.IsNullOrEmpty(space))
                     {

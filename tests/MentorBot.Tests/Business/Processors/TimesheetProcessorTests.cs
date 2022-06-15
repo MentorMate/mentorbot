@@ -84,7 +84,7 @@ namespace MentorBot.Tests.Business.Processors
                 Total = 20
             };
 
-            var timesheets = new [] { timesheet };
+            var timesheets = new[] { timesheet };
             var info = new TextDeconstructionInformation(
                 "Get unsubmitted timesheets",
                 null,

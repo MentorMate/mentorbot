@@ -208,7 +208,8 @@ namespace MentorBot.Tests.AzureFunctions
         public async Task SaveUserPropertiesSetValues()
         {
             var storeUser = new User();
-            var user = new UserInfo {
+            var user = new UserInfo
+            {
                 Id = "100",
                 Properties = new Dictionary<string, PluginPropertyValue[][]>
                 {
