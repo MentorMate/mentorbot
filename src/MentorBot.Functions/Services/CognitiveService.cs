@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
 using MentorBot.Functions.Models.HangoutsChat;
 using MentorBot.Functions.Models.TextAnalytics;
@@ -108,7 +107,7 @@ namespace MentorBot.Functions.Services
         private Task<IReadOnlyList<Plugin>> GetPluginsAsync() =>
             _cache.GetOrCreateAsync(Constants.PluginsCacheKey, entry =>
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
                 return _storageService.GetAllPluginsAsync();
             });
     }
