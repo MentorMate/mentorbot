@@ -6,15 +6,14 @@ using MentorBot.Functions;
 using MentorBot.Functions.Abstract.Connectors;
 using MentorBot.Functions.Abstract.Processor;
 using MentorBot.Functions.Abstract.Services;
-using MentorBot.Functions.Models.Business;
 using MentorBot.Functions.Models.DataResultModels;
 using MentorBot.Functions.Models.Domains;
 using MentorBot.Functions.Models.Domains.Plugins;
-using MentorBot.Functions.Models.TextAnalytics;
-using MentorBot.Functions.Models.ViewModels;
 using MentorBot.Tests._Base;
+using MentorBot.Tests.Fakers;
 
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -177,37 +176,91 @@ namespace MentorBot.Tests.AzureFunctions
         [TestMethod]
         public async Task SaveQuestionsAsyncShouldUpdateQuestions()
         {
-            var storageService = Substitute.For<IStorageService>();
+            var q1 = Questions.QuestionAnswerViewModel.Generate();
+            var q2 = Questions.QuestionAnswerViewModel.Generate();
+            var questions = new[] { q1, q2 };
+            var test = new TestContext(questions, null, UserRoles.Administrator);
 
-            var data = new[]
-            {
-                new QuestionAnswerViewModel
-                {
-                    Id = "1",
-                    Title = "Office",
-                    IsAnswer = false,
-                },
-                new QuestionAnswerViewModel
-                        {
-                            Id = "2",
-                            Title = "Accounts",
-                            IsAnswer = false,
-                        },
-            };
+            await Commands.SaveQuestionsAsync(test.Request, test.Context);
 
-            var userInfo = new AccessTokenUserInfo { IsValid = true, UserRole = UserRoles.Administrator };
-            var accessTokenService = Substitute.For<IAccessTokenService>();
-            var context = MockFunction.GetContext(
-                new ServiceDescriptor(typeof(IAccessTokenService), accessTokenService),
-                new ServiceDescriptor(typeof(IStorageService), storageService));
-            var request = MockFunction.GetRequest(JsonConvert.SerializeObject(data), context);
-            accessTokenService.ValidateTokenAsync(request).Returns(userInfo);
-
-            await Commands.SaveQuestionsAsync(request, context);
-
-            storageService.Received().AddOrUpdateQuestionsAsync(
+            test.Get<IStorageService>().Received().AddOrUpdateQuestionsAsync(
                 Arg.Is<IReadOnlyList<QuestionAnswer>>(
                     questions => questions.Count == 2 && questions[0].Id == "1" && questions[1].Id == "2"));
+        }
+
+        [TestMethod]
+        public async Task DeleteQuestionShouldRemoveFromStorage()
+        {
+            var q1 = Questions.QuestionAnswer.Generate();
+            var q2 = Questions.QuestionAnswer.Generate();
+            var questions = new[] { q1, q2 };
+            var test = new TestContext(null, $"https://localhost/delete-question/{q1.Id}", UserRoles.Administrator);
+            var storageService = test.Get<IStorageService>();
+
+            storageService.GetAllQuestionsAsync().Returns(questions);
+
+            await Commands.DeleteQuestionAsync(test.Request, test.Context);
+
+            storageService.Received().DeleteQuestionAnswerAsync(q1);
+        }
+
+        [TestMethod]
+        public async Task SaveUserPropertiesSetValues()
+        {
+            var storeUser = new User();
+            var user = new UserInfo {
+                Id = "100",
+                Properties = new Dictionary<string, PluginPropertyValue[][]>
+                {
+                    {
+                        "P1",
+                        new []
+                        {
+                            new []
+                            {
+                                new PluginPropertyValue { Key = "K1", Value = "V1" }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var test = new TestContext(user, null, UserRoles.Administrator);
+            var storageService = test.Get<IStorageService>();
+
+            storageService.GetUserByIdAsync(user.Id).Returns(storeUser);
+
+            await Commands.SaveUserPropertiesAsync(test.Request, test.Context);
+
+            storageService
+                .Received()
+                .AddOrUpdateUserAsync(
+                    Arg.Is<User>(it => it.Properties["P1"][0][0].Key == "K1"));
+        }
+
+        internal class TestContext
+        {
+            public TestContext(object data, string url, UserRoles userRole)
+            {
+                var accessTokenService = Substitute.For<IAccessTokenService>();
+                var storageService = Substitute.For<IStorageService>();
+                Context = MockFunction.GetContext(
+                    new ServiceDescriptor(typeof(IAccessTokenService), accessTokenService),
+                    new ServiceDescriptor(typeof(IStorageService), storageService));
+
+                var body = data == null ? null : JsonConvert.SerializeObject(data);
+                Request = MockFunction.GetRequest(body, Context, url);
+
+                accessTokenService
+                    .ValidateTokenAsync(Request)
+                    .Returns(new AccessTokenUserInfo { IsValid = true, UserRole = userRole });
+            }
+
+            public FunctionContext Context { get; private set; }
+
+            public HttpRequestData Request { get; private set; }
+
+            public T Get<T>() => Context.InstanceServices.GetService<T>();
         }
 
 #pragma warning restore CS4014

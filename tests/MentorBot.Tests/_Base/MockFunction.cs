@@ -37,11 +37,12 @@ namespace MentorBot.Tests._Base
             return context;
         }
 
-        public static HttpRequestData GetRequest(string requestContent, FunctionContext context)
+        public static HttpRequestData GetRequest(string requestContent, FunctionContext context, string url = null)
         {
             var data = Substitute.For<HttpRequestData>(context);
             var res = new MockHttpResponseData(context);
             data.CreateResponse().Returns(res);
+            data.Url.Returns(new Uri(url ?? "http://localhost/api"));
 
             if (!string.IsNullOrEmpty(requestContent))
             {
