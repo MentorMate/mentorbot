@@ -15,7 +15,8 @@
     {
       "files": "*.component.html",
       "options": {
-        "parser": "angular"
+        "parser": "angular",
+        "singleAttributePerLine": false
       }
     }
   ]

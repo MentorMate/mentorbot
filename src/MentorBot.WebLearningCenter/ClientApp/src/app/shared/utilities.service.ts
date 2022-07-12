@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { data } from './utilities.models';
+import { Data } from './utilities.models';
 
 @Injectable()
 export class UtilitiesService {
-  flatTree<T extends data<T>>(nestedObjects: T[], childPropertyName: string): T[] {
+  flatTree<T extends Data<T>>(nestedObjects: T[], childPropertyName: string): T[] {
     return nestedObjects.reduce((resultArray: T[], nestedObject: T): T[] => {
       resultArray.push(nestedObject);
       const children = nestedObject[childPropertyName] as T[];

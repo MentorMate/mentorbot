@@ -1,6 +1,6 @@
-import { data } from '../shared/utilities.models';
+import { Data } from '../shared/utilities.models';
 
-export class Question implements data<Question> {
+export class Question implements Data<Question> {
   [childPropertyName: string]: Question[] | unknown;
   id?: string;
   parents?: { [key: string]: string } = {};
@@ -14,6 +14,7 @@ export class Question implements data<Question> {
 }
 
 export enum NodeType {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   Question,
   Answer,
 }

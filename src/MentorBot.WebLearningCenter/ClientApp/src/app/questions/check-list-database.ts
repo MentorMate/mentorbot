@@ -1,8 +1,9 @@
-import { ifStmt } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
+
 import { BehaviorSubject, take } from 'rxjs';
+
 import { UtilitiesService } from '../shared/utilities.service';
-import { Question, TodoItemFlatNode } from './question.models';
+import { Question } from './question.models';
 import { QuestionService } from './question.service';
 
 /**

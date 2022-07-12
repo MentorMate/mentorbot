@@ -1,37 +1,43 @@
 <div class="top-spacing">
-    Type
-    <mat-select [value]="editedNode?.isAnswer ? nodeType.Answer : nodeType.Question" class="form-control background"
-                (selectionChange)="changeEditNodeIsAnswer(typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
-                #typeValue>
-        <mat-option [value]="nodeType.Answer">Answer</mat-option>
-        <mat-option [value]="nodeType.Question">Question</mat-option>
-    </mat-select>
+  Type
+  <mat-select
+    [value]="editedNode?.isAnswer ? nodeType.Answer : nodeType.Question"
+    class="form-control background"
+    (selectionChange)="changeEditNodeIsAnswer(typeValue.value, !itemValue.valid || (!editedNode?.isAnswer && !contentValue.value))"
+    #typeValue>
+    <mat-option [value]="nodeType.Answer">Answer</mat-option>
+    <mat-option [value]="nodeType.Question">Question</mat-option>
+  </mat-select>
 </div>
-<div class="top-spacing">
-    <span *ngIf="editedNode?.title">Edit </span> Title
-</div>
+<div class="top-spacing"><span *ngIf="editedNode?.title">Edit </span> Title</div>
 <div>
-    <input class="form-control custom-input" [ngModel]="editedNode?.title" matInput #itemValue="ngModel" required
-           (focusout)="updateTitle(itemValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
-    <div *ngIf="!itemValue.valid && itemValue.touched">
-        <small id="passwordHelp" class="text-danger">
-            Title field is required
-        </small>
-    </div>
+  <input
+    class="form-control custom-input"
+    [ngModel]="editedNode?.title"
+    matInput
+    #itemValue="ngModel"
+    required
+    (focusout)="updateTitle(itemValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))" />
+  <div *ngIf="!itemValue.valid && itemValue.touched">
+    <small id="passwordHelp" class="text-danger"> Title field is required </small>
+  </div>
 </div>
 <div class="top-spacing">
-    Answer content
-    <div>
-        <textarea class="textarea-size" [ngModel]="editedNode?.content" matInput #contentValue="ngModel" type="text"
-                  [disabled]="!editedNode?.isAnswer"
-                  [value]="content"
-                  required
-                  (focusout)="updateContent(contentValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
-                  </textarea>
-        <div *ngIf="!contentValue.valid && editedNode?.isAnswer">
-            <small id="passwordHelp" class="text-danger">
-                Content field is required
-            </small>
-        </div>
+  Answer content
+  <div>
+    <textarea
+      class="textarea-size"
+      [ngModel]="editedNode?.content"
+      matInput
+      #contentValue="ngModel"
+      type="text"
+      [disabled]="!editedNode?.isAnswer"
+      [value]="content"
+      required
+      (focusout)="updateContent(contentValue.value, !itemValue.valid || (editedNode?.isAnswer && !contentValue.valid))">
+    </textarea>
+    <div *ngIf="!contentValue.valid && editedNode?.isAnswer">
+      <small id="passwordHelp" class="text-danger"> Content field is required </small>
     </div>
+  </div>
 </div>

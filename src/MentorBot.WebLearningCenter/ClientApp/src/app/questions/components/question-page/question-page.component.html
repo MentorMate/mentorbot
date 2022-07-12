@@ -1,47 +1,54 @@
 <div class="split left">
-    <div>
-        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-
-            <mat-tree-node class="node" *matTreeNodeDef="let node;" matTreeNodePadding>
-                <div class="node-content">
-                    <button *ngIf="!node.content" class="icon-button node-element-height center-ed" mat-icon-button
-                            matTreeNodeToggle
-                            [attr.aria-label]="'toggle ' + node.filename">
-                        <mat-icon class="mat-icon-rtl-mirror">
-                            {{treeControl.isExpanded(node) ? 'indeterminate_check_box_icon' : 'add_box'}}
-                        </mat-icon>
-                    </button>
-                    <div class="center-ed node-element-height center-ed" draggable="true" (dragend)="handleDragEnd($event)"
-                         ondrop="handleDropEvent($event)">
-                        {{node.title}}
-                    </div>
-                    <button class="icon-button node-element-height center-ed" *ngIf="!node.editMode" mat-icon-button
-                            (click)="editItem(node)">
-                        <p class="blue-text">Edit</p>
-                    </button>
-                </div>
-                <div class="short">
-                    <a *ngIf="node.content" class="well well-sm">{{node.content}}</a>
-                    <mat-chip-list>
-                        <mat-chip class="success small-chip" *ngFor="let trait of node.acquireTraits">{{trait}}</mat-chip>
-                        <mat-chip class="danger small-chip" *ngFor="let trait of node.requiredTraits">{{trait}}</mat-chip>
-                    </mat-chip-list>
-                </div>
-            </mat-tree-node>
-        </mat-tree>
-        <div class="top-spacing">
-            <button class="right-spacing" mat-stroked-button (click)="addNewItem()">
-                Add
-            </button>
-
-            <button mat-stroked-button (click)="save()">SAVE</button>
+  <div>
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+      <mat-tree-node class="node" *matTreeNodeDef="let node" matTreeNodePadding>
+        <div class="node-content">
+          <button
+            *ngIf="!node.content"
+            class="icon-button node-element-height center-ed"
+            mat-icon-button
+            matTreeNodeToggle
+            [attr.aria-label]="'toggle ' + node.filename">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{ treeControl.isExpanded(node) ? 'indeterminate_check_box_icon' : 'add_box' }}
+            </mat-icon>
+          </button>
+          <div
+            class="center-ed node-element-height center-ed"
+            draggable="true"
+            (dragend)="handleDragEnd($event)"
+            ondrop="handleDropEvent($event)">
+            {{ node.title }}
+          </div>
+          <button class="icon-button node-element-height center-ed" *ngIf="!node.editMode" mat-icon-button (click)="editItem(node)">
+            <p class="blue-text">Edit</p>
+          </button>
         </div>
+        <div class="short">
+          <a *ngIf="node.content" class="well well-sm">{{ node.content }}</a>
+          <mat-chip-list>
+            <mat-chip class="success small-chip" *ngFor="let trait of node.acquireTraits">{{ trait }}</mat-chip>
+            <mat-chip class="danger small-chip" *ngFor="let trait of node.requiredTraits">{{ trait }}</mat-chip>
+          </mat-chip-list>
+        </div>
+      </mat-tree-node>
+    </mat-tree>
+    <div class="top-spacing">
+      <button class="right-spacing" mat-stroked-button (click)="addNewItem()">Add</button>
+
+      <button mat-stroked-button (click)="save()">SAVE</button>
     </div>
+  </div>
 </div>
 
 <div *ngIf="editedNode" class="split right">
-    <app-edit-question [nodeExists]="nodeExists" [editedNode]="editedNode" [saveButtonIsNotValid]="saveButtonIsNotValid"
-                       (traitEvent)="traitAction($event)" (deleteParentEvent)="deleteParent($event)"
-                       (questionUpdateEvent)="updateNode($event)" (actionEvent)="action($event)">
-    </app-edit-question>
+  <app-edit-question
+    [nodeExists]="nodeExists"
+    [editedNode]="editedNode"
+    [saveButtonIsNotValid]="saveButtonIsNotValid"
+    (traitEvent)="traitAction($event)"
+    (deleteParentEvent)="deleteParent($event)"
+    (questionUpdateEvent)="updateNode($event)"
+    (actionEvent)="action($event)">
+  </app-edit-question>
 </div>

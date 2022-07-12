@@ -8,7 +8,6 @@ import { ChecklistDatabase } from '../../check-list-database';
 import {
   ActionEvent,
   ActionType,
-  NodeType,
   Question,
   QuestionPropertiesChange,
   TodoItemFlatNode,
@@ -167,7 +166,7 @@ export class QuestionPageComponent implements OnDestroy {
 
   deleteParent(parent: string): void {
     if (this.editedNode?.parents) {
-      this.editedNode.parents = Object.fromEntries(Object.entries(this.editedNode.parents).filter(([k, v]) => v !== parent));
+      this.editedNode.parents = Object.fromEntries(Object.entries(this.editedNode.parents).filter(([, v]) => v !== parent));
     }
   }
 
@@ -237,7 +236,7 @@ export class QuestionPageComponent implements OnDestroy {
   }
 
   getQuestions(observable: Observable<Object>) {
-    return observable.pipe(take(1)).subscribe(d =>
+    return observable.pipe(take(1)).subscribe(() =>
       this._questionService
         .getQuestions()
         .pipe(take(1))

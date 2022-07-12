@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ActionEvent, NodeType, QuestionPropertiesChange, TodoItemFlatNode } from '../../question.models';
+import { NodeType, QuestionPropertiesChange, TodoItemFlatNode } from '../../question.models';
 
 @Component({
   selector: 'app-question-characteristics',

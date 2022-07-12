@@ -1,23 +1,24 @@
 <div>
-    <mat-chip-list>
-        <mat-chip [class]="type === traitTypes.Acquire ? 'success chip' : 'danger chip'">{{title}}</mat-chip>
-    </mat-chip-list>
+  <mat-chip-list>
+    <mat-chip [class]="type === traitTypes.Acquire ? 'success chip' : 'danger chip'">{{ title }}</mat-chip>
+  </mat-chip-list>
 </div>
 <div>
-    <mat-chip-list>
-        <mat-chip [class]="type === traitTypes.Acquire ? 'success small-chip' : 'danger small-chip'" *ngFor="let trait of traits">{{trait}}
-            <button matChipRemove (click)="deleteTrait(trait)">
-                <mat-icon>cancel</mat-icon>
-            </button>
-        </mat-chip>
-    </mat-chip-list>
+  <mat-chip-list>
+    <mat-chip [class]="type === traitTypes.Acquire ? 'success small-chip' : 'danger small-chip'" *ngFor="let trait of traits"
+      >{{ trait }}
+      <button matChipRemove (click)="deleteTrait(trait)">
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+  </mat-chip-list>
 </div>
 <div class="top-spacing">
-    <div class="input-group">
-        <input #TraitsInput type="text" class="form-control custom-input" placeholder="">
-        <span>
-            <button mat-stroked-button (click)="addTrait(TraitsInput)">Add</button>
-            <button mat-stroked-button (click)="resetTraitFieldInput(TraitsInput)">Cancel</button>
-        </span>
-    </div>
+  <div class="input-group">
+    <input #TraitsInput type="text" class="form-control custom-input" placeholder="" />
+    <span>
+      <button mat-stroked-button (click)="addTrait(TraitsInput)">Add</button>
+      <button mat-stroked-button (click)="resetTraitFieldInput(TraitsInput)">Cancel</button>
+    </span>
+  </div>
 </div>

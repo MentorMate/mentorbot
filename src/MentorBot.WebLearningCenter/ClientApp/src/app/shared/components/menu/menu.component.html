@@ -1,7 +1,6 @@
-<mat-toolbar class="app-toolbar no-print mat-toolbar mat-primary mat-elevation-z6 mat-toolbar-multiple-rows"
-             color="primary">
+<mat-toolbar class="app-toolbar no-print mat-toolbar mat-primary mat-elevation-z6 mat-toolbar-multiple-rows" color="primary">
   <mat-toolbar-row>
-    <button *ngFor="let path of paths" mat-button [routerLink]="path.url">{{path.name}}</button> &nbsp; &nbsp;
+    <button *ngFor="let path of paths" mat-button [routerLink]="path.url">{{ path.name }}</button> &nbsp; &nbsp;
     <span class="example-spacer"></span>
     <div class="spacer"></div>
     <div fxShow="true" fxHide.lt-sm="true">

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActionEvent, Question, QuestionPropertiesChange, TodoItemFlatNode, TraitActionInfo, TraitTypes } from '../../question.models';
+import { ActionEvent, QuestionPropertiesChange, TodoItemFlatNode, TraitActionInfo, TraitTypes } from '../../question.models';
 
 @Component({
   selector: 'app-edit-question',

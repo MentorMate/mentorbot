@@ -1,11 +1,3 @@
-<button
-        mat-raised-button type="button" class="success white-text"
-        [disabled]="saveButtonIsNotValid"
-        (click)="save()">Save</button>
-<button mat-raised-button type="button" class="cancel-button cancel white-text" (click)="cancel()">
-    Cancel
-</button>
-<button mat-raised-button *ngIf="nodeExists" class="cancel-button danger white-text"
-        (click)="delete()">
-    Delete
-</button>
+<button mat-raised-button type="button" class="success white-text" [disabled]="saveButtonIsNotValid" (click)="save()">Save</button>
+<button mat-raised-button type="button" class="cancel-button cancel white-text" (click)="cancel()">Cancel</button>
+<button mat-raised-button *ngIf="nodeExists" class="cancel-button danger white-text" (click)="delete()">Delete</button>
