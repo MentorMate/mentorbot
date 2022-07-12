@@ -110,10 +110,15 @@ jobs:
           -f ./src/MentorBot.WebLearningCenter/ClientApp/coverage/coverage.lcov
       - name: Azure Login
         run: az login -u ${{ secrets.AZ_USER }} -p ${{ secrets.AZ_SECRET }} -t ${{ secrets.AZ_TENANT }}
+      - name: Set azure account subscription
+        run: az account set --subscription ${{ secrets.AZ_SUB }}
+      - name: Clear storage web app
+        run: >
+          az storage blob delete-batch -s "$web"
+            --account-name ${{ secrets.AZ_STORAGE }} --account-key "${{ secrets.AZ_STORAGE_KEY }}" --auth-mode key
       - name: Deploy the web app
-        run:
-          - az account set --subscription ${{ secrets.AZ_SUB }}
-          - az storage blob delete-batch -s "$web"
-            --account-name ${{ secrets.AZ_STORAGE }} --account-key ${{ secrets.AZ_STORAGE_KEY }} --auth-mode key
-          - az storage blob upload-batch -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web'
-            --account-name ${{ secrets.AZ_STORAGE }} --account-key ${{ secrets.AZ_STORAGE_KEY }} --auth-mode key
+        run: >
+          # shellcheck disable=SC2016
+
+          az storage blob upload-batch -s ./src/MentorBot.WebLearningCenter/ClientApp/dist -d '$web'
+            --account-name ${{ secrets.AZ_STORAGE }} --account-key "${{ secrets.AZ_STORAGE_KEY }}"" --auth-mode key
