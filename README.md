@@ -36,6 +36,9 @@ In Google Chat you can ask questions, like:
 @MentorBot What is the time in Dallas?
 > The time in Dallas is 10:00 AM.
 
+@MentorBot FAQ
+> What is your next question?
+
 ## Build
 
 Just use Visual Studio 2019 or newer.
