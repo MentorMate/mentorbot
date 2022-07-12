@@ -114,7 +114,7 @@ jobs:
         run: az account set --subscription ${{ secrets.AZ_SUB }}
       - name: Clear storage web app
         run: >
-          az storage blob delete-batch -s "$web" --connection-string "$AZ_STORAGE_CONN" 
+          az storage blob delete-batch -s "$web"
             --account-name ${{ secrets.AZ_STORAGE }} --account-key ${{ secrets.AZ_STORAGE_KEY }} --auth-mode key
       - name: Deploy the web app
         run: >
