@@ -26,4 +26,10 @@
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1413" Action="None" />
   </Rules>
+  <Rules AnalyzerId="Menees.Analyzers" RuleNamespace="Menees.Analyzers">
+    <Rule Id="MEN001" Action="None" />
+    <Rule Id="MEN003" Action="None" />
+    <Rule Id="MEN004" Action="None" />
+    <Rule Id="MEN0014" Action="None" />
+  </Rules>
 </RuleSet>
