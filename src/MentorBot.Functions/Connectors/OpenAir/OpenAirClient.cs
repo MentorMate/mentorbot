@@ -1,7 +1,6 @@
 ﻿// cSpell:ignore ownerid, projectid, customerid, departmentid, locationid
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,7 +50,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                             Content = "<status/><name /><total/><notes /><userid /><starts />"
                         }
                     },
-                    result => result.Timesheet ?? new Timesheet[0]));
+                    result => result.Timesheet));
 
         /// <summary>Gets the timesheets by status asynchronous.</summary>
         public Task<IReadOnlyList<Timesheet>> GetTimesheetsByStatusAsync(DateTime startDate, DateTime endDate, string status) =>
@@ -78,7 +77,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
                             Content = "<status/><name /><total/><notes /><userid /><starts />",
                         },
                     },
-                    result => result.Timesheet ?? new Timesheet[0]));
+                    result => result.Timesheet));
 
         /// <summary>Gets all users asynchronous.</summary>
         public Task<IReadOnlyList<User>> GetAllUsersAsync() =>
@@ -248,7 +247,7 @@ namespace MentorBot.Functions.Connectors.OpenAir
             }
         }
 
-        private async Task<T> ReadAsync<T>(Read read, Func<Read, T> func)
+        private async Task<T[]> ReadAsync<T>(Read read, Func<Read, T[]> func)
         {
             var req = CreateRequest(_options, _options.OpenAirUserName, _options.OpenAirPassword);
 
@@ -256,7 +255,9 @@ namespace MentorBot.Functions.Connectors.OpenAir
 
             var result = await ExecuteRequestAsync<Response>(_options.OpenAirUrl, req, _messageHandlerFactory).ConfigureAwait(false);
 
-            return func(result.Read);
+            var models = func(result.Read);
+
+            return models ?? Array.Empty<T>();
         }
     }
 }
